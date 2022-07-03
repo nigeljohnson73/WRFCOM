@@ -291,6 +291,7 @@ String htmlHeader(String title) {
   ret += ".status-red {border-color: #a00; background-color: #faa; color: #a00;}";
   ret += ".status-amber {border-color: #a70; background-color: #fca; color: #a70;}";
   ret += ".status-green {border-color: #0a0; background-color: #afa; color: #0a0;}";
+  ret += ".status-disabled {border-color: #666; background-color: #ddd; color: #fff;}";
 
   ret += "footer ul.buttons, footer ul.buttons li, footer ul.buttons li a {all:unset;}";
   ret += "footer ul.buttons li {float: left; list-style: none; border-radius: 5px; border: solid 1px #000; background-color: #090; color:#fff; width: ";
@@ -379,20 +380,20 @@ void showStats() {
   String text;
   String content = "<h1>Data Snapshot</h1>";
 
-  title = "NET time";
+  title = "NET Timestamp";
   status = "green";
   text = Network.getTimestamp();
   if (text.length() == 0) {
-    status = "red";
+    status = "disabled";
     text = "[not configured]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "RTC time";
+  title = "RTC Timestamp";
   status = "green";
   text = RTC.getTimestamp();
   if (!RTC.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
     status = "red";
@@ -400,23 +401,23 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "GPS time";
+  title = "GPS Timestamp";
   status = "green";
   text = GPS.getTimestamp();
   if (!GPS.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
-    status = "red";
-    text = "[not configured]";
+    status = "amber";
+    text = "[not locked]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "IMU temp";
+  title = "IMU Temperature";
   status = "green";
   text = String(IMU.getTemperature());
   if (!IMU.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
     status = "red";
@@ -426,11 +427,11 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "BMP temp";
+  title = "BMP Temperature";
   status = "green";
   text = String(BMP.getTemperature());
   if (!BMP.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
     status = "red";
@@ -440,14 +441,14 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "BMP pressure";
+  title = "BMP Pressure";
   status = "green";
   text = String(BMP.getPressure());
   //  Serial.print("BMP pressure: ");
   //  Serial.print(text);
   //  Serial.println();
   if (!BMP.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
     status = "red";
@@ -463,7 +464,7 @@ void showStats() {
   status = "green";
   text = String(BMP.getAltitude());
   if (!BMP.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
     status = "red";
@@ -477,11 +478,11 @@ void showStats() {
   status = "green";
   text = String(GPS.getAltitude());
   if (!GPS.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
-    status = "red";
-    text = "[not configured]";
+    status = "amber";
+    text = "[not locked]";
   } else {
     text += " m";
   }
@@ -491,11 +492,11 @@ void showStats() {
   status = "green";
   text = "";
   if (!GPS.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (!GPS.isConnected()) {
     status = "amber";
-    text = "[warming up]";
+    text = "[not locked]";
   } else {
     text += GPS.getLatitude();
     text += " N, ";
@@ -504,15 +505,15 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "GPS Sats";
+  title = "GPS Locked Sats";
   status = "green";
   text = GPS.getSatsInView();
   if (!GPS.isEnabled()) {
-    status = "amber";
+    status = "disabled";
     text = "[disconnected]";
   } else if (!GPS.isConnected()) {
     status = "amber";
-    text = "[warming up]";
+    text = "[not locked]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -585,12 +586,20 @@ void showRoot() {
 
   status = "green";
   text = "OK";
+  if (!RTC.isEnabled()) {
+    status = "red";
+    text = "DISABLED";
+  };
+  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+
+  status = "green";
+  text = "OK";
   if (!GPS.isEnabled()) {
     status = "red";
     text = "DISABLED";
   } else if (!GPS.isConnected()) {
     status = "amber";
-    text = "CONNECTING";
+    text = "NOT LOCKED";
   };
   content += "<div class='status-wrapper'><div class='label'>GPS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -609,14 +618,6 @@ void showRoot() {
     text = "DISABLED";
   };
   content += "<div class='status-wrapper'><div class='label'>IMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-
-  status = "green";
-  text = "OK";
-  if (!RTC.isEnabled()) {
-    status = "red";
-    text = "DISABLED";
-  };
-  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
   content += "<div style='clear:both'></div>";
   if (Logger.isEnabled()) {

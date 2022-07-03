@@ -35,9 +35,9 @@ void setup() {
   Server.begin();
 }
 
-long last_millis = 0;
 
 void loop() {
+	long sweep_millis = 0;
   long m_start = millis();
 
   Network.loop();
@@ -49,14 +49,14 @@ void loop() {
   Logger.loop();
   Server.loop();
 
-  last_millis = millis() - m_start;
-  long sleep_for = max((long) 1, (1000 / SENSOR_HZ) - last_millis);
+  sweep_millis = millis() - m_start;
+  long sleep_for = max((long) 1, (1000 / SENSOR_HZ) - sweep_millis);
 
   delay(sleep_for);
 
 #if _XDEBUG_
-  Serial.print("sensors(): ");
-  Serial.print(last_millis);
+  Serial.print("sweep(): ");
+  Serial.print(sweep_millis);
   Serial.print("ms, ");
   Serial.print(", Sleep for: ");
   Serial.println(sleep_for);

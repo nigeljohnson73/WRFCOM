@@ -157,7 +157,7 @@ void TrLOG::startCapture() {
   } else if (RTC.isEnabled()) {
     fn = RTC.getTimestamp();
   } else {
-    fn = Network.getTimestamp();
+    fn = NET.getTimestamp();
   }
 
   // Fall back to millis, but should not be here operationally

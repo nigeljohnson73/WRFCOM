@@ -33,7 +33,7 @@
 #include "GPS.h"
 #include "IMU.h"
 #include "LOG.h"
-#include "Network.h"
+#include "NET.h"
 #include "RTC.h"
 #include "SRV.h"
 #include "WEB.h"

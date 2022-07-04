@@ -1,4 +1,4 @@
-#include "Network.h"
+#include "NET.h"
 
 #if _USE_NTP_
 #include <NTPClient.h>
@@ -19,7 +19,7 @@
 #include <ArduinoOTA.h>
 
 
-TrNetwork Network;
+TrNET NET;
 
 #if _USE_NTP_
 // Define NTP Client to get time
@@ -27,21 +27,21 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", _NTP_OFFSET_SECONDS_);
 #endif
 
-TrNetwork::TrNetwork(): _hostname(_AP_NAME_), _ap_pass(_AP_PASSWORD_) {}
+TrNET::TrNET(): _hostname(_AP_NAME_), _ap_pass(_AP_PASSWORD_) {}
 
-bool TrNetwork::isApMode() {
+bool TrNET::isApMode() {
   return _ap_ssid.length() > 0;
 }
 
-String TrNetwork::getHostname() {
+String TrNET::getHostname() {
   return _hostname;
 }
 
-void TrNetwork::setHostname(String str) {
+void TrNET::setHostname(String str) {
   _hostname = str;
 }
 
-void TrNetwork::begin(String ssid, String pass, long wait) {
+void TrNET::begin(String ssid, String pass, long wait) {
   if (wait < 1 || wait > 300) {
     wait = 30;
   }
@@ -175,7 +175,7 @@ void TrNetwork::begin(String ssid, String pass, long wait) {
   }
 }
 
-void TrNetwork::loop() {
+void TrNET::loop() {
   if (!isApMode()) {
     ArduinoOTA.handle();
 #if _USE_NTP_
@@ -184,7 +184,7 @@ void TrNetwork::loop() {
   }
 }
 
-String TrNetwork::getTimestamp() {
+String TrNET::getTimestamp() {
   if (isApMode()) return "";
 #if _USE_NTP_
   DateTime now(timeClient.getEpochTime());

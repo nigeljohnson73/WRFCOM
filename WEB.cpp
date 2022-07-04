@@ -383,7 +383,7 @@ void showStats() {
 
   title = "NET Timestamp";
   status = "green";
-  text = Network.getTimestamp();
+  text = NET.getTimestamp();
   if (text.length() == 0) {
     status = "disabled";
     text = "[not configured]";
@@ -743,9 +743,9 @@ void TrWEB::begin() {
   // Start the server
   serverBegin();
 #if _DEBUG_
-  Serial.println(String("     Web server: http://") + Network.getIpAddress() + "/");
-  Serial.println(String("                 http://") + Network.getHostname() + ".local/");
-  //  Serial.println(String("                 http://") + Network.getHostname() + "/");
+  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
+  Serial.println(String("                 http://") + NET.getHostname() + ".local/");
+  //  Serial.println(String("                 http://") + NET.getHostname() + "/");
 #endif
 }
 

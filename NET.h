@@ -1,12 +1,12 @@
-#ifndef _NETWORK_h
-#define _NETWORK_h
+#ifndef _NET_h
+#define _NET_h
 
 #include "App.h"
 
-class TrNetwork
+class TrNET
 {
   public:
-    TrNetwork();
+    TrNET();
 
     void begin(String ssid, String pass, long wait_secs);
     void loop();
@@ -30,6 +30,6 @@ class TrNetwork
 
 };
 
-extern TrNetwork Network;
+extern TrNET NET;
 
 #endif

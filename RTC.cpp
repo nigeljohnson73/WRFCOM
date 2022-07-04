@@ -16,9 +16,9 @@ void TrRTC::begin() {
   }
 
   String mode = "Standalone";
-  //  String network_time = Network.getTimestamp();
+  //  String network_time = NET.getTimestamp();
   // Lets see if network time in avaiable
-  if (setTimestamp(Network.getTimestamp())) {
+  if (setTimestamp(NET.getTimestamp())) {
     //    char network_time_ca[21];
     //    network_time.toCharArray(network_time_ca, 21);
 

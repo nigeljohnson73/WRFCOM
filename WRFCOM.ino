@@ -28,8 +28,8 @@ void setup() {
   delay(100);
   Serial.println();
 
-  Network.setHostname(_AP_NAME_);
-  Network.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
+  NET.setHostname(_AP_NAME_);
+  NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
 
   RTC.begin();
   BAT.begin();
@@ -46,7 +46,7 @@ void loop() {
   long sweep_millis = 0;
   long m_start = millis();
 
-  Network.loop();
+  NET.loop();
   RTC.loop();
   BAT.loop();
   BMP.loop();

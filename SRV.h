@@ -1,16 +1,14 @@
-#ifndef _BAT_h
-#define _BAT_h
+#ifndef _SRV_h
+#define _SRV_h
 
 #include "App.h"
 
-class TrBAT {
+class TrSRV {
   public:
-    TrBAT();
+    TrSRV();
 
     void begin();
     void loop();
-
-	double getCapacityPercent(); // as a percentage
 
     boolean isEnabled() {
       return _enabled;
@@ -20,6 +18,6 @@ class TrBAT {
     boolean _enabled = false;
 };
 
-extern TrBAT BAT;
+extern TrSRV SRV;
 
 #endif

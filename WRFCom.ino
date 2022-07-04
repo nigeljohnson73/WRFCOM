@@ -32,9 +32,12 @@ void setup() {
   Network.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
 
   RTC.begin();
+  BAT.begin();
   BMP.begin();
   IMU.begin();
   GPS.begin();
+  SRV.begin();
+
   Logger.begin();
   Server.begin();
 }
@@ -46,9 +49,11 @@ void loop() {
 
   Network.loop();
   RTC.loop();
+  BAT.loop();
   BMP.loop();
   IMU.loop();
   GPS.loop();
+  SRV.loop();
 
   Logger.loop();
   Server.loop();

@@ -16,7 +16,7 @@ void TrBAT::begin() {
 void TrBAT::loop() {
 }
 
-double TrBAT::getFill() {
+double TrBAT::getCapacityPercent() {
 	if(!isEnabled()) return 0.;
 
 	return 0.;

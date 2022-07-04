@@ -299,7 +299,8 @@ String htmlHeader(String title) {
   ret += "%; padding-top: 10px; padding-bottom: 10px; margin-left:1%; margin-right:1%;}";
   ret += "footer ul.buttons li.selected {background-color:#ccc;}";
   ret += "footer .action {display:none;}";
-  ret += "#log-summary {padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
+  ret += "#log-summary {margin-top:2px; padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
+  ret += "a#logstat {margin-top:7px;}";
 
   ret += " </style> ";
 
@@ -572,7 +573,7 @@ void showRoot() {
 #if _DEBUG_
   Serial.println("WebServer::showRoot(): called");
 #endif
-  String content = String("<h1>") + _AP_NAME_ + "</h1>";
+  String content = String("<h2>") + _AP_NAME_ + "</h2>";
   String status = "";
   String text = "";
 
@@ -627,8 +628,16 @@ void showRoot() {
 
   status = "disabled";
   text = "DISABLED";
+  if (SRV.isEnabled()) {
+    status = "green";
+    text = "OK";
+  };
+  content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+
+  status = "disabled";
+  text = "DISABLED";
   if (BAT.isEnabled()) {
-    double pcnt = BAT.getFill();
+    double pcnt = BAT.getCapacityPercent();
     if (pcnt > 0.5) {
       text = String(pcnt) + "%";
       if (pcnt < 10) {

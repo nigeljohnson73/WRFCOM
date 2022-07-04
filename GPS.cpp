@@ -96,10 +96,10 @@ void TrGPS::loop() {
     _timestamp = "";
 
     hms16 = myGNSS.packetUBXNAVPVT->callbackData->year;
-    if (hms < 1000) _timestamp += F("0");
-    if (hms < 100) _timestamp += F("0");
-    if (hms < 10) _timestamp += F("0");
-    _timestamp += hms;
+    if (hms16 < 1000) _timestamp += F("0");
+    if (hms16 < 100) _timestamp += F("0");
+    if (hms16 < 10) _timestamp += F("0");
+    _timestamp += hms16;
     _timestamp += F("-");
 
     hms = myGNSS.packetUBXNAVPVT->callbackData->month;
@@ -140,10 +140,10 @@ void TrGPS::loop() {
     _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
 
     long lng = myGNSS.packetUBXNAVPVT->callbackData->lon;
-    _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
+    _lng = double(lng) / (10000000.); // degrees *10^7 to degrees
 
     long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL; // Print the height above mean sea level
-    _lat = double(lat) / (1000.); // mm to metres
+    _alt = double(alt) / (1000.); // mm to metres
     //  } else {
     //    Serial.println(F("GPS: data NOT available"));
   }

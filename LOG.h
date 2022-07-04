@@ -33,6 +33,7 @@ class TrLOG {
     boolean _chute_deployed;
 //    String _log;
     String _log_fn;
+    String _log_dir;
     String _log_ts;
 
     double _peak_g;

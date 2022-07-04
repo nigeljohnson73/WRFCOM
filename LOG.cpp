@@ -165,15 +165,23 @@ void TrLOG::startCapture() {
   // Fall back to millis, but should not be here operationally
   if (fn.length() == 0) {
     fn = millis();
+    _log_dir = "";
   } else {
-    header = fn + "\n";
+    // Store the  for processing later
     _log_ts = fn;
+
+    // Remove all the crap so that the date and timeis only 8 and 6 chars long respectively
+    fn.replace("-", "");
+    fn.replace(":", "");
+    fn.replace("Z", "");
+
+    _log_dir = fn.substring(0, 8);
+    fn = fn.substring(9);
+
+    // Store the timestamp so we can track it in the file
+    header = _log_ts + "\n";
   }
 
-  fn.replace("-", "");
-  fn.replace(":", "");
-  fn.replace("Z", "");
-  fn = fn.substring(9);
   fn += ".csv";
   _log_fn = fn;
 
@@ -181,14 +189,37 @@ void TrLOG::startCapture() {
   //_log = header;
 
   // TODO: Create a new file on the logger
+  myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails)
+  if (_log_dir.length() > 0) {
+    // Create the new directory
+    if (!myLog.makeDirectory(_log_dir)) {
+      Serial.print("LOG: Failed to create log directory '");
+      Serial.print(_log_dir);
+      Serial.print("'");
+      Serial.println();
+      _log_dir = "";
+    }
+    // Change into it
+    if (_log_dir.length() > 0 && !myLog.changeDirectory(_log_dir)) {
+      Serial.print("LOG: Failed to change into log directory '");
+      Serial.print(_log_dir);
+      Serial.print("'");
+      Serial.println();
+      _log_dir = "";
+    }
+  }
+
+  // Now create our log file where we are.
   if (!myLog.append(_log_fn)) {
     Serial.print("LOG: Failed to create file '");
     Serial.print(_log_fn);
     Serial.print("' to append to");
     Serial.println();
   } else {
-    Serial.print("LOG: created new log file '");
-    Serial.print(_log_fn);
+    Serial.print("LOG: created new log file '/");
+    Serial.print(_log_dir);
+    Serial.print("/");
+     Serial.print(_log_fn);
     Serial.print("'");
     Serial.println();
   }

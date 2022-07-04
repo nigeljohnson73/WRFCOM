@@ -7,9 +7,7 @@ SFE_UBLOX_GNSS myGNSS;
 TrGPS GPS;
 
 void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
-  Serial.println(F("Hey! The NAV PVT callback has been called!"));
-  //  Serial.println("GPS initialised: conecting");
-  //  Serial.println("  GPS connected: TBD");
+//  Serial.println(F("Hey! The NAV PVT callback has been called!"));
 }
 
 // This might be better judt to query the module directly
@@ -49,29 +47,47 @@ void TrGPS::begin() {
   myGNSS.setI2COutput(COM_TYPE_UBX); //Set the I2C port to output UBX only (turn off NMEA noise)
   myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT); //Save (only) the communications port settings to flash and BBR
 
-  myGNSS.setNavigationFrequency(SENSOR_HZ); //Produce X solutions per second
+  //myGNSS.setNavigationFrequency(SENSOR_HZ); //Produce X solutions per second
+  if (!myGNSS.setNavigationFrequency(SENSOR_HZ)) {
+    Serial.print(F("GPS: failed to set "));
+    Serial.print(SENSOR_HZ);
+    Serial.print(F(" fps"));
+    Serial.println();
+  } else {
+    Serial.print(F("GPS: Refresh rate set to "));
+    Serial.print(SENSOR_HZ);
+    Serial.print(F(" Hz"));
+    Serial.println();
+  }
 
   myGNSS.setAutoPVTcallbackPtr(&callbackPVT); // Enable automatic NAV PVT messages with callback to callbackPVT
+  _enabled = true;
 }
 
 void TrGPS::loop() {
-  if (!isEnabled() || !isConnected()) return;
+  if (!isEnabled()) return;
 
+//  Serial.println(F("GPS::loop()"));
   myGNSS.checkUblox(); // Check for the arrival of new data and process it.
 
   // Check if new NAV PVT data has been received:
   // If myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid is true, it indicates new PVT data has been received and has been copied.
   // automaticFlags.flags.bits.callbackCopyValid will be cleared automatically when the callback is called.
 
+  boolean dirty = false;
+
   if (myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid == true) {
+//    Serial.println(F("GPS: data available"));
     // But, we can manually clear the callback flag too. This will prevent the callback from being called!
     //myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid = false; // Comment this line if you still want the callback to be called
 
-    Serial.println();
+    //Serial.println();
+
+    String o_timestamp = _timestamp;
 
     uint16_t hms16 = 0;
     uint8_t hms = 0;
-    //String timestamp = "";
+
     _timestamp = "";
 
     hms16 = myGNSS.packetUBXNAVPVT->callbackData->year;
@@ -106,60 +122,58 @@ void TrGPS::loop() {
     _timestamp += hms;
     _timestamp += F("Z");
 
-    Serial.print(F("Time: "));
-    Serial.print(_timestamp);
-    //    Serial.print(F(", "));
-
-    //    Serial.print(F("."));
-    //    unsigned long millisecs = myGNSS.packetUBXNAVPVT->callbackData->iTOW % 1000; // Print the milliseconds
-    //    if (millisecs < 100) Serial.print(F("0")); // Print the trailing zeros correctly
-    //    if (millisecs < 10) Serial.print(F("0"));
-    //    Serial.print(millisecs);
-    //    Serial.print(F("Z"));
+    if (_timestamp != o_timestamp) dirty = true;
+//    Serial.print("OTS: '");
+//    Serial.print(o_timestamp);
+//    Serial.print("' NTS: '");
+//    Serial.print(_timestamp);
+//    Serial.print("'");
+//    Serial.println();
+    
 
     long lat = myGNSS.packetUBXNAVPVT->callbackData->lat;
     _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
+
+    long lng = myGNSS.packetUBXNAVPVT->callbackData->lon;
+    _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
+
+    long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL; // Print the height above mean sea level
+    _lat = double(lat) / (1000.); // mm to metres
+//  } else {
+//    Serial.println(F("GPS: data NOT available"));
+  }
+
+  int t = myGNSS.getSIV();
+  if (t != _siv) {
+    dirty = true;
+    _siv = t;
+  }
+
+  _connected = _siv > 3; // Can't rememember what a good lock is
+
+  if (dirty) {
+    Serial.print(F("Time: "));
+    Serial.print(_timestamp);
     Serial.print(F(", "));
     Serial.print(F("Lat: "));
     Serial.print(_lat);
     Serial.print(F("N"));
-
-    //    Serial.print(F(" Lat: "));
-    //    Serial.print(latitude);
-
-    long lng = myGNSS.packetUBXNAVPVT->callbackData->lon;
-    _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
     Serial.print(F(", "));
     Serial.print(F("Lng: "));
     Serial.print(_lng);
     Serial.print(F("E"));
-    //    Serial.print(F(" Lng: "));
-    //    Serial.print(longitude);
-    //    Serial.print(F(" (degrees * 10^-7)"));
-
-    long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL; // Print the height above mean sea level
-    _lat = double(lat) / (1000.); // mm to metres
     Serial.print(F(", "));
     Serial.print(F("Alt: "));
     Serial.print(_alt);
     Serial.print(F(" m"));
-    //    Serial.print(F(" Alt: "));
-    //    Serial.print(altitude);
-    //    Serial.println(F(" (mm)"));
+    Serial.print(F(", "));
+    Serial.print(F("SIV: "));
+    Serial.print(_siv);
+    Serial.print(F(", "));
+    Serial.print(F("lock: "));
+    Serial.print(_connected ? "Yes" : "No");
+    Serial.println();
   }
-
-  _siv = myGNSS.getSIV();
-  Serial.print(F(", "));
-  Serial.print(F("SIV: "));
-  Serial.print(_siv);
-
-  _connected = _siv > 3; // Can't rememember what a good lock is
-  Serial.print(F(", "));
-  Serial.print(F("lock: "));
-  Serial.print(_connected?"Yes":"No");
-
-
-  Serial.println();
 
   myGNSS.checkCallbacks(); // Check if any callbacks are waiting to be processed. There will not be any in this example, unless you commented the line above
   //  delay(50);

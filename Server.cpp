@@ -299,12 +299,12 @@ String htmlHeader(String title) {
   ret += "%; padding-top: 10px; padding-bottom: 10px; margin-left:1%; margin-right:1%;}";
   ret += "footer ul.buttons li.selected {background-color:#ccc;}";
   ret += "footer .action {display:none;}";
-  ret += "pre.log-summary {padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
+  ret += "#log-summary {padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
 
   ret += " </style> ";
 
   ret += "<script>";
-  ret += "function hideFooterButtons() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('logstat').style.display = 'none';}";
+  ret += "function hideFooterButtons() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('logstat').style.display = 'none'; document.getElementById('log-summary').style.display = 'none';}";
   ret += "</script>";
 
   ret += " </head> ";
@@ -546,8 +546,8 @@ void showAbout() {
   String content = "<h1>About ";
   content += _AP_NAME_;
   content += "</h1>";
-  content += String("<p>Application version: ") + VERSION + "</p>";
-  content += String("<p>Application Build: ") + __DATE__ + " " + __TIME__ + "</p>";
+  content += String("<p>Application Version: ") + VERSION + "</p>";
+  content += String("<p>Application Build: ") + __DATE__ + " @ " + __TIME__ + "</p>";
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAbout(): responding");
@@ -576,51 +576,74 @@ void showRoot() {
   String status = "";
   String text = "";
 
-  status = "green";
-  text = "IDLE";
+  status = "red";
+  text = "DISCONNECTED";
   if (Logger.isEnabled()) {
-    status = "amber";
-    text = "LOGGING";
+    if (Logger.isCapturing()) {
+      status = "amber";
+      text = "LOGGING";
+    } else {
+      status = "green";
+      text = "IDLE";
+    }
   };
   content += "<div class='status-wrapper'><div class='label'>Logger</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  status = "green";
-  text = "OK";
-  if (!RTC.isEnabled()) {
-    status = "red";
-    text = "DISABLED";
-  };
-  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-
-  status = "green";
-  text = "OK";
-  if (!GPS.isEnabled()) {
-    status = "red";
-    text = "DISABLED";
-  } else if (!GPS.isConnected()) {
+  status = "red";
+  text = "DISABLED";
+  if (GPS.isEnabled()) {
     status = "amber";
     text = "NOT LOCKED";
-  };
+    if (GPS.isConnected()) {
+      status = "green";
+      text = "LOCKED";
+    };
+  }
   content += "<div class='status-wrapper'><div class='label'>GPS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  status = "green";
-  text = "OK";
-  if (!BMP.isEnabled()) {
-    status = "red";
-    text = "DISABLED";
+  status = "red";
+  text = "DISABLED";
+  if (BMP.isEnabled()) {
+    status = "green";
+    text = "OK";
   };
   content += "<div class='status-wrapper'><div class='label'>BMP</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  status = "green";
-  text = "OK";
-  if (!IMU.isEnabled()) {
-    status = "red";
-    text = "DISABLED";
+  status = "red";
+  text = "DISABLED";
+  if (IMU.isEnabled()) {
+    status = "green";
+    text = "OK";
   };
   content += "<div class='status-wrapper'><div class='label'>IMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
+  status = "red";
+  text = "DISABLED";
+  if (RTC.isEnabled()) {
+    status = "green";
+    text = "OK";
+  };
+  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+
+  status = "disabled";
+  text = "DISABLED";
+  if (BAT.isEnabled()) {
+    double pcnt = BAT.getFill();
+    if (pcnt > 0.5) {
+      text = String(pcnt) + "%";
+      if (pcnt < 10) {
+        status = "red";
+      } else if (pcnt < 30) {
+        status = "amber";
+      } else {
+        status = "green";
+      }
+    }
+  };
+  content += "<div class='status-wrapper'><div class='label'>BAT</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+
   content += "<div style='clear:both'></div>";
-  if (Logger.isEnabled()) {
+  if (Logger.isCapturing()) {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
   } else {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
@@ -628,7 +651,7 @@ void showRoot() {
 
   String log_summary = Logger.getLogSummary();
   if (log_summary.length() > 0) {
-    content += "<pre class='log-summary'>";
+    content += "<pre id='log-summary'>";
     content += log_summary;
     content += "</pre>";
   }
@@ -656,7 +679,7 @@ void handle_logStart() {
 #if _DEBUG_
   Serial.println("WebServer::handle_logStart(): called");
 #endif
-  Logger.enable(true);
+  Logger.capture(true);
   goToUrl("/");
 }
 
@@ -664,7 +687,7 @@ void handle_logStop() {
 #if _DEBUG_
   Serial.println("WebServer::handle_logStop(): called");
 #endif
-  Logger.enable(false);
+  Logger.capture(false);
   goToUrl("/");
 }
 
@@ -680,6 +703,15 @@ void handle_logStop() {
 TrServer::TrServer() {};
 
 void TrServer::begin() {
+  if (!SPIFFS.begin()) {
+#if _DEBUG_
+    Serial.println("         SPIFFS: Disbled");
+#endif
+  }
+#if _DEBUG_
+  Serial.println("         SPIFFS: Enabled");
+#endif
+
   // Public static pages hidden by default
   addStaticPage("/favicon.ico", "/favicon.png");
   addStaticPage("/favicon.png", "/favicon.png");

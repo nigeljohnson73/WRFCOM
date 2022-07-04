@@ -1,10 +1,18 @@
 /**************
-   SPIFFS is installed and this is designed for an ESP8266 (not the ESP32)
+  SPIFFS is installed and this sketch is designed for an ESP8266 (not the ESP32) so will need some rework around networking and more specifically web servering.
 
-   Add files into the 'data' directory in the sketch
-   Close the serial monitor
-   from the tools menu select 'ESP8266 Sketch Data Upload'
+  To upload data to the static file store:
 
+   - Add files into the 'data' directory in the sketch
+   - Close the serial monitor
+   - from the tools menu select 'ESP8266 Sketch Data Upload'
+
+  Things to do
+
+   - Attach GPS
+   - Attach OpenLog
+   - Attach Battery fuel guage
+   - Configure Servo system
 */
 
 #ifdef ESP32
@@ -20,10 +28,6 @@ void setup() {
   delay(100);
   Serial.println();
 
-  if (!SPIFFS.begin()) {
-    Serial.println("An Error has occurred while mounting SPIFFS");
-  }
-
   Network.setHostname(_AP_NAME_);
   Network.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
 
@@ -37,7 +41,7 @@ void setup() {
 
 
 void loop() {
-	long sweep_millis = 0;
+  long sweep_millis = 0;
   long m_start = millis();
 
   Network.loop();

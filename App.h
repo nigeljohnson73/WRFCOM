@@ -11,7 +11,7 @@
 #define _WWW_USERNAME_ "admin"
 #define _WWW_PASSWORD_ "admin"
 
-#define VERSION "V0.1a"
+#define VERSION "v0.1a"
 #define _USE_NTP_ true
 #define _NTP_OFFSET_SECONDS_ 0
 #define _DEBUG_ true
@@ -25,6 +25,7 @@
 #ifndef ESP32
 #include <Arduino.h> // For type inclusion - String for example
 #endif
+#include "BAT.h"
 #include "BMP.h"
 #include "GPS.h"
 #include "IMU.h"

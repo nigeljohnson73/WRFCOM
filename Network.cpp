@@ -2,19 +2,21 @@
 
 #if _USE_NTP_
 #include <NTPClient.h>
-#include <RTClib.h>
+#include <RTClib.h>  // For type inclusions
 #endif
+
 #ifdef ESP32
 #include <WiFi.h>
+#include <ESPmDNS.h>
 // TODO: Make some more shit work here
 #else
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <ESP8266HTTPClient.h>
 #endif
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 
 TrNetwork Network;
@@ -54,7 +56,7 @@ void TrNetwork::begin(String ssid, String pass, long wait) {
 
     WiFi.hostname(_hostname);
 
-    Serial.print("\nConnecting to network.");
+    Serial.print("\n\nConnecting to network.");
 
     unsigned long connect_millis = millis() + (wait * 1000);
     while ((WiFi.status() != WL_CONNECTED) && (millis() < connect_millis)) {

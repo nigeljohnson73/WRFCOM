@@ -12,17 +12,23 @@ class TrLogger {
 
     String getLogSummary();
 
-    void enable(boolean tf); // start or stop the logging
+    void capture(boolean tf); // start or stop the logging
+    boolean isCapturing() {
+      return _logging;
+    };
     boolean isEnabled() {
       return _enabled;
     };
 
   protected:
     void resetCapture();
+    void startCapture();
+    void stopCapture();
 
   private:
     long logging_started = 0;
     boolean _enabled = false;
+    boolean _logging = false;
 
     boolean _chute_deployed;
     String _log;

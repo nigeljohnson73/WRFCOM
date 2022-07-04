@@ -579,8 +579,8 @@ void showRoot() {
 
   status = "red";
   text = "DISCONNECTED";
-  if (Logger.isEnabled()) {
-    if (Logger.isCapturing()) {
+  if (LOG.isEnabled()) {
+    if (LOG.isCapturing()) {
       status = "amber";
       text = "LOGGING";
     } else {
@@ -588,7 +588,7 @@ void showRoot() {
       text = "IDLE";
     }
   };
-  content += "<div class='status-wrapper'><div class='label'>Logger</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+  content += "<div class='status-wrapper'><div class='label'>LOG</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
   status = "red";
   text = "DISABLED";
@@ -652,13 +652,13 @@ void showRoot() {
   content += "<div class='status-wrapper'><div class='label'>BAT</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
   content += "<div style='clear:both'></div>";
-  if (Logger.isCapturing()) {
+  if (LOG.isCapturing()) {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
   } else {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
   }
 
-  String log_summary = Logger.getLogSummary();
+  String log_summary = LOG.getLogSummary();
   if (log_summary.length() > 0) {
     content += "<pre id='log-summary'>";
     content += log_summary;
@@ -688,7 +688,7 @@ void handle_logStart() {
 #if _DEBUG_
   Serial.println("WebServer::handle_logStart(): called");
 #endif
-  Logger.capture(true);
+  LOG.capture(true);
   goToUrl("/");
 }
 
@@ -696,7 +696,7 @@ void handle_logStop() {
 #if _DEBUG_
   Serial.println("WebServer::handle_logStop(): called");
 #endif
-  Logger.capture(false);
+  LOG.capture(false);
   goToUrl("/");
 }
 

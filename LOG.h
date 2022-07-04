@@ -1,11 +1,11 @@
-#ifndef _Logger_h
-#define _Logger_h
+#ifndef _LOG_h
+#define _LOG_h
 
 #include "App.h"
 
-class TrLogger {
+class TrLOG {
   public:
-    TrLogger();
+    TrLOG();
 
     void begin();
     void loop();
@@ -46,6 +46,6 @@ class TrLogger {
     double _final_ground_distance;
 };
 
-extern TrLogger Logger;
+extern TrLOG LOG;
 
 #endif

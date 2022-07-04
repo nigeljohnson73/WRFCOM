@@ -1,5 +1,5 @@
-#ifndef _SERVER_h
-#define _SERVER_h
+#ifndef _WEB_h
+#define _WEB_h
 
 #include "App.h"
 

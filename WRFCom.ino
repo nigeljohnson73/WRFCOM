@@ -38,7 +38,7 @@ void setup() {
   GPS.begin();
   SRV.begin();
 
-  Logger.begin();
+  LOG.begin();
   Server.begin();
 }
 
@@ -55,7 +55,7 @@ void loop() {
   GPS.loop();
   SRV.loop();
 
-  Logger.loop();
+  LOG.loop();
   Server.loop();
 
   sweep_millis = millis() - m_start;

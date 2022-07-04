@@ -1,6 +1,6 @@
-#include "Logger.h"
+#include "LOG.h"
 
-TrLogger Logger;
+TrLOG LOG;
 
 #define PI 3.14159265358979323846
 #define EARTH_RADIUS 6372797.56085
@@ -23,18 +23,18 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   return dist;
 }
 
-TrLogger::TrLogger() {};
+TrLOG::TrLOG() {};
 
-void TrLogger::begin() {
+void TrLOG::begin() {
   _enabled = true;
 }
 
-void TrLogger::loop() {
+void TrLOG::loop() {
   if (!isEnabled() || !isCapturing()) return;
 
   if ((millis() - logging_started) > (1000 * MAX_LOG_DURATION_SECONDS)) {
 #if _XDEBUG_
-    Serial.print("TrLogger::loop(): maximum log period exceeded");
+    Serial.print("TrLOG::loop(): maximum log period exceeded");
     Serial.println();
 #endif
     capture(false);
@@ -97,7 +97,7 @@ void TrLogger::loop() {
   _log += String("\n") + line;
 }
 
-void TrLogger::resetCapture() {
+void TrLOG::resetCapture() {
   _chute_deployed = false;
   _peak_g = 0;
   _peak_bmp_altitude = -99999;
@@ -119,7 +119,7 @@ void TrLogger::resetCapture() {
   }
 }
 
-void TrLogger::startCapture() {
+void TrLOG::startCapture() {
   resetCapture();
 
   // get GPS, RTC time or network time in that order
@@ -167,7 +167,7 @@ void TrLogger::startCapture() {
   _logging = true;
 }
 
-void TrLogger::stopCapture() {
+void TrLOG::stopCapture() {
   _logging = false;
 #if _DEBUG_
   Serial.print(RTC.getTimestamp());
@@ -234,10 +234,10 @@ void TrLogger::stopCapture() {
 #endif
 }
 
-void TrLogger::capture(boolean tf) {
+void TrLOG::capture(boolean tf) {
   if (isCapturing() == tf) {
 #if _XDEBUG_
-    Serial.print("TrLogger::enable(");
+    Serial.print("TrLOG::enable(");
     Serial.print(tf ? "true" : "false");
     Serial.print("): already in that state, ignoring call");
     Serial.println();
@@ -246,7 +246,7 @@ void TrLogger::capture(boolean tf) {
   }
 
 #if _XDEBUG_
-  Serial.print("TrLogger::enable(");
+  Serial.print("TrLOG::enable(");
   Serial.print(tf ? "true" : "false");
   Serial.print("): called");
   Serial.println();
@@ -259,7 +259,7 @@ void TrLogger::capture(boolean tf) {
   }
 }
 
-String TrLogger::getLogSummary() {
+String TrLOG::getLogSummary() {
   if (!isCapturing() && _log.length() > 0) {
     String ret = "";
     ret += "Timestamp: ";

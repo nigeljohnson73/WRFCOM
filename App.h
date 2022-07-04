@@ -21,7 +21,7 @@
 #define _XDEBUG_ false
 
 #define PARACHUTE_DEPLOY_APOGEE_OFFSET -2
-#define SENSOR_HZ 15
+#define SENSOR_HZ 14
 //#define MAX_LOG_DURATION_SECONDS (5*60)
 #define MAX_LOG_DURATION_SECONDS (5)
 

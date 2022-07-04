@@ -506,15 +506,15 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "GPS Locked Sats";
+  title = "GPS State";
   status = "green";
-  text = String(GPS.getSatsInView()) + " locks";
+  int siv = GPS.getSatsInView();
+  text = String(GPS.getRefreshRate()) + " Hz, " + String(siv) + " lock" + ((siv == 1) ? "" : "s");
   if (!GPS.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
   } else if (!GPS.isConnected()) {
     status = "amber";
-//    text = "[not locked]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 

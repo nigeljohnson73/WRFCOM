@@ -7,7 +7,7 @@ SFE_UBLOX_GNSS myGNSS;
 TrGPS GPS;
 
 void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
-//  Serial.println(F("Hey! The NAV PVT callback has been called!"));
+  //  Serial.println(F("Hey! The NAV PVT callback has been called!"));
 }
 
 // This might be better judt to query the module directly
@@ -40,34 +40,39 @@ void TrGPS::begin() {
 #endif
     return;
   }
-#if _DEBUG_
-  Serial.println("GPS initialised: connecting");
-#endif
 
   myGNSS.setI2COutput(COM_TYPE_UBX); //Set the I2C port to output UBX only (turn off NMEA noise)
   myGNSS.saveConfigSelective(VAL_CFG_SUBSEC_IOPORT); //Save (only) the communications port settings to flash and BBR
 
   //myGNSS.setNavigationFrequency(SENSOR_HZ); //Produce X solutions per second
-  if (!myGNSS.setNavigationFrequency(SENSOR_HZ)) {
-    Serial.print(F("GPS: failed to set "));
-    Serial.print(SENSOR_HZ);
-    Serial.print(F(" fps"));
-    Serial.println();
-  } else {
+  if (myGNSS.setNavigationFrequency(SENSOR_HZ)) {
+    _refresh_hz = SENSOR_HZ;
     Serial.print(F("GPS: Refresh rate set to "));
     Serial.print(SENSOR_HZ);
     Serial.print(F(" Hz"));
     Serial.println();
+  } else {
+    Serial.print(F("GPS: failed to set "));
+    Serial.print(SENSOR_HZ);
+    Serial.print(F(" fps"));
+    Serial.println();
   }
 
   myGNSS.setAutoPVTcallbackPtr(&callbackPVT); // Enable automatic NAV PVT messages with callback to callbackPVT
+
+#if _DEBUG_
+  Serial.print("GPS initialised: ");
+  Serial.print(_refresh_hz);
+  Serial.print(" Hz");
+  Serial.println();
+#endif
   _enabled = true;
 }
 
 void TrGPS::loop() {
   if (!isEnabled()) return;
 
-//  Serial.println(F("GPS::loop()"));
+  //  Serial.println(F("GPS::loop()"));
   myGNSS.checkUblox(); // Check for the arrival of new data and process it.
 
   // Check if new NAV PVT data has been received:
@@ -77,7 +82,7 @@ void TrGPS::loop() {
   boolean dirty = false;
 
   if (myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid == true) {
-//    Serial.println(F("GPS: data available"));
+    //    Serial.println(F("GPS: data available"));
     // But, we can manually clear the callback flag too. This will prevent the callback from being called!
     //myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid = false; // Comment this line if you still want the callback to be called
 
@@ -123,13 +128,13 @@ void TrGPS::loop() {
     _timestamp += F("Z");
 
     if (_timestamp != o_timestamp) dirty = true;
-//    Serial.print("OTS: '");
-//    Serial.print(o_timestamp);
-//    Serial.print("' NTS: '");
-//    Serial.print(_timestamp);
-//    Serial.print("'");
-//    Serial.println();
-    
+    //    Serial.print("OTS: '");
+    //    Serial.print(o_timestamp);
+    //    Serial.print("' NTS: '");
+    //    Serial.print(_timestamp);
+    //    Serial.print("'");
+    //    Serial.println();
+
 
     long lat = myGNSS.packetUBXNAVPVT->callbackData->lat;
     _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
@@ -139,8 +144,8 @@ void TrGPS::loop() {
 
     long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL; // Print the height above mean sea level
     _lat = double(lat) / (1000.); // mm to metres
-//  } else {
-//    Serial.println(F("GPS: data NOT available"));
+    //  } else {
+    //    Serial.println(F("GPS: data NOT available"));
   }
 
   int t = myGNSS.getSIV();

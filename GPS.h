@@ -15,6 +15,10 @@ class TrGPS {
     double getAltitude(); // meters above MSL
     int getSatsInView();
 
+    int getRefreshRate() {
+      return _refresh_hz;
+    };
+
     boolean isEnabled() {
       return _enabled;
     };
@@ -34,6 +38,7 @@ class TrGPS {
     double _alt = 0;
     int _siv; // Sats in view
     String _timestamp = "";
+    int _refresh_hz;
 };
 
 extern TrGPS GPS;

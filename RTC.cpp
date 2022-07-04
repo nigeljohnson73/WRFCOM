@@ -8,7 +8,7 @@ TrRTC RTC;
 TrRTC::TrRTC() {};
 
 void TrRTC::begin() {
-  if (! rtc.begin()) {
+  if (!rtc.begin()) {
 #if _DEBUG_
     Serial.println("RTC disconnected");
 #endif

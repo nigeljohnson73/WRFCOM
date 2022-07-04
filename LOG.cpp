@@ -1,5 +1,9 @@
 #include "LOG.h"
 
+#include <Wire.h>
+#include "SparkFun_Qwiic_OpenLog_Arduino_Library.h"
+OpenLog myLog;
+
 TrLOG LOG;
 
 #define PI 3.14159265358979323846
@@ -26,6 +30,26 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
 TrLOG::TrLOG() {};
 
 void TrLOG::begin() {
+  Wire.begin();
+  if (!myLog.begin()) {
+#if _DEBUG_
+    Serial.println("LOG disconnected (OpenLog begin() failure)");
+#endif
+    return;
+  }
+  String ver = myLog.getVersion();
+  if (ver == "255.255") {
+#if _DEBUG_
+    Serial.println("LOG disconnected (OpenLog getVersion() failure)");
+#endif
+    return;
+  }
+
+#if _DEBUG_
+  Serial.print("LOG initialised: version ");
+  Serial.print(myLog.getVersion());
+  Serial.println();
+#endif
   _enabled = true;
 }
 
@@ -75,26 +99,26 @@ void TrLOG::loop() {
     line += ",,,,,,,";
   }
 
-  if (GPS.isEnabled() && GPS.isConnected()) {
+  if (GPS.isEnabled()) {
     line += comma + String(GPS.getSatsInView());
+    if (GPS.isConnected()) {
     line += comma + String(GPS.getLatitude());
-    line += comma + String(GPS.getLongitude());
-    line += comma + String(GPS.getAltitude());
+      line += comma + String(GPS.getLongitude());
+      line += comma + String(GPS.getAltitude());
 
-    _furthest_ground_distance = max(gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude), _furthest_ground_distance);
-    _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
-  } else {
-    if (GPS.isEnabled()) { // It's plugged in, so maybe not locked yet
-      line += comma + String(GPS.getSatsInView());
+      _furthest_ground_distance = max(gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude), _furthest_ground_distance);
+      _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
     } else {
-      line += comma;
-
+      line += ",,,";
     }
-    line += ",,,";
+  } else {
+    line += ",,,,";
   }
-  line += comma + _chute_deployed ? "Yes" : "No";
+  line += comma + (_chute_deployed ? "Yes" : "No");
 
-  _log += String("\n") + line;
+//  _log += String("\n") + line;
+  myLog.println(line);
+
 }
 
 void TrLOG::resetCapture() {
@@ -152,13 +176,36 @@ void TrLOG::startCapture() {
   _log_fn = fn;
 
   header += F("millis, BME Temp, BMP MSL BMP, BMP BMP, BME Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU GyroX, IMU GyroY, IMU GyroZ, GPS Sats, GPS Lat, GPS Lon, GPS Alt, Chute");
-  _log = header;
+  //_log = header;
 
   // TODO: Create a new file on the logger
+  if (!myLog.append(_log_fn)) {
+    Serial.print("LOG: Failed to create file '");
+    Serial.print(_log_fn);
+    Serial.print("' to append to");
+    Serial.println();
+  } else {
+    Serial.print("LOG: created new log file '");
+    Serial.print(_log_fn);
+    Serial.print("'");
+    Serial.println();
+  }
+
   // TODO output header line to logger
+  if (!myLog.println(header)) {
+#if _DEBUG_
+    Serial.print("LOG: Failed to write header line");
+    Serial.println();
+#if _XDEBUG_
+  } else {
+    Serial.print("LOG: header line written");
+    Serial.println();
+#endif
+#endif
+  }
 
   logging_started = millis();
-#if _XDEBUG_
+#if _DEBUG && _XDEBUG_
   Serial.print(RTC.getTimestamp());
   Serial.print(": ");
   Serial.print("Logging started");
@@ -169,16 +216,43 @@ void TrLOG::startCapture() {
 
 void TrLOG::stopCapture() {
   _logging = false;
+  if (!myLog.syncFile()) {
+#if _DEBUG_
+    Serial.print("LOG: Failed to sync file");
+    Serial.println();
+#if _XDEBUG_
+  } else {
+    Serial.print("LOG: file sync complete");
+    Serial.println();
+#endif
+#endif
+  }
+
+  long log_size = myLog.size(_log_fn);
+
+  if (log_size == -1) {
+#if _DEBUG_
+    Serial.println(F("LOG: File not found."));
+#if _XDEBUG_
+  } else {
+    Serial.println(F("LOG: File found!"));
+    Serial.print(F("LOG: Size of file: "));
+    Serial.print(log_size);
+    Serial.print(" bytes");
+    Serial.println();
+#endif
+#endif
+  }
+
 #if _DEBUG_
   Serial.print(RTC.getTimestamp());
   Serial.print(": ");
   Serial.print("Logging completed ");
-  Serial.print(_log.length());
+  Serial.print(log_size);//_log.length());
   Serial.print(" bytes captured to ");
   Serial.print(_log_fn);
   Serial.println();
 #endif
-  // TODO: close file on logger
 
   if (GPS.isEnabled() && GPS.isConnected()) {
     _final_latitude = GPS.getLatitude();
@@ -260,7 +334,7 @@ void TrLOG::capture(boolean tf) {
 }
 
 String TrLOG::getLogSummary() {
-  if (!isCapturing() && _log.length() > 0) {
+  if (!isCapturing() && logging_started > 0) {
     String ret = "";
     ret += "Timestamp: ";
     ret += _log_ts;

@@ -31,7 +31,7 @@ class TrLOG {
     boolean _logging = false;
 
     boolean _chute_deployed;
-    String _log;
+//    String _log;
     String _log_fn;
     String _log_ts;
 

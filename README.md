@@ -9,14 +9,16 @@ I will assume you are comfortable with the Arduino IDE.
 You should install the ESP8266 and ESP32 boards into your board manager (depending on which you want to use). 
 Add these to your additional sources in preferences.
 
-    https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+https://dl.espressif.com/dl/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
 
 You will also need to install the file system plugins for 
 [ESP32](https://microcontrollerslab.com/install-esp32-filesystem-uploader-in-arduino-ide-spiffs/) and/or 
 [ESP8266](https://randomnerdtutorials.com/install-esp8266-filesystem-uploader-arduino-ide/) depending 
 on which platform youre using.
 
-I have also found the [ESP Excpetion Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to be very useful.
+I have also found the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to be very useful.
 
 Libraries required
 ------------------

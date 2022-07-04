@@ -1,3 +1,6 @@
+#ifndef _APP_h
+#define _APP_h
+
 // If you only ever want this device to appear on your wifi, hard code those details here. (Since it's also written to config, it'll bypass the AP mode setup on a new device)
 #define WIFI_SSID "BT-WTA5HW"
 #define WIFI_PASS "LR43beLGftNaAH"
@@ -33,4 +36,6 @@
 #include "Network.h"
 #include "RTC.h"
 #include "SRV.h"
-#include "Server.h"
+#include "WEB.h"
+
+#endif

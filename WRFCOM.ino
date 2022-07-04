@@ -39,9 +39,8 @@ void setup() {
   SRV.begin();
 
   LOG.begin();
-  Server.begin();
+  WEB.begin();
 }
-
 
 void loop() {
   long sweep_millis = 0;
@@ -56,7 +55,7 @@ void loop() {
   SRV.loop();
 
   LOG.loop();
-  Server.loop();
+  WEB.loop();
 
   sweep_millis = millis() - m_start;
   long sleep_for = max((long) 1, (1000 / SENSOR_HZ) - sweep_millis);

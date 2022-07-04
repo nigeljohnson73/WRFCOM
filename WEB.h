@@ -3,14 +3,14 @@
 
 #include "App.h"
 
-class TrServer {
+class TrWEB {
   public:
-    TrServer();
+    TrWEB();
 
     void begin();
     void loop();
 };
 
-extern TrServer Server;
+extern TrWEB WEB;
 
 #endif

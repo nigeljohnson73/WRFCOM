@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "WEB.h"
 
 #ifdef ESP32
 #include <WiFi.h>
@@ -16,7 +16,7 @@
 ESP8266WebServer WebServer(80);
 #endif
 
-TrServer Server;
+TrWEB WEB;
 
 // Adding and manging local URLs for the about page mostly
 const unsigned int pmax = 20;
@@ -709,9 +709,9 @@ void handle_logStop() {
      |_|_| |_____/ \___|_|    \_/ \___|_|
 */
 
-TrServer::TrServer() {};
+TrWEB::TrWEB() {};
 
-void TrServer::begin() {
+void TrWEB::begin() {
   if (!SPIFFS.begin()) {
 #if _DEBUG_
     Serial.println("         SPIFFS: Disbled");
@@ -749,6 +749,6 @@ void TrServer::begin() {
 #endif
 }
 
-void TrServer::loop() {
+void TrWEB::loop() {
   serverLoop();
 }

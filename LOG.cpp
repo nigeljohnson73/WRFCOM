@@ -33,14 +33,16 @@ void TrLOG::begin() {
   Wire.begin();
   if (!myLog.begin()) {
 #if _DEBUG_
-    Serial.println("LOG disconnected (OpenLog begin() failure)");
+    //Serial.println("LOG disconnected (OpenLog begin() failure)");
+    Serial.println("LOG disconnected");
 #endif
     return;
   }
   String ver = myLog.getVersion();
   if (ver == "255.255") {
 #if _DEBUG_
-    Serial.println("LOG disconnected (OpenLog getVersion() failure)");
+    //Serial.println("LOG disconnected (OpenLog getVersion() failure)");
+    Serial.println("LOG disconnected");
 #endif
     return;
   }
@@ -102,7 +104,7 @@ void TrLOG::loop() {
   if (GPS.isEnabled()) {
     line += comma + String(GPS.getSatsInView());
     if (GPS.isConnected()) {
-    line += comma + String(GPS.getLatitude());
+      line += comma + String(GPS.getLatitude());
       line += comma + String(GPS.getLongitude());
       line += comma + String(GPS.getAltitude());
 
@@ -116,7 +118,7 @@ void TrLOG::loop() {
   }
   line += comma + (_chute_deployed ? "Yes" : "No");
 
-//  _log += String("\n") + line;
+  //  _log += String("\n") + line;
   myLog.println(line);
 
 }
@@ -309,6 +311,8 @@ void TrLOG::stopCapture() {
 }
 
 void TrLOG::capture(boolean tf) {
+  if (!isEnabled()) return;
+
   if (isCapturing() == tf) {
 #if _XDEBUG_
     Serial.print("TrLOG::enable(");

@@ -508,13 +508,13 @@ void showStats() {
 
   title = "GPS Locked Sats";
   status = "green";
-  text = GPS.getSatsInView();
+  text = String(GPS.getSatsInView()) + " locks";
   if (!GPS.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
   } else if (!GPS.isConnected()) {
     status = "amber";
-    text = "[not locked]";
+//    text = "[not locked]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -578,7 +578,7 @@ void showRoot() {
   String text = "";
 
   status = "red";
-  text = "DISCONNECTED";
+  text = "DISABLED";
   if (LOG.isEnabled()) {
     if (LOG.isCapturing()) {
       status = "amber";
@@ -654,7 +654,7 @@ void showRoot() {
   content += "<div style='clear:both'></div>";
   if (LOG.isCapturing()) {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
-  } else {
+  } else if (LOG.isEnabled()) {
     content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
   }
 

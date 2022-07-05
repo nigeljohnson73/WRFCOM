@@ -104,9 +104,9 @@ void TrLOG::loop() {
   if (GPS.isEnabled()) {
     line += comma + String(GPS.getSatsInView());
     if (GPS.isConnected()) {
-      line += comma + String(GPS.getLatitude());
-      line += comma + String(GPS.getLongitude());
-      line += comma + String(GPS.getAltitude());
+      line += comma + String(GPS.getLatitude(), 7);
+      line += comma + String(GPS.getLongitude(), 7);
+      line += comma + String(GPS.getAltitude(), 4);
 
       _furthest_ground_distance = max(gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude), _furthest_ground_distance);
       _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
@@ -219,7 +219,7 @@ void TrLOG::startCapture() {
     Serial.print("LOG: created new log file '/");
     Serial.print(_log_dir);
     Serial.print("/");
-     Serial.print(_log_fn);
+    Serial.print(_log_fn);
     Serial.print("'");
     Serial.println();
   }

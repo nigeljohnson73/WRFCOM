@@ -10,10 +10,6 @@
 #define _AP_NAME_ "WRFCOM"
 #define _AP_PASSWORD_ "12345678"
 
-// The config page is protected by authentication, these are the details
-#define _WWW_USERNAME_ "admin"
-#define _WWW_PASSWORD_ "admin"
-
 #define VERSION "v0.1a"
 #define _USE_NTP_ true
 #define _NTP_OFFSET_SECONDS_ 0
@@ -23,7 +19,7 @@
 #define PARACHUTE_DEPLOY_APOGEE_OFFSET -2
 #define SENSOR_HZ 14
 //#define MAX_LOG_DURATION_SECONDS (5*60)
-#define MAX_LOG_DURATION_SECONDS (5)
+#define MAX_LOG_DURATION_SECONDS (15)
 
 #ifndef ESP32
 #include <Arduino.h> // For type inclusion - String for example

@@ -305,7 +305,7 @@ String htmlHeader(String title) {
   ret += " </style> ";
 
   ret += "<script>";
-  ret += "function hideFooterButtons() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('logstat').style.display = 'none'; document.getElementById('log-summary').style.display = 'none';}";
+  ret += "function hideActions() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('actions').style.display = 'none'; document.getElementById('log-summary').style.display = 'none';}";
   ret += "</script>";
 
   ret += " </head> ";
@@ -325,7 +325,7 @@ String htmlFooter() {
       content += " class='selected'";
     }
     content += ">";
-    content += "<a onclick='hideFooterButtons()' href='";
+    content += "<a onclick='hideActions()' href='";
     content += urls[i];
     content += "'>";
     content += titles[i];
@@ -477,15 +477,15 @@ void showStats() {
 
   title = "GPS Altitude";
   status = "green";
-  text = String(GPS.getAltitude());
+  text = "";
   if (!GPS.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
-  } else if (text.length() == 0) {
+  } else if (!GPS.isConnected()) {
     status = "amber";
     text = "[not locked]";
   } else {
-    text += " m";
+    text = String(GPS.getAltitude());
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -626,14 +626,22 @@ void showRoot() {
   };
   content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
+#if USE_SERVO
   status = "disabled";
   text = "DISABLED";
   if (SRV.isEnabled()) {
-    status = "green";
-    text = "OK";
+    if (SRV.isArmed()) {
+      status = "green";
+      text = "ARMED";
+    } else {
+      status = "amber";
+      text = "DISARMED";
+    }
   };
   content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
+#if USE_LIPO
   status = "disabled";
   text = "DISABLED";
   if (BAT.isEnabled()) {
@@ -650,13 +658,25 @@ void showRoot() {
     }
   };
   content += "<div class='status-wrapper'><div class='label'>BAT</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
   content += "<div style='clear:both'></div>";
+  content += "<div id='actions'>";
   if (LOG.isCapturing()) {
-    content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
-  } else if (LOG.isEnabled()) {
-    content += "<a id='logstat' onclick='hideFooterButtons()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
+    content += "<a onclick='hideActions()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
+  } else {
+    if (LOG.isEnabled()) {
+      content += "<a onclick='hideActions()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
+    }
+    if (SRV.isEnabled()) {
+      if (SRV.isArmed()) {
+        content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute deployment' /></a>";
+      } else {
+        content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute deployment' /></a>";
+      }
+    }
   }
+  content += "</div>";
 
   String log_summary = LOG.getLogSummary();
   if (log_summary.length() > 0) {
@@ -664,11 +684,11 @@ void showRoot() {
     content += log_summary;
     content += "</pre>";
   }
-#if _DEBUG_ &&  _DEBUG_
+#if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): responding");
 #endif
   serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Home", content));
-#if _DEBUG_ &&  _DEBUG_
+#if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
 #endif
 }
@@ -701,6 +721,24 @@ void handle_logStop() {
 }
 
 /*******************************************************************************************************************************************
+*/
+void handle_srvArm() {
+#if _DEBUG_
+  Serial.println("WebServer::handle_srvArm(): called");
+#endif
+  SRV.arm(true);
+  goToUrl("/");
+}
+
+void handle_srvDisarm() {
+#if _DEBUG_
+  Serial.println("WebServer::handle_srvDisarm(): called");
+#endif
+  SRV.arm(false);
+  goToUrl("/");
+}
+
+/*******************************************************************************************************************************************
    _______   _____
   |__   __| / ____|
      | |_ _| (___   ___ _ ____   _____ _ __
@@ -726,6 +764,8 @@ void TrWEB::begin() {
   addStaticPage("/favicon.png", "/favicon.png");
   addStaticPage("/log_start.png", "/log_start.png");
   addStaticPage("/log_stop.png", "/log_stop.png");
+  addStaticPage("/srv_arm.png", "/srv_arm.png");
+  addStaticPage("/srv_disarm.png", "/srv_disarm.png");
   addStaticPage("/ajax-loader-bar.gif", "/ajax-loader-bar.gif");
 
   // Public pages visible by default
@@ -736,6 +776,8 @@ void TrWEB::begin() {
   // these pages should not be publically listed, so no title means hidden
   addPage("/api/log/start", handle_logStart);
   addPage("/api/log/stop", handle_logStop);
+  addPage("/api/srv/arm", handle_srvArm);
+  addPage("/api/srv/disarm", handle_srvDisarm);
 
   // Add a 404 handler
   registerNotFound(showNotFound);

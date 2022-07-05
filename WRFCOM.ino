@@ -17,6 +17,7 @@
 #else
 #include <FS.h>
 #endif
+#include <Wire.h>
 
 // Create a file called myWIFI.h and add the following (but updated it with your settings)
 //#define WIFI_SSID "YOUR-WIFI-SSID"
@@ -25,6 +26,8 @@
 #include "App.h"
 
 void setup() {
+  Wire.begin(); // Initialise the IIC bus (GPS and buttons);
+
   Serial.begin(115200);
   delay(100);
   Serial.println();
@@ -33,7 +36,9 @@ void setup() {
   NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
 
   RTC.begin();
+#if USE_LIPO
   BAT.begin();
+#endif
   BMP.begin();
   IMU.begin();
   GPS.begin();
@@ -45,12 +50,15 @@ void setup() {
 
 long last_sweep = 0;
 void loop() {
-  NET.loop();
   unsigned long now = millis();
+
+  NET.loop();
   if (last_sweep == 0 || (now - last_sweep) >= (1000.0 / double(SENSOR_HZ))) {
     last_sweep = now;
     RTC.loop();
+#if USE_LIPO
     BAT.loop();
+#endif
     BMP.loop();
     IMU.loop();
     GPS.loop();

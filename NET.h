@@ -19,7 +19,7 @@ class TrNET
       return _ip_address;
     }
 
-	String getTimestamp();
+    String getTimestamp();
 
   private:
     String _hostname;

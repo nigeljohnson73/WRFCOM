@@ -1,6 +1,5 @@
 #include "GPS.h"
 
-#include <Wire.h> //Needed for I2C to GPS
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 
 SFE_UBLOX_GNSS myGNSS;
@@ -30,7 +29,7 @@ void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
 TrGPS::TrGPS() {};
 
 void TrGPS::begin() {
-  Wire.begin();
+  //  Wire.begin();
 
   //myGNSS.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
 
@@ -47,15 +46,19 @@ void TrGPS::begin() {
   //myGNSS.setNavigationFrequency(SENSOR_HZ); //Produce X solutions per second
   if (myGNSS.setNavigationFrequency(SENSOR_HZ)) {
     _refresh_hz = SENSOR_HZ;
+#if _DEBUG && _XDEBUG_
     Serial.print(F("GPS: Refresh rate set to "));
     Serial.print(SENSOR_HZ);
     Serial.print(F(" Hz"));
     Serial.println();
+#endif
+#if _DEBUG_
   } else {
     Serial.print(F("GPS: failed to set "));
     Serial.print(SENSOR_HZ);
     Serial.print(F(" fps"));
     Serial.println();
+#endif
   }
 
   myGNSS.setAutoPVTcallbackPtr(&callbackPVT); // Enable automatic NAV PVT messages with callback to callbackPVT
@@ -71,24 +74,14 @@ void TrGPS::begin() {
 
 void TrGPS::loop() {
   if (!isEnabled()) return;
-
-  //  Serial.println(F("GPS::loop()"));
-  myGNSS.checkUblox(); // Check for the arrival of new data and process it.
-
-  // Check if new NAV PVT data has been received:
-  // If myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid is true, it indicates new PVT data has been received and has been copied.
-  // automaticFlags.flags.bits.callbackCopyValid will be cleared automatically when the callback is called.
-
   boolean dirty = false;
 
+  myGNSS.checkUblox(); // Check for the arrival of new data and process it.
+
   if (myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid == true) {
-    //    Serial.println(F("GPS: data available"));
-    // But, we can manually clear the callback flag too. This will prevent the callback from being called!
-    //myGNSS.packetUBXNAVPVT->automaticFlags.flags.bits.callbackCopyValid = false; // Comment this line if you still want the callback to be called
-
-    //Serial.println();
-
+#if _DEBUG_
     String o_timestamp = _timestamp;
+#endif
 
     uint16_t hms16 = 0;
     uint8_t hms = 0;
@@ -127,14 +120,9 @@ void TrGPS::loop() {
     _timestamp += hms;
     _timestamp += F("Z");
 
+#if _DEBUG_
     if (_timestamp != o_timestamp) dirty = true;
-    //    Serial.print("OTS: '");
-    //    Serial.print(o_timestamp);
-    //    Serial.print("' NTS: '");
-    //    Serial.print(_timestamp);
-    //    Serial.print("'");
-    //    Serial.println();
-
+#endif
 
     long lat = myGNSS.packetUBXNAVPVT->callbackData->lat;
     _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
@@ -142,10 +130,8 @@ void TrGPS::loop() {
     long lng = myGNSS.packetUBXNAVPVT->callbackData->lon;
     _lng = double(lng) / (10000000.); // degrees *10^7 to degrees
 
-    long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL; // Print the height above mean sea level
+    long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL;
     _alt = double(alt) / (1000.); // mm to metres
-    //  } else {
-    //    Serial.println(F("GPS: data NOT available"));
   }
 
   int t = myGNSS.getSIV();
@@ -154,8 +140,9 @@ void TrGPS::loop() {
     _siv = t;
   }
 
-  _connected = _siv > 3; // Can't rememember what a good lock is
+  _connected = _siv > 3; // You need at least 3 satellites to ensure 3D accuracy
 
+#if _DEBUG_
   if (dirty) {
     Serial.print(F("Time: "));
     Serial.print(_timestamp);
@@ -179,9 +166,10 @@ void TrGPS::loop() {
     Serial.print(_connected ? "Yes" : "No");
     Serial.println();
   }
+#endif
 
-  myGNSS.checkCallbacks(); // Check if any callbacks are waiting to be processed. There will not be any in this example, unless you commented the line above
-  //  delay(50);
+  // Reset the indicator as read, and wait for the next batch
+  myGNSS.checkCallbacks();
 }
 
 

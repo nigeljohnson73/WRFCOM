@@ -14,8 +14,15 @@ class TrSRV {
       return _enabled;
     };
 
+    boolean isArmed() {
+      return _armed;
+    };
+
+    void arm(boolean tf);
+
   private:
     boolean _enabled = false;
+    boolean _armed = true;
 };
 
 extern TrSRV SRV;

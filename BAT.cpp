@@ -18,7 +18,7 @@ void TrBAT::begin() {
   //  lc.setThermistorB(3950);
   //  Serial.print("Thermistor B = "); Serial.println(lc.getThermistorB());
 
-  lc.setPackSize(LC709203F_APA_1000MAH);
+  lc.setPackSize(LIPO_SIZE);
   //lc.setAlarmVoltage(3.8);
   lc.setAlarmVoltage(0);
   lc.setAlarmRSOC(0);
@@ -27,7 +27,7 @@ void TrBAT::begin() {
   Serial.print("BAT initialised: 0x");
   Serial.println(lc.getICversion(), HEX);
 #endif
-_enabled = true;
+  _enabled = true;
 }
 
 void TrBAT::loop() {

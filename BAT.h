@@ -10,7 +10,7 @@ class TrBAT {
     void begin();
     void loop();
 
-	double getCapacityPercent(); // as a percentage
+    double getCapacityPercent(); // as a percentage
 
     boolean isEnabled() {
       return _enabled;

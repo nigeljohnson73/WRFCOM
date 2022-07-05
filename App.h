@@ -1,33 +1,51 @@
 #ifndef _APP_h
 #define _APP_h
 
-// If you only ever want this device to appear on your wifi, hard code those details here. (Since it's also written to config, it'll bypass the AP mode setup on a new device)
-//#define WIFI_SSID "BT-WTA5HW"
-//#define WIFI_PASS "LR43beLGftNaAH"
-//#define WIFI_SSID "NJJIHotSpot"
-//#define WIFI_PASS "V0dafone"
-//#include "myWIFI.h"
+#define VERSION "v0.1a"
+
+// This is how long the wifi will look for an AP to connect to before launcing into it's own mess
 #define WIFI_WAIT 30
 
-// In AP mode (When the Wifi will not connect) this is the password - it needs to be at least 8 chars long for most devices to let you enter the details
+// In AP mode (When the Wifi will not connect) this is the password.
+// it needs to be at least 8 chars long for most devices to let you enter the details
 #define _AP_NAME_ "WRFCOM"
 #define _AP_PASSWORD_ "12345678"
 
-#define VERSION "v0.1a"
+// If you going to be connected to a network, then this is good starter. Use ZULU/GMT/UTC
 #define _USE_NTP_ true
 #define _NTP_OFFSET_SECONDS_ 0
-#define _DEBUG_ true
-#define _XDEBUG_ false
 
-#define PARACHUTE_DEPLOY_APOGEE_OFFSET -1
-#define SENSOR_HZ 14
+// How long should we do a log before auto shutting it off
 //#define MAX_LOG_DURATION_SECONDS (5*60)
 #define MAX_LOG_DURATION_SECONDS (15)
 
+// Should the servo code be used for parachute deployment
+#define USE_SERVO true
+
+// Once the peak height has been reached, then at this point, throw out hte parachute
+#define PARACHUTE_DEPLOY_APOGEE_OFFSET -1
+
+// Configure LiPO use or the PP3
+#define USE_LIPO false
+#define LIPO_SIZE LC709203F_APA_1000MAH
+
+// How fast should we oll the sensors
+// The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
+#define SENSOR_HZ 14
+
+// Level of debugging to the serial port
+#define _DEBUG_ true
+#define _XDEBUG_ false
+
 #ifndef ESP32
+// On the ESP8266 boards
 #include <Arduino.h> // For type inclusion - String for example
 #endif
+
+#if USE_LIPO
 #include "BAT.h"
+#endif
+
 #include "BMP.h"
 #include "GPS.h"
 #include "IMU.h"

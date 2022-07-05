@@ -1,6 +1,5 @@
 #include "LOG.h"
 
-#include <Wire.h>
 #include "SparkFun_Qwiic_OpenLog_Arduino_Library.h"
 OpenLog myLog;
 
@@ -30,7 +29,10 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
 TrLOG::TrLOG() {};
 
 void TrLOG::begin() {
-  Wire.begin();
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); // Default to off. Yep, HIGH is off
+
+  //  Wire.begin();
   if (!myLog.begin()) {
 #if _DEBUG_
     //Serial.println("LOG disconnected (OpenLog begin() failure)");
@@ -245,9 +247,12 @@ void TrLOG::startCapture() {
   Serial.println();
 #endif
   _logging = true;
+  digitalWrite(LED_BUILTIN, LOW); // LOW is on
+
 }
 
 void TrLOG::stopCapture() {
+  digitalWrite(LED_BUILTIN, HIGH); // HIGH is off
   _logging = false;
   if (!myLog.syncFile()) {
 #if _DEBUG_

@@ -44,7 +44,7 @@ void TrBMP::begin() {
   Serial.println();
 #endif
 
-//  setAltitude(22);
+  //  setAltitude(22);
 }
 
 void TrBMP::setAltitude(double h) {

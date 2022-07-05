@@ -664,11 +664,11 @@ void showRoot() {
     content += log_summary;
     content += "</pre>";
   }
-#if _DEBUG_ &&  _XDEBUG_
+#if _DEBUG_ &&  _DEBUG_
   Serial.println("WebServer::showRoot(): responding");
 #endif
   serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Home", content));
-#if _DEBUG_ &&  _XDEBUG_
+#if _DEBUG_ &&  _DEBUG_
   Serial.println("WebServer::showRoot(): complete");
 #endif
 }
@@ -744,8 +744,10 @@ void TrWEB::begin() {
   serverBegin();
 #if _DEBUG_
   Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
-  Serial.println(String("                 http://") + NET.getHostname() + ".local/");
-  //  Serial.println(String("                 http://") + NET.getHostname() + "/");
+  if (!NET.isApMode()) {
+    Serial.println(String("                 http://") + NET.getHostname() + ".local/");
+    //  Serial.println(String("                 http://") + NET.getHostname() + "/");
+  }
 #endif
 }
 

@@ -149,8 +149,8 @@ void TrNET::begin(String ssid, String pass, long wait) {
 #if _DEBUG_
     Serial.println(String("NTP initialised: ") + getTimestamp());
 #endif
-//#else
-//    Serial.println(String("   NTP disabled");
+    //#else
+    //    Serial.println(String("   NTP disabled");
 #endif
 
   } else {
@@ -161,15 +161,17 @@ void TrNET::begin(String ssid, String pass, long wait) {
     _ap_ssid = _hostname;
     _hostname = "";
 
-    IPAddress local_ip(192, 168, 1, 1);
-    IPAddress gateway(192, 168, 1, 1);
-    IPAddress subnet(255, 255, 255, 0);
+    //    IPAddress local_ip(192, 168, 1, 1);
+    //    IPAddress gateway(192, 168, 1, 1);
+    //    IPAddress subnet(255, 255, 255, 0);
 
+    //WiFi.softAPConfig(local_ip, gateway, subnet);
     WiFi.softAP(_ap_ssid, _ap_pass);
-    WiFi.softAPConfig(local_ip, gateway, subnet);
     delay(100);
 
-    _ip_address = local_ip.toString();
+    //    _ip_address = local_ip.toString();
+    IPAddress _ip =  WiFi.softAPIP();
+    _ip_address = _ip.toString();
     Serial.println(String("        AP SSID: ") + _ap_ssid);
     Serial.println(String("     IP address: ") + _ip_address);
   }

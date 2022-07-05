@@ -9,9 +9,6 @@
 
   Things to do
 
-   - Attach GPS
-   - Attach OpenLog
-   - Attach Battery fuel guage
    - Configure Servo system
 */
 
@@ -21,6 +18,10 @@
 #include <FS.h>
 #endif
 
+// Create a file called myWIFI.h and add the following (but updated it with your settings)
+//#define WIFI_SSID "YOUR-WIFI-SSID"
+//#define WIFI_PASS "YOUR-WIFI-PASS"
+#include "myWIFI.h"
 #include "App.h"
 
 void setup() {
@@ -42,35 +43,20 @@ void setup() {
   WEB.begin();
 }
 
+long last_sweep = 0;
 void loop() {
-  long sweep_millis = 0;
-  long m_start = millis();
-
   NET.loop();
-  RTC.loop();
-  BAT.loop();
-  BMP.loop();
-  IMU.loop();
-  GPS.loop();
-  SRV.loop();
+  unsigned long now = millis();
+  if (last_sweep == 0 || (now - last_sweep) >= (1000.0 / double(SENSOR_HZ))) {
+    last_sweep = now;
+    RTC.loop();
+    BAT.loop();
+    BMP.loop();
+    IMU.loop();
+    GPS.loop();
+    SRV.loop();
 
-  LOG.loop();
+    LOG.loop();
+  }
   WEB.loop();
-
-  sweep_millis = millis() - m_start;
-  long sleep_for = max((long) 1, (1000 / SENSOR_HZ) - sweep_millis);
-
-  delay(sleep_for);
-
-#if _XDEBUG_
-  Serial.print("sweep(): ");
-  Serial.print(sweep_millis);
-  Serial.print("ms, ");
-  Serial.print(", Sleep for: ");
-  Serial.println(sleep_for);
-  Serial.print("md, loop(): ");
-  Serial.print(millis() - m_start);
-  Serial.print("ms");
-  Serial.println();
-#endif
 }

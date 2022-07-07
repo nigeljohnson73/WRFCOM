@@ -14,7 +14,7 @@ class TrBMP {
     double getTemperature(); // in C
     double getAltitude(); // in m
 
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
@@ -23,7 +23,7 @@ class TrBMP {
     }; // in hPa
 
   private:
-    boolean _enabled = false;
+    bool _enabled = false;
     double sea_level_pressure = 1013.25;
 };
 

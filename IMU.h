@@ -18,12 +18,12 @@ class TrIMU {
     double getAccelerationY(); // in metres per second per second
     double getAccelerationZ(); // in metres per second per second
 
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
   private:
-    boolean _enabled = false;
+    bool _enabled = false;
 };
 
 extern TrIMU IMU;

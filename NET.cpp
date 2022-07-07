@@ -18,6 +18,16 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
+#ifdef ESP32
+int espChipId() {
+  int chipId = 0;
+  for (int i = 0; i < 17; i = i + 8) {
+
+    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  }
+  return chipId;
+}
+#endif
 
 TrNET NET;
 
@@ -47,12 +57,16 @@ void TrNET::begin(String ssid, String pass, long wait) {
   }
 
   if (_hostname == String("")) {
+#ifdef ESP32
+    _hostname = String ("TR-") + espChipId();
+#else
     _hostname = String ("TR-") + ESP.getChipId();
+#endif
   }
 
   if (ssid.length() > 0) {
     WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, pass);
+    WiFi.begin(ssid.c_str(), pass.c_str());
 
     WiFi.hostname(_hostname);
 
@@ -68,7 +82,11 @@ void TrNET::begin(String ssid, String pass, long wait) {
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(" connected!");
     _ip_address = WiFi.localIP().toString();
+#ifdef ESP32
+    _hostname = WiFi.getHostname();
+#else
     _hostname = WiFi.hostname().c_str();
+#endif
     //Display.showIpAddress(_ip_address);
 
 #if _DEBUG_
@@ -78,7 +96,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     /******************************************
          Initialise mDNS
     */
-    if (MDNS.begin(_hostname)) {
+    if (MDNS.begin(_hostname.c_str())) {
 #if _DEBUG_
       Serial.println(String("   DNS hostname: ") + _hostname + ".local");
 #endif
@@ -166,7 +184,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     //    IPAddress subnet(255, 255, 255, 0);
 
     //WiFi.softAPConfig(local_ip, gateway, subnet);
-    WiFi.softAP(_ap_ssid, _ap_pass);
+    WiFi.softAP(_ap_ssid.c_str(), _ap_pass.c_str());
     delay(100);
 
     //    _ip_address = local_ip.toString();

@@ -19,19 +19,19 @@ class TrGPS {
       return _refresh_hz;
     };
 
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
-    boolean isConnected() {
+    bool isConnected() {
       return _connected;
     };
 
     void callbackDataRecieved();
 
   private:
-    boolean _enabled = false;
-    boolean _connected = false;
+    bool _enabled = false;
+    bool _connected = false;
 
     double _lat = 0;
     double _lng = 0;

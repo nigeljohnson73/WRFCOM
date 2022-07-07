@@ -1,6 +1,10 @@
 #include "SRV.h"
 
+#ifdef ESP32
+#include <ESP32Servo.h>
+#else
 #include <Servo.h>
+#endif
 
 Servo myservo;
 TrSRV SRV;
@@ -11,7 +15,7 @@ void TrSRV::begin() {
 #if !USE_SERVO
   return;
 #endif
-  myservo.attach(D0);
+  myservo.attach(SERVO_PIN);
   _enabled =  true;
   arm(false);
 
@@ -33,7 +37,7 @@ void TrSRV::loop() {
   //  }
 }
 
-void TrSRV::arm(boolean tf) {
+void TrSRV::arm(bool tf) {
   if (!isEnabled()) return;
 
   int ang = 30 + (tf ? 120 : 0);

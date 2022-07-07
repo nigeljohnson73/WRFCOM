@@ -21,13 +21,21 @@
 
 // Should the servo code be used for parachute deployment
 #define USE_SERVO true
+#if ESP32
+#define SERVO_PIN 12
+#define LED_PIN 13
+#else
+#define SERVO_PIN D0
+#define LED_PIN LED_BUILTIN
+#endif
 
 // Once the peak height has been reached, then at this point, throw out hte parachute
 #define PARACHUTE_DEPLOY_APOGEE_OFFSET -1
 
-// Configure LiPO use or the PP3
-#define USE_LIPO false
-#define LIPO_SIZE LC709203F_APA_1000MAH
+// Configure LiPO and monitor use
+#define USE_LIPO true
+#define LIPO_SIZE LC709203F_APA_500MAH
+//#define LIPO_SIZE LC709203F_APA_1000MAH
 
 // How fast should we oll the sensors
 // The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
@@ -37,15 +45,12 @@
 #define _DEBUG_ true
 #define _XDEBUG_ false
 
-#ifndef ESP32
-// On the ESP8266 boards
-#include <Arduino.h> // For type inclusion - String for example
-#endif
 
 #if USE_LIPO
 #include "BAT.h"
 #endif
 
+#include <Arduino.h> // For type inclusion - String for example
 #include "BMP.h"
 #include "GPS.h"
 #include "IMU.h"

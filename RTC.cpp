@@ -55,7 +55,7 @@ void TrRTC::begin() {
 void TrRTC::loop() {
 }
 
-boolean TrRTC::setTimestamp(String iso) {
+bool TrRTC::setTimestamp(String iso) {
   if (iso.length() == 0) return false;
 
   rtc.adjust(DateTime(iso.c_str()));

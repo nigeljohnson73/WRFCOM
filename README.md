@@ -76,12 +76,13 @@ The following microcontrollers have been tested:
 If you want to control a parachute as well, then you will need the following, and can only really use the PP3 battery
 option.
 
-* [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER]
-* [Micro servo][MICRO-SERVO]
+<!-- * [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER] -->
+* [Micro servo][TOWER-PRO]
 * Optionally [SparkFun Qwiic Button][BUTTON]
 
 [SERVO-FEATHER]: https://shop.pimoroni.com/products/8-channel-pwm-or-servo-featherwing-add-on-for-all-feather-boards?variant=13710765383
-[MICRO-SERVO]: https://shop.pimoroni.com/products/servo-generic-sub-micro-size?variant=19330899143
+<!-- [MICRO-SERVO]: https://shop.pimoroni.com/products/servo-generic-sub-micro-size?variant=19330899143 -->
+[TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
 [BUTTON]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
 
 ### LiPO battery option
@@ -89,14 +90,15 @@ This setup is lighter, smaller and more monitorable.
 
 * [1,200mAh LiPO battery][LIPO-BATTERY]
 * [LC709203F LiPoly fuel guage][LIPO-MONITOR] (built into the Feather boards so you won't need the external QWIIC board)
-* [AP3429A 3.3V Buck Converter Breakout][REGULATOR-3v]
+<!-- * [AP3429A 3.3V Buck Converter Breakout][REGULATOR-3v] -->
 * Optionally the [LiPo Amigo charger and switch][AMIGO]
 
-[REGULATOR-3v]: https://shop.pimoroni.com/products/ap3429a-3-3v-buck-converter-breakout-3-3v-output-1-2a-max?variant=32173899546707
+<!-- [REGULATOR-3v]: https://shop.pimoroni.com/products/ap3429a-3-3v-buck-converter-breakout-3-3v-output-1-2a-max?variant=32173899546707 -->
 [LIPO-BATTERY]: https://shop.pimoroni.com/products/lipo-battery-pack?variant=20429082183
 [AMIGO]: https://shop.pimoroni.com/products/lipo-amigo?variant=39779302539347
 [LIPO-MONITOR]: https://shop.pimoroni.com/products/adafruit-lc709203f-lipoly-liion-fuel-gauge-and-battery-monitor-stemma-jst-ph-qt-qwiic?variant=32236623396947
 
+<!-- 
 ### PP3 battery option
 This option will run the controller but you have no visibility of the power level.
 
@@ -109,6 +111,7 @@ This option will run the controller but you have no visibility of the power leve
 [PP3-SNAP]: https://shop.pimoroni.com/products/pp3-battery-snap?variant=371728927
 [REGULATOR-5V]: https://smile.amazon.co.uk/dp/B08HK6Z91G
 [PP3-BATTERY]: https://smile.amazon.co.uk/dp/B093CBYWSL
+-->
 
 Libraries required
 ------------------
@@ -119,11 +122,13 @@ Libraries required
 * RTCLib (for the PCF8523 RTC module)
 * SparkFun Qwiic OpenLog (for the OpenLog module)
 * SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q GPS module)
-* Adafruit PWM Servo Driver Library (for the 8-channel servo board)
+<!-- * Adafruit PWM Servo Driver Library (for the 8-channel servo board) -->
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)
 
 Known issues
 ------------
+
+### Access points
 At this point, the code is designed to create an access point if it cannot connect to a wireless network. However, this
 appears to be really slow and flakey for some reason. For use out in the field, I'd recommend setting up a hotspot on 
 your phone for it to connect to. Finding the IP address to connect to though can be tricky. On my Pixel device I cannot
@@ -134,5 +139,5 @@ type the following in and it will list the IP addresses of any attached device (
 ip neigh
 ```
 
-Future plans for the ESP32 build will possibly include a BTLE broadcast of it's IP address... or possibly using teh bluetooth
+Future plans for the ESP32 build will possibly include a BTLE broadcast of it's IP address... or possibly using the bluetooth
 connection in an app (for android only) or, better yet, working out why this is so flakey.

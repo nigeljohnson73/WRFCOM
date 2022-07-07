@@ -12,11 +12,11 @@ class TrLOG {
 
     String getLogSummary();
 
-    void capture(boolean tf); // start or stop the logging
-    boolean isCapturing() {
+    void capture(bool tf); // start or stop the logging
+    bool isCapturing() {
       return _logging;
     };
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
@@ -27,10 +27,10 @@ class TrLOG {
 
   private:
     long logging_started = 0;
-    boolean _enabled = false;
-    boolean _logging = false;
+    bool _enabled = false;
+    bool _logging = false;
 
-    boolean _chute_deployed;
+    bool _chute_deployed;
     //    String _log;
     String _log_fn;
     String _log_dir;

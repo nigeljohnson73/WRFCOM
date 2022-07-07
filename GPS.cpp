@@ -74,7 +74,7 @@ void TrGPS::begin() {
 
 void TrGPS::loop() {
   if (!isEnabled()) return;
-  boolean dirty = false;
+  bool dirty = false;
 
   myGNSS.checkUblox(); // Check for the arrival of new data and process it.
 

@@ -5,7 +5,10 @@ OpenLog myLog;
 
 TrLOG LOG;
 
+#ifndef PI
 #define PI 3.14159265358979323846
+#endif
+
 #define EARTH_RADIUS 6372797.56085
 #define ONE_G 9.80665
 
@@ -29,8 +32,8 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
 TrLOG::TrLOG() {};
 
 void TrLOG::begin() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH); // Default to off. Yep, HIGH is off
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH); // Default to off. Yep, HIGH is off
 
   //  Wire.begin();
   if (!myLog.begin()) {
@@ -247,12 +250,12 @@ void TrLOG::startCapture() {
   Serial.println();
 #endif
   _logging = true;
-  digitalWrite(LED_BUILTIN, LOW); // LOW is on
+  digitalWrite(LED_PIN, LOW); // LOW is on
 
 }
 
 void TrLOG::stopCapture() {
-  digitalWrite(LED_BUILTIN, HIGH); // HIGH is off
+  digitalWrite(LED_PIN, HIGH); // HIGH is off
   _logging = false;
   if (!myLog.syncFile()) {
 #if _DEBUG_
@@ -346,7 +349,7 @@ void TrLOG::stopCapture() {
 #endif
 }
 
-void TrLOG::capture(boolean tf) {
+void TrLOG::capture(bool tf) {
   if (!isEnabled()) return;
 
   if (isCapturing() == tf) {

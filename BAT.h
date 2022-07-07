@@ -12,12 +12,12 @@ class TrBAT {
 
     double getCapacityPercent(); // as a percentage
 
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
   private:
-    boolean _enabled = false;
+    bool _enabled = false;
 };
 
 extern TrBAT BAT;

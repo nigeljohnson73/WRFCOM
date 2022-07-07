@@ -10,19 +10,19 @@ class TrSRV {
     void begin();
     void loop();
 
-    boolean isEnabled() {
+    bool isEnabled() {
       return _enabled;
     };
 
-    boolean isArmed() {
+    bool isArmed() {
       return _armed;
     };
 
-    void arm(boolean tf);
+    void arm(bool tf);
 
   private:
-    boolean _enabled = false;
-    boolean _armed = true;
+    bool _enabled = false;
+    bool _armed = true;
 };
 
 extern TrSRV SRV;

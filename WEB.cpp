@@ -6,8 +6,10 @@
 // TODO: Implement missing bits for this :(
 // https://raw.githubusercontent.com/RuiSantosdotme/ESP32-Course/master/code/WiFi_Web_Server_Outputs/WiFi_Web_Server_Outputs.ino
 // ESP8266WebServer WebServer(80);
+//#include <ESP8266WebServer.h>
+//ESP8266WebServer WebServer(80);
 #else
-#include <Arduino.h>
+//#include <Arduino.h>
 //#include <ESP8266WiFi.h>
 //#include <Hash.h>
 #include <ESP8266WebServer.h>
@@ -37,29 +39,55 @@ String titles[pmax];
 */
 void serverBegin() {
   // TODO: This will probably be different on ESP32
+#ifdef ESP32
+#else
   WebServer.begin();
+#endif
 }
 
 void registerUri(String uri, void (*func)(void)) {
   // TODO: this will be differnet on ESP32
+#ifdef ESP32
+#else
   WebServer.on(uri, func);
+#endif
 }
 
 void registerStaticUri(String uri, String filename) {
+#ifdef ESP32
+#else
   WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
+#endif
 }
 
 void serverResponse(int code, String type, String content) {
+#ifdef ESP32
+#else
   WebServer.send(code, type, content);
+#endif
 }
 
 void registerNotFound(void (*func)(void)) {
+#ifdef ESP32
+#else
   WebServer.onNotFound(func);
+#endif
+}
+
+String getUri() {
+#ifdef ESP32
+  return "/";
+#else
+  return WebServer.uri();
+#endif
 }
 
 void serverLoop() {
   // TODO: This will probably be different on ESP32
+#ifdef ESP32
+#else
   WebServer.handleClient();
+#endif
 }
 
 //// Use at the top of page shows that need to be authenticated
@@ -184,7 +212,7 @@ String urlencode(String str) {
                                   |___/
 */
 
-void addPage(String uri, void (*func)(void), String title, boolean hidden) {
+void addPage(String uri, void (*func)(void), String title, bool hidden) {
 #if _XDEBUG_
   Serial.print("WebServer::addPage(");
   Serial.print(uri);
@@ -209,7 +237,7 @@ void addPage(String uri, void (*func)(void)) {
   addPage(uri, func, "", true);
 }
 
-void addStaticPage(String uri, String filename, String title, boolean hidden) {
+void addStaticPage(String uri, String filename, String title, bool hidden) {
 #if _XDEBUG_
   Serial.print("WebServer::addStaticPage(");
   Serial.print(uri);
@@ -319,9 +347,10 @@ String htmlFooter() {
 
   content += "</div><footer>";
   content += "<ul id='footer-buttons' class='buttons'>";
+  String this_uri = getUri();
   for (int i = 0; i < pcount; i++) {
     content += "<li";
-    if (urls[i] == WebServer.uri()) {
+    if (urls[i] == this_uri) {
       content += " class='selected'";
     }
     content += ">";
@@ -346,7 +375,7 @@ String htmlPage(String title, String content) {
 
 void showNotFound() {
 #if _DEBUG_
-  String uri = WebServer.uri();
+  String uri = getUri();
   Serial.print("WebServer::showNotFound(");
   Serial.print(uri);
   Serial.print("): called");
@@ -776,8 +805,10 @@ void TrWEB::begin() {
   // these pages should not be publically listed, so no title means hidden
   addPage("/api/log/start", handle_logStart);
   addPage("/api/log/stop", handle_logStop);
+#if !USER_SERVO
   addPage("/api/srv/arm", handle_srvArm);
   addPage("/api/srv/disarm", handle_srvDisarm);
+#endif
 
   // Add a 404 handler
   registerNotFound(showNotFound);

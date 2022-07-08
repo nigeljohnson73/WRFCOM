@@ -312,7 +312,7 @@ String htmlHeader(String title) {
   ret += "footer {flex-shrink: 0;padding-bottom: 20px;}";
   ret += ".status-wrapper {clear: both;}";
   ret += ".status-wrapper .label, .status-wrapper .value {padding-top: 10px; padding-bottom: 10px; width: 49.5%; float: left; margin-bottom: 10px;}";
-  ret += ".status, .button {width: 99%; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
+  ret += ".status, .button {width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
   ret += ".button a {all: unset;}";
   ret += ".status-red {border-color: #a00; background-color: #faa; color: #a00;}";
   ret += ".status-amber {border-color: #a70; background-color: #fca; color: #a70;}";
@@ -361,7 +361,12 @@ String htmlFooter() {
   }
   content += "</ul>";
 
+        if (WEB.fsWorking()) {
   content += "<img id='footer-action' class='action' alt='loading icon' src='/ajax-loader-bar.gif' />";
+
+        } else {
+  content += "<p id='footer-action' class='action'>Please wait...</p>";
+      }
   content += "</footer></body></html> ";
 
   return content;
@@ -718,16 +723,32 @@ void showRoot() {
   content += "<div style='clear:both'></div>";
   content += "<div id='actions'>";
   if (LOG.isCapturing()) {
-    content += "<a onclick='hideActions()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
+    if (WEB.fsWorking()) {
+      content += "<a onclick='hideActions()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
+    } else {
+      content += "<div class='button'><a onclick='hideActions()' href='/api/log/stop'>Stop Log</a></div>";
+    }
   } else {
     if (LOG.isEnabled()) {
-      content += "<a onclick='hideActions()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
+      if (WEB.fsWorking()) {
+        content += "<a onclick='hideActions()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
+      } else {
+        content += "<div class='button'><a onclick='hideActions()' href='/api/log/start'>Start Log</a></div>";
+      }
     }
     if (SRV.isEnabled()) {
       if (SRV.isArmed()) {
-        content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute' /></a>";
+        if (WEB.fsWorking()) {
+          content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute' /></a>";
+        } else {
+          content += "<div class='button'><a onclick='hideActions()' href='/api/srv/disarm'>Disarm</a></div>";
+        }
       } else {
-        content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute' /></a>";
+        if (WEB.fsWorking()) {
+          content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute' /></a>";
+        } else {
+          content += "<div class='button'><a onclick='hideActions()' href='/api/srv/arm'>Arm</a></div>";
+        }
       }
     }
   }
@@ -828,6 +849,7 @@ TrWEB::TrWEB() {};
 
 void TrWEB::begin() {
   if (!SPIFFS.begin()) {
+    _static_files = false;
 #if _DEBUG_
     Serial.println("         SPIFFS: Disabled");
 #endif

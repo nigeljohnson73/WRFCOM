@@ -9,6 +9,13 @@ class TrWEB {
 
     void begin();
     void loop();
+
+    bool fsWorking() {
+      return _static_files;
+    };
+
+  private:
+    bool _static_files = true;
 };
 
 extern TrWEB WEB;

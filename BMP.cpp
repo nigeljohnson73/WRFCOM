@@ -1,11 +1,8 @@
 #include "BMP.h"
 
-#include <Wire.h>
-#include <SPI.h>
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 
-//#define SEALEVELPRESSURE_HPA (1013.25)
 Adafruit_BMP3XX bmp390;
 TrBMP BMP;
 
@@ -47,6 +44,15 @@ void TrBMP::begin() {
   //  setAltitude(22);
 }
 
+void TrBMP::loop() {
+  if (!isEnabled()) return;
+
+  if (! bmp390.performReading()) {
+    //Serial.println("Failed to perform reading :(");
+    return;
+  }
+}
+
 void TrBMP::setAltitude(double h) {
   if (!isEnabled()) {
     return;
@@ -82,31 +88,4 @@ double TrBMP::getTemperature() {
 double TrBMP::getAltitude() {
   if (!isEnabled()) return 0.;
   return bmp390.readAltitude(sea_level_pressure);
-}
-
-
-void TrBMP::loop() {
-  if (!isEnabled()) return;
-
-  if (! bmp390.performReading()) {
-    //Serial.println("Failed to perform reading :(");
-    return;
-  }
-  //  Serial.print("Temperature = ");
-  //  //  Serial.print(bmp390.temperature);
-  //  Serial.print(currentTemperature());
-  //  Serial.println(" *C");
-  //
-  //  Serial.print("BMP = ");
-  //  //  Serial.print(bmp390.pressure / 100.0);
-  //  Serial.print(currentBMP());
-  //  Serial.println(" hPa");
-  //
-  //  Serial.print("Approx. Altitude = ");
-  //  //  Serial.print(bmp390.readAltitude(SEALEVELPRESSURE_HPA));
-  //  Serial.print(currentAltitude());
-  //  Serial.println(" m");
-  //
-  //  Serial.println();
-  //  delay(10000);
 }

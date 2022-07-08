@@ -3,7 +3,6 @@
 #include "Adafruit_LC709203F.h"
 
 Adafruit_LC709203F lc;
-
 TrBAT BAT;
 
 TrBAT::TrBAT() {};

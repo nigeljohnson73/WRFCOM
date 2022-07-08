@@ -124,7 +124,10 @@ Libraries required
 * SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q GPS module)
 <!-- * Adafruit PWM Servo Driver Library (for the 8-channel servo board) -->
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)
+* [ESPAsyncWebServer][ESPAsyncWebServer] and [AsyncTCP][AsyncTCP] (unzip into your library folder and remove the `-master` in the folder name)
 
+[ESPAsyncWebServer]: https://github.com/me-no-dev/ESPAsyncWebServer
+[AsyncTCP]: https://github.com/me-no-dev/AsyncTCP
 Known issues
 ------------
 

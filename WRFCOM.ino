@@ -12,11 +12,11 @@
    - Configure Servo system
 */
 
-#ifdef ESP32
-#include <SPIFFS.h>
-#else
-#include <FS.h>
-#endif
+//#ifdef ESP32
+//#include <SPIFFS.h>
+//#else
+//#include <FS.h>
+//#endif
 #include <Wire.h>
 
 // Create a file called myWIFI.h and add the following (but updated it with your settings)
@@ -29,7 +29,7 @@ void setup() {
   Wire.begin(); // Initialise the IIC bus (GPS and buttons);
 
   Serial.begin(115200);
-  delay(100);
+  delay(5000);
   Serial.println();
 
   NET.setHostname(_AP_NAME_);
@@ -40,6 +40,7 @@ void setup() {
   BAT.begin();
 #endif
   BMP.begin();
+  BUT.begin();
   IMU.begin();
   GPS.begin();
   SRV.begin();
@@ -60,6 +61,7 @@ void loop() {
     BAT.loop();
 #endif
     BMP.loop();
+    BUT.loop();
     IMU.loop();
     GPS.loop();
     SRV.loop();

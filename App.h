@@ -52,6 +52,7 @@
 
 #include <Arduino.h> // For type inclusion - String for example
 #include "BMP.h"
+#include "BUT.h"
 #include "GPS.h"
 #include "IMU.h"
 #include "LOG.h"

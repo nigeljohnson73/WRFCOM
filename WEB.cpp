@@ -1,20 +1,13 @@
 #include "WEB.h"
 
+#include <FS.h>
 #ifdef ESP32
-#include <WiFi.h>
 #include <SPIFFS.h>
-// TODO: Implement missing bits for this :(
-// https://raw.githubusercontent.com/RuiSantosdotme/ESP32-Course/master/code/WiFi_Web_Server_Outputs/WiFi_Web_Server_Outputs.ino
-// ESP8266WebServer WebServer(80);
-//#include <ESP8266WebServer.h>
-//ESP8266WebServer WebServer(80);
+#include <WiFi.h>
+#include <ESPAsyncWebServer.h>
+AsyncWebServer WebServer(80);
 #else
-//#include <Arduino.h>
-//#include <ESP8266WiFi.h>
-//#include <Hash.h>
 #include <ESP8266WebServer.h>
-#include "FS.h"
-
 ESP8266WebServer WebServer(80);
 #endif
 
@@ -25,8 +18,8 @@ const unsigned int pmax = 20;
 unsigned int pcount = 0;
 String urls[pmax];
 String titles[pmax];
-//void (*not_found_callback)(void);
 
+AsyncWebServerRequest * __request;
 
 /*******************************************************************************************************************************************
             _         _                  _           _
@@ -38,47 +31,62 @@ String titles[pmax];
 
 */
 void serverBegin() {
-  // TODO: This will probably be different on ESP32
-#ifdef ESP32
-#else
   WebServer.begin();
-#endif
 }
 
-void registerUri(String uri, void (*func)(void)) {
-  // TODO: this will be differnet on ESP32
 #ifdef ESP32
-#else
-  WebServer.on(uri, func);
-#endif
+void registerUri(String uri, ArRequestHandlerFunction func) {
+  WebServer.on(uri.c_str(), HTTP_GET, func);
 }
+#else
+void registerUri(String uri, void (*func)(void)) {
+  WebServer.on(uri, func);
+}
+#endif
 
 void registerStaticUri(String uri, String filename) {
 #ifdef ESP32
+  //Serial.print("URI: '");
+  //Serial.print(uri);
+  //Serial.print("', File: '");
+  //Serial.print(filename);
+  //Serial.print("'");
+  //Serial.println();
+
+  WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
 #else
   WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
 #endif
 }
 
-void serverResponse(int code, String type, String content) {
 #ifdef ESP32
+void registerNotFound(ArRequestHandlerFunction func) {
+  WebServer.onNotFound(func);
 #else
-  WebServer.send(code, type, content);
-#endif
-}
-
 void registerNotFound(void (*func)(void)) {
-#ifdef ESP32
-#else
   WebServer.onNotFound(func);
 #endif
 }
 
 String getUri() {
 #ifdef ESP32
-  return "/";
+  if (__request) {
+    return __request->url();
+  } else {
+    return "/unknown";
+  }
 #else
   return WebServer.uri();
+#endif
+}
+
+void serverResponse(int code, String type, String content) {
+#ifdef ESP32
+  if (__request) {
+    __request->send(code, type, content);
+  }
+#else
+  WebServer.send(code, type, content);
 #endif
 }
 
@@ -90,115 +98,94 @@ void serverLoop() {
 #endif
 }
 
-//// Use at the top of page shows that need to be authenticated
-//bool isAuthenticated() {
-//  if (!WebServer.authenticate(_WWW_USERNAME_, _WWW_PASSWORD_)) {
-//    WebServer.requestAuthentication(DIGEST_AUTH, _AP_NAME_, "Authorisation failed");
-//    return false;
+///*******************************************************************************************************************************************
+//   _    _      _                     __                  _   _
+//  | |  | |    | |                   / _|                | | (_)
+//  | |__| | ___| |_ __   ___ _ __   | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
+//  |  __  |/ _ \ | '_ \ / _ \ '__|  |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+//  | |  | |  __/ | |_) |  __/ |     | | | |_| | | | | (__| |_| | (_) | | | \__ \
+//  |_|  |_|\___|_| .__/ \___|_|     |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+//                | |
+//                |_|
+//*/
+//
+//// Convert hex character to integer
+//unsigned char h2int(char c) {
+//  if (c >= '0' && c <= '9') {
+//    return ((unsigned char)c - '0');
 //  }
-//  return true;
+//  if (c >= 'a' && c <= 'f') {
+//    return ((unsigned char)c - 'a' + 10);
+//  }
+//  if (c >= 'A' && c <= 'F') {
+//    return ((unsigned char)c - 'A' + 10);
+//  }
+//  return (0);
 //}
 //
-//// See if the passed form post has the expected token and it matches
-//bool hasToken(String t) {
-//  for (uint8_t i = 0; i < WebServer.args(); i++) {
-//    if (WebServer.arg(i).length()) {
-//      if (WebServer.argName(i) == "token" && WebServer.arg(i) == t) {
-//        return true;
-//      }
+//// Decode a URL string
+//String urldecode(String str) {
+//
+//  String encodedString = "";
+//  char c;
+//  char code0;
+//  char code1;
+//  for (int i = 0; i < str.length(); i++) {
+//    c = str.charAt(i);
+//    if (c == '+') {
+//      encodedString += ' ';
+//    } else if (c == '%') {
+//      i++;
+//      code0 = str.charAt(i);
+//      i++;
+//      code1 = str.charAt(i);
+//      c = (h2int(code0) << 4) | h2int(code1);
+//      encodedString += c;
+//    } else {
+//
+//      encodedString += c;
 //    }
+//
+//    yield();
 //  }
-//  return false;
+//
+//  return encodedString;
 //}
-
-/*******************************************************************************************************************************************
-   _    _      _                     __                  _   _
-  | |  | |    | |                   / _|                | | (_)
-  | |__| | ___| |_ __   ___ _ __   | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
-  |  __  |/ _ \ | '_ \ / _ \ '__|  |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
-  | |  | |  __/ | |_) |  __/ |     | | | |_| | | | | (__| |_| | (_) | | | \__ \
-  |_|  |_|\___|_| .__/ \___|_|     |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
-                | |
-                |_|
-*/
-
-// Convert hex character to integer
-unsigned char h2int(char c) {
-  if (c >= '0' && c <= '9') {
-    return ((unsigned char)c - '0');
-  }
-  if (c >= 'a' && c <= 'f') {
-    return ((unsigned char)c - 'a' + 10);
-  }
-  if (c >= 'A' && c <= 'F') {
-    return ((unsigned char)c - 'A' + 10);
-  }
-  return (0);
-}
-
-// Decode a URL string
-String urldecode(String str) {
-
-  String encodedString = "";
-  char c;
-  char code0;
-  char code1;
-  for (int i = 0; i < str.length(); i++) {
-    c = str.charAt(i);
-    if (c == '+') {
-      encodedString += ' ';
-    } else if (c == '%') {
-      i++;
-      code0 = str.charAt(i);
-      i++;
-      code1 = str.charAt(i);
-      c = (h2int(code0) << 4) | h2int(code1);
-      encodedString += c;
-    } else {
-
-      encodedString += c;
-    }
-
-    yield();
-  }
-
-  return encodedString;
-}
-
-// encode a string for URLing safely
-String urlencode(String str) {
-  String encodedString = "";
-  char c;
-  char code0;
-  char code1;
-  char code2;
-  for (int i = 0; i < str.length(); i++) {
-    c = str.charAt(i);
-    if (c == ' ') {
-      encodedString += '+';
-    } else if (isalnum(c)) {
-      encodedString += c;
-    } else {
-      code1 = (c & 0xf) + '0';
-      if ((c & 0xf) > 9) {
-        code1 = (c & 0xf) - 10 + 'A';
-      }
-      c = (c >> 4) & 0xf;
-      code0 = c + '0';
-      if (c > 9) {
-        code0 = c - 10 + 'A';
-      }
-      code2 = '\0';
-      encodedString += '%';
-      encodedString += code0;
-      encodedString += code1;
-      //encodedString+=code2;
-    }
-    yield();
-  }
-  return encodedString;
-
-}
+//
+//// encode a string for URLing safely
+//String urlencode(String str) {
+//  String encodedString = "";
+//  char c;
+//  char code0;
+//  char code1;
+//  char code2;
+//  for (int i = 0; i < str.length(); i++) {
+//    c = str.charAt(i);
+//    if (c == ' ') {
+//      encodedString += '+';
+//    } else if (isalnum(c)) {
+//      encodedString += c;
+//    } else {
+//      code1 = (c & 0xf) + '0';
+//      if ((c & 0xf) > 9) {
+//        code1 = (c & 0xf) - 10 + 'A';
+//      }
+//      c = (c >> 4) & 0xf;
+//      code0 = c + '0';
+//      if (c > 9) {
+//        code0 = c - 10 + 'A';
+//      }
+//      code2 = '\0';
+//      encodedString += '%';
+//      encodedString += code0;
+//      encodedString += code1;
+//      //encodedString+=code2;
+//    }
+//    yield();
+//  }
+//  return encodedString;
+//
+//}
 
 
 /*******************************************************************************************************************************************
@@ -212,7 +199,11 @@ String urlencode(String str) {
                                   |___/
 */
 
+#ifdef ESP32
+void addPage(String uri, ArRequestHandlerFunction func, String title, bool hidden) {
+#else
 void addPage(String uri, void (*func)(void), String title, bool hidden) {
+#endif
 #if _XDEBUG_
   Serial.print("WebServer::addPage(");
   Serial.print(uri);
@@ -226,14 +217,23 @@ void addPage(String uri, void (*func)(void), String title, bool hidden) {
     titles[pcount] = title;
     urls[pcount++] = uri;
   }
-  // TODO: This will be different on ESP32
-  //  WebServer.on(uri, func);
+
   registerUri(uri, func);
 }
+
+#ifdef ESP32
+void addPage(String uri, ArRequestHandlerFunction func, String title) {
+#else
 void addPage(String uri, void (*func)(void), String title) {
+#endif
   addPage(uri, func, title, false);
 }
+
+#ifdef ESP32
+void addPage(String uri, ArRequestHandlerFunction func) {
+#else
 void addPage(String uri, void (*func)(void)) {
+#endif
   addPage(uri, func, "", true);
 }
 
@@ -253,7 +253,6 @@ void addStaticPage(String uri, String filename, String title, bool hidden) {
   }
   // TODO: this will be different for ESP32
   registerStaticUri(uri, filename);
-  //WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
 }
 void addStaticPage(String uri, String filename, String title) {
   addStaticPage(uri, filename, title, false);
@@ -287,7 +286,6 @@ void goToUrl(String url) {
   ret += url;
   ret += "';";
   ret += "</script>";
-
   ret += "</body></html>";
 
   serverResponse(200, "text/html", ret);
@@ -373,7 +371,16 @@ String htmlPage(String title, String content) {
   return htmlHeader(title) + content + htmlFooter();
 }
 
+/*******************************************************************************************************************************************
+
+*/
+
+#ifdef ESP32
+void showNotFound(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void showNotFound() {
+#endif
 #if _DEBUG_
   String uri = getUri();
   Serial.print("WebServer::showNotFound(");
@@ -385,6 +392,7 @@ void showNotFound() {
 #if _XDEBUG_
   Serial.println("WebServer::showNotFound(): responding");
 #endif
+
   serverResponse(404, "text/html", htmlPage("Ooops", content));
 #if _XDEBUG_
   Serial.println("WebServer::showNotFound(): complete");
@@ -401,7 +409,12 @@ void showNotFound() {
 
 */
 
+#ifdef ESP32
+void showStats(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void showStats() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::showRoot(): called");
 #endif
@@ -552,6 +565,7 @@ void showStats() {
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): responding");
 #endif
+
   serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Stats", content));
 
 #if _DEBUG_ &&  _XDEBUG_
@@ -569,7 +583,12 @@ void showStats() {
 
 */
 
+#ifdef ESP32
+void showAbout(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void showAbout() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::showAbout(): called");
 #endif
@@ -582,7 +601,9 @@ void showAbout() {
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAbout(): responding");
 #endif
+
   serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - About", content));
+
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAbout(): complete");
 #endif
@@ -598,7 +619,12 @@ void showAbout() {
 
 */
 
+#ifdef ESP32
+void showRoot(AsyncWebServerRequest* request) {
+  __request = request;
+#else
 void showRoot() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::showRoot(): called");
 #endif
@@ -699,9 +725,9 @@ void showRoot() {
     }
     if (SRV.isEnabled()) {
       if (SRV.isArmed()) {
-        content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute deployment' /></a>";
+        content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute' /></a>";
       } else {
-        content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute deployment' /></a>";
+        content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute' /></a>";
       }
     }
   }
@@ -716,7 +742,9 @@ void showRoot() {
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): responding");
 #endif
+
   serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Home", content));
+
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
 #endif
@@ -733,7 +761,12 @@ void showRoot() {
                |___/ |___/         |___/
 
 */
+#ifdef ESP32
+void handle_logStart(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void handle_logStart() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::handle_logStart(): called");
 #endif
@@ -741,7 +774,12 @@ void handle_logStart() {
   goToUrl("/");
 }
 
+#ifdef ESP32
+void handle_logStop(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void handle_logStop() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::handle_logStop(): called");
 #endif
@@ -751,7 +789,12 @@ void handle_logStop() {
 
 /*******************************************************************************************************************************************
 */
+#ifdef ESP32
+void handle_srvArm(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void handle_srvArm() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::handle_srvArm(): called");
 #endif
@@ -759,7 +802,12 @@ void handle_srvArm() {
   goToUrl("/");
 }
 
+#ifdef ESP32
+void handle_srvDisarm(AsyncWebServerRequest * request) {
+  __request = request;
+#else
 void handle_srvDisarm() {
+#endif
 #if _DEBUG_
   Serial.println("WebServer::handle_srvDisarm(): called");
 #endif
@@ -781,12 +829,13 @@ TrWEB::TrWEB() {};
 void TrWEB::begin() {
   if (!SPIFFS.begin()) {
 #if _DEBUG_
-    Serial.println("         SPIFFS: Disbled");
+    Serial.println("         SPIFFS: Disabled");
+#endif
+  } else {
+#if _DEBUG_
+    Serial.println("         SPIFFS: Enabled");
 #endif
   }
-#if _DEBUG_
-  Serial.println("         SPIFFS: Enabled");
-#endif
 
   // Public static pages hidden by default
   addStaticPage("/favicon.ico", "/favicon.png");
@@ -815,6 +864,7 @@ void TrWEB::begin() {
 
   // Start the server
   serverBegin();
+
 #if _DEBUG_
   Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
   if (!NET.isApMode()) {

@@ -6,7 +6,6 @@ Adafruit_LSM6DSO32 dso32;
 sensors_event_t accel;
 sensors_event_t gyro;
 sensors_event_t temp;
-
 TrIMU IMU;
 
 TrIMU::TrIMU() {};

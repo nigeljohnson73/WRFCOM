@@ -33,7 +33,7 @@ void TrBMP::begin() {
   }
 
 #if _DEBUG_
-  Serial.print("BMP initialised: ");
+  Serial.print("BMP initialised: BMP390, ");
   Serial.print(getPressure());
   Serial.print(" hPa, ");
   Serial.print(getTemperature());

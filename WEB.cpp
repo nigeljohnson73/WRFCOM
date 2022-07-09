@@ -1,8 +1,8 @@
 #include "WEB.h"
 
-#include <FS.h>
+//#include <FS.h>
 #ifdef ESP32
-#include <SPIFFS.h>
+//#include <SPIFFS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 AsyncWebServer WebServer(80);
@@ -45,18 +45,7 @@ void registerUri(String uri, void (*func)(void)) {
 #endif
 
 void registerStaticUri(String uri, String filename) {
-#ifdef ESP32
-  //Serial.print("URI: '");
-  //Serial.print(uri);
-  //Serial.print("', File: '");
-  //Serial.print(filename);
-  //Serial.print("'");
-  //Serial.println();
-
-  WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
-#else
-  WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
-#endif
+  //WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
 }
 
 #ifdef ESP32
@@ -302,9 +291,9 @@ String htmlHeader(String title) {
   ret += "</title>";
 
   ret += "<link rel='shortcut icon' href='/favicon.png' />";
-  if (WEB.fsWorking()) {
-    ret += "<link rel='preload' as='image' href='/ajax-loader-bar.gif' />";
-  }
+  //  if (WEB.fsWorking()) {
+  //    ret += "<link rel='preload' as='image' href='/ajax-loader-bar.gif' />";
+  //  }
 
   ret += "<style>";
 
@@ -314,19 +303,16 @@ String htmlHeader(String title) {
   ret += "footer {flex-shrink: 0;padding-bottom: 20px;}";
   ret += ".status-wrapper {clear: both;}";
   ret += ".status-wrapper .label, .status-wrapper .value {padding-top: 10px; padding-bottom: 10px; width: 49.5%; float: left; margin-bottom: 10px;}";
-  ret += ".status, .button {width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
-  ret += ".button {border: solid 1px #060; background-color: #090; color: #fff;}";
-  ret += ".button a {all: unset;}";
+  ret += ".status {width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
+  ret += "button{all:unset; width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #060; background-color: #090; color: #fff;}";
+  ret += "footer button {float: left; width: ";
+  ret += floor(98 / pcount) - 2;
+  ret += "%; margin-left:1%; margin-right:1%;}";
+  ret += "footer button.selected {background-color:#ccc; border-color: #aaa;}";
   ret += ".status-red {border-color: #a00; background-color: #faa; color: #a00;}";
   ret += ".status-amber {border-color: #a70; background-color: #fca; color: #a70;}";
   ret += ".status-green {border-color: #0a0; background-color: #afa; color: #0a0;}";
   ret += ".status-disabled {border-color: #aaa; background-color: #ddd; color: #fff;}";
-
-  ret += "footer ul.buttons, footer ul.buttons li, footer ul.buttons li a {all:unset;}";
-  ret += "footer ul.buttons li {float: left; list-style: none; border-radius: 5px; border: solid 1px #060; background-color: #090; color:#fff; width: ";
-  ret += floor(98 / pcount) - 2;
-  ret += "%; padding-top: 10px; padding-bottom: 10px; margin-left:1%; margin-right:1%;}";
-  ret += "footer ul.buttons li.selected {background-color:#ccc; border-color: #aaa;}";
   ret += "footer .action {display:none;}";
   ret += "#log-summary {margin-top:2px; padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
   ret += "a#logstat {margin-top:7px;}";
@@ -347,29 +333,21 @@ String htmlFooter() {
   String content = "";
 
   content += "</div><footer>";
-  content += "<ul id='footer-buttons' class='buttons'>";
+  content += "<div id='footer-buttons'>";
   String this_uri = getUri();
   for (int i = 0; i < pcount; i++) {
-    content += "<li";
+    content += "<button";
     if (urls[i] == this_uri) {
       content += " class='selected'";
     }
-    content += ">";
-    content += "<a onclick='hideActions()' href='";
+    content += " onclick='window.location.href=\"";
     content += urls[i];
-    content += "'>";
+    content += "\"; hideActions();'>";
     content += titles[i];
-    content += "</a>";
-    content += "</li>";
+    content += "</button>";
   }
-  content += "</ul>";
-
-  if (WEB.fsWorking()) {
-    content += "<img id='footer-action' class='action' alt='loading icon' src='/ajax-loader-bar.gif' />";
-
-  } else {
-    content += "<p id='footer-action' class='action'>Please wait...</p>";
-  }
+  content += "</div>";
+  content += "<p id='footer-action' class='action'>Please wait...</p>";
   content += "</footer></body></html> ";
 
   return content;
@@ -727,35 +705,20 @@ void showRoot() {
   content += "<div style='clear:both'></div>";
   content += "<div id='actions'>";
   if (LOG.isCapturing()) {
-    if (WEB.fsWorking()) {
-      content += "<a onclick='hideActions()' href='/api/log/stop'><img src='/log_stop.png' alt='stop logging' /></a>";
-    } else {
-      content += "<div class='button'><a onclick='hideActions()' href='/api/log/stop'>Stop Log</a></div>";
-    }
+    content += "<button onclick='window.location.href=\"/api/log/stop\"; hideActions();'>Stop Capture</button>";
   } else {
     if (LOG.isEnabled()) {
-      if (WEB.fsWorking()) {
-        content += "<a onclick='hideActions()' href='/api/log/start'><img src='/log_start.png' alt='start logging' /></a>";
-      } else {
-        content += "<div class='button'><a onclick='hideActions()' href='/api/log/start'>Start Log</a></div>";
-      }
+      content += "<button onclick='window.location.href=\"/api/log/start\"; hideActions();'>Start Capture</button>";
     }
     if (SRV.isEnabled()) {
       if (SRV.isArmed()) {
-        if (WEB.fsWorking()) {
-          content += "<a onclick='hideActions()' href='/api/srv/disarm'><img src='/srv_disarm.png' alt='disarm parachute' /></a>";
-        } else {
-          content += "<div class='button'><a onclick='hideActions()' href='/api/srv/disarm'>Disarm</a></div>";
-        }
+        content += "<button onclick='window.location.href=\"/api/srv/disarm\"; hideActions();'>Disarm</button>";
       } else {
-        if (WEB.fsWorking()) {
-          content += "<a onclick='hideActions()' href='/api/srv/arm'><img src='/srv_arm.png' alt='arm parachute' /></a>";
-        } else {
-          content += "<div class='button'><a onclick='hideActions()' href='/api/srv/arm'>Arm</a></div>";
-        }
+        content += "<button onclick='window.location.href=\"/api/srv/arm\"; hideActions();'>Arm</button>";
       }
     }
   }
+
   content += "</div>";
 
   String log_summary = LOG.getLogSummary();
@@ -852,16 +815,16 @@ void handle_srvDisarm() {
 TrWEB::TrWEB() {};
 
 void TrWEB::begin() {
-  if (!SPIFFS.begin()) {
-    _static_files = false;
-#if _DEBUG_
-    Serial.println("         SPIFFS: Disabled");
-#endif
-  } else {
-#if _DEBUG_
-    Serial.println("         SPIFFS: Enabled");
-#endif
-  }
+  //if (!SPIFFS.begin()) {
+  _static_files = false;
+  //#if _DEBUG_
+  //    Serial.println("         SPIFFS: Disabled");
+  //#endif
+  //  } else {
+  //#if _DEBUG_
+  //    Serial.println("         SPIFFS: Enabled");
+  //#endif
+  //  }
 
   // Public static pages hidden by default
   addStaticPage("/favicon.ico", "/favicon.png");

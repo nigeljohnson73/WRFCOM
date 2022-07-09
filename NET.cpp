@@ -70,7 +70,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
 
     WiFi.hostname(_hostname);
 
-    Serial.print("\n\nConnecting to WiFi network '");
+    Serial.print("Connecting to WiFi network '");
     Serial.print(WIFI_SSID);
     Serial.print("'.");
 
@@ -177,7 +177,8 @@ void TrNET::begin(String ssid, String pass, long wait) {
     /******************************************
       Start up in local mode
     */
-    Serial.println(" not connected.\nStarting in AP mode.");
+    if(ssid.length() > 0) Serial.println(" not connected.");
+    Serial.println("Starting WiFi in AP mode.");
     _ap_ssid = _hostname;
     _hostname = "";
 

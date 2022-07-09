@@ -35,7 +35,7 @@ void TrSRV::begin() {
   //  myservo.write(30);
 #if _DEBUG_
   //    Serial.println("SRV disconnected");
-  Serial.print("SRV initialised: DISARMED");
+  Serial.print("SRV initialised: TBD");
   Serial.println();
 #endif
 }

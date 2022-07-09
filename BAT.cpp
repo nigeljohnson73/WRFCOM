@@ -37,3 +37,9 @@ double TrBAT::getCapacityPercent() {
 
   return lc.cellPercent();
 }
+
+double TrBAT::getCapacityVoltage() {
+  if (!isEnabled()) return 0.;
+
+  return lc.cellVoltage();
+}

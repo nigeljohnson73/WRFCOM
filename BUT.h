@@ -23,7 +23,7 @@ class TrBUT {
     const long _held_trigger = 1000;
 
     uint8_t _brightness = 250; //The maximum brightness of the pulsing LED. Can be between 0 (min) and 255 (max)
-    uint16_t _cycleTime = 1000;//The total time for the pulse to take. Set to a bigger number for a slower pulse, or a smaller number for a faster pulse
+    uint16_t _cycleTime = 500;//The total time for the pulse to take. Set to a bigger number for a slower pulse, or a smaller number for a faster pulse
     uint16_t _offTime = 0;     //The total time to stay off between pulses. Set to 0 to be pulsing continuously.
 
 };

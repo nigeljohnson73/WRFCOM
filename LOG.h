@@ -24,6 +24,8 @@ class TrLOG {
     void resetCapture();
     void startCapture();
     void stopCapture();
+    void syncLog();
+    void tidy();
 
   private:
     long logging_started = 0;
@@ -35,6 +37,8 @@ class TrLOG {
     String _log_fn;
     String _log_dir;
     String _log_ts;
+    unsigned long _last_sync;
+    const unsigned long _sync_interval = 5000;
 
     double _peak_g;
     double _peak_bmp_altitude;

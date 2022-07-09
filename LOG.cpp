@@ -33,7 +33,7 @@ TrLOG::TrLOG() {};
 
 void TrLOG::begin() {
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH); // Default to off. Yep, HIGH is off
+  digitalWrite(LED_PIN, LOW);
 
   //  Wire.begin();
   if (!myLog.begin()) {
@@ -72,9 +72,23 @@ void TrLOG::loop() {
     return;
   }
 
+  if ((millis() - _last_sync) >= _sync_interval) {
+    syncLog();
+  }
+
   String line = "";
   String comma = ",";
   line += String(millis() - logging_started);
+
+  if (BAT.isEnabled()) {
+    line += comma + String(BAT.getCapacityPercent());
+    line += comma + String(BAT.getCapacityVoltage());
+  } else {
+    line += comma;
+    line += comma;
+  }
+
+
   if (BMP.isEnabled()) {
     double alt = BMP.getAltitude();
     line += comma + String(BMP.getTemperature());
@@ -126,6 +140,211 @@ void TrLOG::loop() {
   //  _log += String("\n") + line;
   myLog.println(line);
 
+}
+
+void TrLOG::syncLog() {
+  _last_sync = millis();
+  if (!myLog.syncFile()) {
+    Serial.print("LOG::sync() - Failed to sync file '");
+    Serial.print(_log_fn);
+    Serial.print("'");
+    Serial.println();
+    return;
+  }
+
+    long log_size = myLog.size(_log_fn);
+
+  if (!myLog.append(_log_fn)) {
+    Serial.print("LOG::sync() - Failed to open file '");
+    Serial.print((_log_dir.length()) ? "/" : "");
+    Serial.print(_log_dir);
+    Serial.print("/");
+    Serial.print(_log_fn);
+    Serial.print("' to append to");
+    Serial.println();
+    return;
+  }
+
+  Serial.print("LOG::sync() - sync completed for '");
+  Serial.print((_log_dir.length()) ? "/" : "");
+  Serial.print(_log_dir);
+  Serial.print("/");
+  Serial.print(_log_fn);
+  Serial.print("' ");
+  double fs = log_size;
+  String sm = "KB";
+  fs = fs/1024.;
+  if(fs >=1000) {
+	  fs = fs/1024.;
+	  sm = "MB";
+  }
+  Serial.print(fs);
+  Serial.print(" ");
+  Serial.print(sm);
+  Serial.println();
+}
+
+//void deleteEmpty(String dir) {
+//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  while (fileName != "") {
+//    //Get size of file
+//    long sizeOfFile = myLog.size(fileName);
+//
+//    if (sizeOfFile == -1) {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' cannot be found???");
+//      Serial.println();
+//    } else if (sizeOfFile == 0) {
+//      if (myLog.removeFile(fileName) == 1) {
+//        Serial.print("LOG::tidy() - deleted empty file '");
+//        Serial.print(dir);
+//        Serial.print("/");
+//        Serial.print(fileName);
+//        Serial.print("'");
+//        Serial.println();
+//      } else {
+//        Serial.print("LOG::tidy() - failed to delete empty file '");
+//        Serial.print(dir);
+//        Serial.print("/");
+//        Serial.print(fileName);
+//        Serial.print("'");
+//        Serial.println();
+//      }
+//    } else {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' is ");
+//      Serial.print(double(sizeOfFile) / (1024.), 3);
+//      Serial.print (" KB");
+//      Serial.println();
+//    }
+//
+//    fileName = myLog.getNextDirectoryItem();
+//  }
+//}
+//
+//void deleteEmptyFiles(String dir) {
+//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  while (fileName != "") {
+//    //Get size of file
+//    long sizeOfFile = myLog.size(fileName);
+//
+//    if (sizeOfFile == -1) {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' cannot be found???");
+//      Serial.println();
+//    } else {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' is ");
+//      Serial.print(double(sizeOfFile) / (1024.), 3);
+//      Serial.print (" KB");
+//      if (sizeOfFile == 0) {
+//        Serial.print (" - deleting");
+//
+//      }
+//      Serial.println();
+//    }
+//
+//    fileName = myLog.getNextDirectoryItem();
+//    Serial.print("LOG::tidy() - next file is '");
+//    Serial.print(fileName);
+//    Serial.print ("'");
+//    Serial.println();
+//  }
+//}
+void TrLOG::tidy() {
+//  //myLog.searchDirectory("*"); //Give me everything
+//  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
+//  //myLog.searchDirectory("*/"); //Get just directories
+//  //myLog.searchDirectory("*.*"); //Get just files
+//  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
+//  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
+//
+//  Serial.print("LOG::tidy() - Scanning root folder for empty files");
+//  Serial.println();
+//  myLog.changeDirectory("..");
+//
+//  String dir = "";
+//  myLog.searchDirectory("*.*");
+//  String fileName = myLog.getNextDirectoryItem();
+//  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  {
+//    //Get size of file
+////    long sizeOfFile = myLog.size(fileName);
+//
+//
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("'");
+//      Serial.println();
+//
+//
+////    if (sizeOfFile == -1) {
+////      Serial.print("LOG::tidy() - file '");
+////      Serial.print(dir);
+////      Serial.print("/");
+////      Serial.print(fileName);
+////      Serial.print("' cannot be found???");
+////      Serial.println();
+////    } else {
+////      Serial.print("LOG::tidy() - file '");
+////      Serial.print(dir);
+////      Serial.print("/");
+////      Serial.print(fileName);
+////      Serial.print("' is ");
+////      Serial.print(double(sizeOfFile) / (1024.), 3);
+////      Serial.print (" KB");
+////      if (sizeOfFile == 0) {
+////        Serial.print (" - deleting");
+////
+////      }
+////      Serial.println();
+////    }
+//
+////    fileName = myLog.getNextDirectoryItem();
+////    Serial.print("LOG::tidy() - next file is '");
+////    Serial.print(fileName);
+////    Serial.print ("'");
+////    Serial.println();
+//
+//    
+//    
+//    
+//    Serial.println(fileName);
+//    fileName = myLog.getNextDirectoryItem();
+//  }
+//
+////  deleteEmptyFiles("");
+//
+//  //  myLog.searchDirectory("*.TXT");
+//  //  deleteEmpty("");
+//
+////  if (_log_dir.length() > 0) {
+////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
+////    Serial.println();
+////    myLog.changeDirectory("..");
+////    myLog.changeDirectory(_log_dir);
+////
+////    myLog.searchDirectory("*.*");
+////    deleteEmptyFiles(String("/") + _log_dir);
+////
+////    //    myLog.searchDirectory("*.csv");
+////    //    deleteEmpty(String("/") + _log_dir);
+////  }
+//  Serial.print("LOG::tidy() - process complete");
 }
 
 void TrLOG::resetCapture() {
@@ -190,38 +409,67 @@ void TrLOG::startCapture() {
   fn += ".csv";
   _log_fn = fn;
 
-  header += F("millis, BME Temp, BMP MSL BMP, BMP BMP, BME Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU GyroX, IMU GyroY, IMU GyroZ, GPS Sats, GPS Lat, GPS Lon, GPS Alt, Chute");
+  Serial.print("LOG::startCapture() - sorted file name: '");
+  Serial.print((_log_dir.length() > 0) ? "/" : "");
+  Serial.print(_log_dir);
+  Serial.print("/");
+  Serial.print(_log_fn);
+  Serial.print("'");
+  Serial.println();
+
+  header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU GyroX, IMU GyroY, IMU GyroZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, Chute");
   //_log = header;
 
-  // TODO: Create a new file on the logger
+  Serial.print("LOG::startCapture() - Moving to the root directory");
+  Serial.println();
   myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails)
   if (_log_dir.length() > 0) {
-    // Create the new directory
-    if (!myLog.makeDirectory(_log_dir)) {
-      Serial.print("LOG: Failed to create log directory '");
+    // try to Change into it
+    if (!myLog.changeDirectory(_log_dir)) {
+      Serial.print("LOG::startCapture() - failed to change into log directory '/");
       Serial.print(_log_dir);
-      Serial.print("'");
+      Serial.print("' - attempting to create it");
       Serial.println();
-      _log_dir = "";
-    }
-    // Change into it
-    if (_log_dir.length() > 0 && !myLog.changeDirectory(_log_dir)) {
-      Serial.print("LOG: Failed to change into log directory '");
-      Serial.print(_log_dir);
-      Serial.print("'");
-      Serial.println();
-      _log_dir = "";
+
+      // Create the new directory
+      if (!myLog.makeDirectory(_log_dir)) {
+        Serial.print("LOG::startCapture() - failed to create log directory '/");
+        Serial.print(_log_dir);
+        Serial.print("', stay in the root then");
+        Serial.println();
+        _log_dir = "";
+      } else {
+        // Change into it
+        if (!myLog.changeDirectory(_log_dir)) {
+          Serial.print("LOG::startCapture() - failed to change into log directory '/");
+          Serial.print(_log_dir);
+          Serial.print("' again... stay in the root then");
+          Serial.println();
+          _log_dir = "";
+        }
+      }
     }
   }
+  Serial.print("LOG: working log file is now '");
+  Serial.print((_log_dir.length() > 0) ? "/" : "");
+  Serial.print(_log_dir);
+  Serial.print("/");
+  Serial.print(_log_fn);
+  Serial.print("'");
+  Serial.println();
 
   // Now create our log file where we are.
   if (!myLog.append(_log_fn)) {
     Serial.print("LOG: Failed to create file '");
+    Serial.print((_log_dir.length() > 0) ? "/" : "");
+    Serial.print(_log_dir);
+    Serial.print("/");
     Serial.print(_log_fn);
     Serial.print("' to append to");
     Serial.println();
   } else {
-    Serial.print("LOG: created new log file '/");
+    Serial.print("LOG: created new log file '");
+    Serial.print((_log_dir.length() > 0) ? "/" : "");
     Serial.print(_log_dir);
     Serial.print("/");
     Serial.print(_log_fn);
@@ -229,14 +477,14 @@ void TrLOG::startCapture() {
     Serial.println();
   }
 
-  // TODO output header line to logger
+  _last_sync = millis();
   if (!myLog.println(header)) {
 #if _DEBUG_
-    Serial.print("LOG: Failed to write header line");
+    Serial.print("LOG::startCapture() failed to write header line");
     Serial.println();
 #if _XDEBUG_
   } else {
-    Serial.print("LOG: header line written");
+    Serial.print("LOG::startCapture() - header line written");
     Serial.println();
 #endif
 #endif
@@ -249,13 +497,14 @@ void TrLOG::startCapture() {
   Serial.print("Logging started");
   Serial.println();
 #endif
+
   _logging = true;
-  digitalWrite(LED_PIN, LOW); // LOW is on
+  digitalWrite(LED_PIN, HIGH);
 
 }
 
 void TrLOG::stopCapture() {
-  digitalWrite(LED_PIN, HIGH); // HIGH is off
+  digitalWrite(LED_PIN, LOW);
   _logging = false;
   if (!myLog.syncFile()) {
 #if _DEBUG_
@@ -270,30 +519,29 @@ void TrLOG::stopCapture() {
   }
 
   long log_size = myLog.size(_log_fn);
-
-  if (log_size == -1) {
-#if _DEBUG_
-    Serial.println(F("LOG: File not found."));
-#if _XDEBUG_
-  } else {
-    Serial.println(F("LOG: File found!"));
-    Serial.print(F("LOG: Size of file: "));
-    Serial.print(log_size);
-    Serial.print(" bytes");
-    Serial.println();
-#endif
-#endif
-  }
-
 #if _DEBUG_
   Serial.print(RTC.getTimestamp());
   Serial.print(": ");
-  Serial.print("Logging completed ");
-  Serial.print(log_size);//_log.length());
-  Serial.print(" bytes captured to ");
+  Serial.print("LOG::stopCapture() - file '");
+  Serial.print((_log_dir.length()) ? "/" : "");
+  Serial.print(_log_dir);
+  Serial.print("/");
   Serial.print(_log_fn);
+  Serial.print("' is ");
+  double fs = log_size;
+  String sm = "KB";
+  fs = fs/1024.;
+  if(fs >=1000) {
+	  fs = fs/1024.;
+	  sm = "MB";
+  }
+  Serial.print(fs);
+  Serial.print(" ");
+  Serial.print(sm);
   Serial.println();
 #endif
+
+//  tidy();
 
   if (GPS.isEnabled() && GPS.isConnected()) {
     _final_latitude = GPS.getLatitude();

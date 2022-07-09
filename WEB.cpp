@@ -302,7 +302,9 @@ String htmlHeader(String title) {
   ret += "</title>";
 
   ret += "<link rel='shortcut icon' href='/favicon.png' />";
-  ret += "<link rel='preload' as='image' href='/ajax-loader-bar.gif' />";
+  if (WEB.fsWorking()) {
+    ret += "<link rel='preload' as='image' href='/ajax-loader-bar.gif' />";
+  }
 
   ret += "<style>";
 
@@ -313,17 +315,18 @@ String htmlHeader(String title) {
   ret += ".status-wrapper {clear: both;}";
   ret += ".status-wrapper .label, .status-wrapper .value {padding-top: 10px; padding-bottom: 10px; width: 49.5%; float: left; margin-bottom: 10px;}";
   ret += ".status, .button {width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
+  ret += ".button {border: solid 1px #060; background-color: #090; color: #fff;}";
   ret += ".button a {all: unset;}";
   ret += ".status-red {border-color: #a00; background-color: #faa; color: #a00;}";
   ret += ".status-amber {border-color: #a70; background-color: #fca; color: #a70;}";
   ret += ".status-green {border-color: #0a0; background-color: #afa; color: #0a0;}";
-  ret += ".status-disabled {border-color: #666; background-color: #ddd; color: #fff;}";
+  ret += ".status-disabled {border-color: #aaa; background-color: #ddd; color: #fff;}";
 
   ret += "footer ul.buttons, footer ul.buttons li, footer ul.buttons li a {all:unset;}";
-  ret += "footer ul.buttons li {float: left; list-style: none; border-radius: 5px; border: solid 1px #000; background-color: #090; color:#fff; width: ";
+  ret += "footer ul.buttons li {float: left; list-style: none; border-radius: 5px; border: solid 1px #060; background-color: #090; color:#fff; width: ";
   ret += floor(98 / pcount) - 2;
   ret += "%; padding-top: 10px; padding-bottom: 10px; margin-left:1%; margin-right:1%;}";
-  ret += "footer ul.buttons li.selected {background-color:#ccc;}";
+  ret += "footer ul.buttons li.selected {background-color:#ccc; border-color: #aaa;}";
   ret += "footer .action {display:none;}";
   ret += "#log-summary {margin-top:2px; padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
   ret += "a#logstat {margin-top:7px;}";
@@ -361,12 +364,12 @@ String htmlFooter() {
   }
   content += "</ul>";
 
-        if (WEB.fsWorking()) {
-  content += "<img id='footer-action' class='action' alt='loading icon' src='/ajax-loader-bar.gif' />";
+  if (WEB.fsWorking()) {
+    content += "<img id='footer-action' class='action' alt='loading icon' src='/ajax-loader-bar.gif' />";
 
-        } else {
-  content += "<p id='footer-action' class='action'>Please wait...</p>";
-      }
+  } else {
+    content += "<p id='footer-action' class='action'>Please wait...</p>";
+  }
   content += "</footer></body></html> ";
 
   return content;
@@ -641,10 +644,10 @@ void showRoot() {
   text = "DISABLED";
   if (LOG.isEnabled()) {
     if (LOG.isCapturing()) {
-      status = "amber";
+      status = "green";
       text = "LOGGING";
     } else {
-      status = "green";
+      status = "amber";
       text = "IDLE";
     }
   };
@@ -706,8 +709,9 @@ void showRoot() {
   text = "DISABLED";
   if (BAT.isEnabled()) {
     double pcnt = BAT.getCapacityPercent();
+    double volt = BAT.getCapacityVoltage();
     if (pcnt > 0.5) {
-      text = String(pcnt) + "%";
+      text = String(volt) + "v, " + String(pcnt) + "%";
       if (pcnt < 10) {
         status = "red";
       } else if (pcnt < 30) {

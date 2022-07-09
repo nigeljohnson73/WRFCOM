@@ -16,8 +16,8 @@
 #define _NTP_OFFSET_SECONDS_ 0
 
 // How long should we do a log before auto shutting it off
-//#define MAX_LOG_DURATION_SECONDS (5*60)
-#define MAX_LOG_DURATION_SECONDS (15)
+#define MAX_LOG_DURATION_SECONDS (15*60)
+//#define MAX_LOG_DURATION_SECONDS (15)
 
 // Should the servo code be used for parachute deployment
 #define USE_SERVO true
@@ -25,7 +25,7 @@
 #define SERVO_PIN 12
 #define LED_PIN 13
 #else
-#define SERVO_PIN D0
+#define SERVO_PIN D4
 #define LED_PIN LED_BUILTIN
 #endif
 
@@ -35,9 +35,9 @@
 // Configure LiPO and monitor use
 #define USE_LIPO true
 #define LIPO_SIZE LC709203F_APA_500MAH
-//#define LIPO_SIZE LC709203F_APA_1000MAH
+// Options: LC709203F_APA_100MAH, LC709203F_APA_200MAH, LC709203F_APA_500MAH, LC709203F_APA_1000MAH, LC709203F_APA_2000MAH, LC709203F_APA_3000MAH
 
-// How fast should we oll the sensors
+// How fast should we coll the sensors
 // The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
 #define SENSOR_HZ 14
 

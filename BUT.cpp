@@ -8,14 +8,14 @@ TrBUT::TrBUT() {};
 
 void TrBUT::begin() {
   if (button.begin() == false) {
-//    Serial.println("Device did not acknowledge! Freezing.");
+    //    Serial.println("Device did not acknowledge! Freezing.");
     Serial.println("BUT disconnected");
     return;
   }
-  Serial.println("Button acknowledged.");
-  button.LEDoff();  //start with the LED off
+  //  button.LEDoff();  //start with the LED off
+  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
 
-  #if _DEBUG_
+#if _DEBUG_
   Serial.print("BUT initialised: 0x");
   Serial.print(button.getI2Caddress(), HEX);
   Serial.println();
@@ -24,25 +24,18 @@ void TrBUT::begin() {
   _enabled = true;
 }
 
-//bool armed = false;
-//bool logging = false;
-
 void TrBUT::loop() {
   unsigned long now = millis();
   bool state = button.isPressed();
 
   if (state == true) {
     if (_last_pressed_at > 0) {
-      // possibly held?
       if (!_button_held && ((now - _last_pressed_at) > _held_trigger)) {
         _button_held = true;
-        //        Serial.println("The button is held!");
+#if _XDEBUG_
         Serial.println("BUT::held()");
-#if _DEBUG_
         Serial.println("SRV::arm(false)");
         Serial.println("LOG::capture(false)");
-        //        armed = false;
-        //        logging = false;
 #endif
         if (SRV.isEnabled()) {
           SRV.arm(false);
@@ -54,7 +47,9 @@ void TrBUT::loop() {
 
       }
     } else {
+#if _XDEBUG_
       Serial.println("The button is newly pressed!");
+#endif
       _last_pressed_at = now;
     }
   } else {
@@ -62,11 +57,12 @@ void TrBUT::loop() {
       //      Serial.println("The button is released!");
       // released
       if (!_button_held) {
+#if _XDEBUG_
         Serial.println("BUT::click()");
+#endif
         if (!(SRV.isEnabled() && SRV.isArmed())) {
-          //          armed = true;
           SRV.arm(true);
-#if _DEBUG_
+#if _XDEBUG_
           Serial.println("SRV::arm(true)");
 #endif
         } else {
@@ -74,7 +70,7 @@ void TrBUT::loop() {
           if (LOG.isEnabled()) {
             LOG.capture(!LOG.isCapturing());
           }
-#if _DEBUG_
+#if _XDEBUG_
           Serial.print("LOG::capture(");
           Serial.print((LOG.isEnabled() && LOG.isCapturing()) ? "true" : "false");
           Serial.print(")");
@@ -87,23 +83,13 @@ void TrBUT::loop() {
     }
   }
 
-  //check if button is pressed, and tell us if it is!
-  //    if (button.isPressed() == true) {
-  //      Serial.println("The button is pressed!");
-  //      button.LEDconfig(brightness, cycleTime, offTime);
-  //      while (button.isPressed() == true)
-  //        delay(10);  //wait for user to stop pressing
-  //      Serial.println("The button is not pressed.");
-  //      button.LEDoff();
-  //    }
-
   if (LOG.isCapturing()) {
     button.LEDon(_brightness);
   } else if (SRV.isArmed()) {
-    button.LEDconfig(_brightness / 4, _cycleTime, _offTime);
-  } else if (GPS.isConnected()) {
     button.LEDconfig(_brightness / 10, _cycleTime, _offTime);
-  } else {
+  } else if (GPS.isConnected()) {
     button.LEDoff();
+  } else {
+    button.LEDconfig(_brightness / 40, _cycleTime * 2, _offTime);
   }
 }

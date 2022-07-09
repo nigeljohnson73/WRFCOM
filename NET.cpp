@@ -70,7 +70,9 @@ void TrNET::begin(String ssid, String pass, long wait) {
 
     WiFi.hostname(_hostname);
 
-    Serial.print("\n\nConnecting to network.");
+    Serial.print("\n\nConnecting to WiFi network '");
+    Serial.print(WIFI_SSID);
+    Serial.print("'.");
 
     unsigned long connect_millis = millis() + (wait * 1000);
     while ((WiFi.status() != WL_CONNECTED) && (millis() < connect_millis)) {

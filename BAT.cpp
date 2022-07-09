@@ -8,6 +8,10 @@ TrBAT BAT;
 TrBAT::TrBAT() {};
 
 void TrBAT::begin() {
+#if !USR_LIPO
+  return;
+#endif
+
   if (!lc.begin()) {
 #if _DEBUG_
     Serial.println("BAT disconnected");
@@ -17,7 +21,7 @@ void TrBAT::begin() {
   //  lc.setThermistorB(3950);
   //  Serial.print("Thermistor B = "); Serial.println(lc.getThermistorB());
 
-  lc.setPackSize(LIPO_SIZE);
+  lc.setPackSize(lc709203_adjustment_t(LIPO_SIZE));
   //lc.setAlarmVoltage(3.8);
   lc.setAlarmVoltage(0);
   lc.setAlarmRSOC(0);

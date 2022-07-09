@@ -7,6 +7,10 @@ TrBUT BUT;
 TrBUT::TrBUT() {};
 
 void TrBUT::begin() {
+#if !USE_BUTTON
+  return;
+#endif
+
   if (button.begin() == false) {
     //    Serial.println("Device did not acknowledge! Freezing.");
     Serial.println("BUT disconnected");

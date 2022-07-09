@@ -1,5 +1,18 @@
 #include "SRV.h"
 
+#if ESP32
+#ifndef SERVO_PIN
+#define SERVO_PIN 12
+#endif
+
+#else
+
+#ifndef SERVO_PIN
+#define SERVO_PIN D4
+#endif
+
+#endif
+
 #ifdef ESP32
 #include <ESP32Servo.h>
 #else

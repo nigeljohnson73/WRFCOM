@@ -12,23 +12,12 @@
    - Configure Servo system
 */
 
-//#ifdef ESP32
-//#include <SPIFFS.h>
-//#else
-//#include <FS.h>
-//#endif
 #include <Wire.h>
-
-// Create a file called myWIFI.h and add the following (but updated it with your settings)
-//#define WIFI_SSID "YOUR-WIFI-SSID"
-//#define WIFI_PASS "YOUR-WIFI-PASS"
-#include "myWIFI.h"
 #include "App.h"
 
 void setup() {
   Wire.begin(); // Initialise the IIC bus (GPS and buttons);
   Wire.setClock(400000); //Go super fast
-
 
   Serial.begin(115200);
   delay(5000);
@@ -55,14 +44,12 @@ long last_sweep = 0;
 void loop() {
   unsigned long now = millis();
 
-  BUT.loop();
   NET.loop();
+  BUT.loop();
   if (last_sweep == 0 || (now - last_sweep) >= (1000.0 / double(SENSOR_HZ))) {
     last_sweep = now;
     RTC.loop();
-#if USE_LIPO
     BAT.loop();
-#endif
     BMP.loop();
     IMU.loop();
     GPS.loop();

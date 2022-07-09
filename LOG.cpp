@@ -1,5 +1,19 @@
 #include "LOG.h"
 
+#if ESP32
+
+#ifndef LED_PIN
+#define LED_PIN 13
+#endif
+
+#else
+
+#ifndef LED_PIN
+#define LED_PIN LED_BUILTIN
+#endif
+
+#endif
+
 #include "SparkFun_Qwiic_OpenLog_Arduino_Library.h"
 OpenLog myLog;
 

@@ -33,8 +33,8 @@ I have also found the [ESP Exception Decoder](https://github.com/me-no-dev/EspEx
 
 Code to update
 --------------
-To maintain the ability for you to modify your WiFi settings without causing a code thing if you're working on the code, 
-you should create a file called `myWIFI.h` and in it define your wifi access token.
+To maintain the ability for you to modify the settings without causing a code thing if you're working on the code, 
+you should create a file called `myConfig.h` and in it define any of the overridable settings for example:
 
 ```
 #define WIFI_SSID "YOUR-WIFI-SSID"

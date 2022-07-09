@@ -142,7 +142,7 @@ void TrGPS::loop() {
 
   _connected = _siv > 3; // You need at least 3 satellites to ensure 3D accuracy
 
-#if _DEBUG_
+#if _XDEBUG_
   if (dirty) {
     Serial.print(F("Time: "));
     Serial.print(_timestamp);

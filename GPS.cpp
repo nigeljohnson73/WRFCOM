@@ -121,7 +121,7 @@ void TrGPS::loop() {
     _timestamp += F("Z");
 
 #if _DEBUG_ && _XDEBUG_
-    if (_timestamp != o_timestamp) dirty = true;
+    if (_timestamp.length() > 0 && _timestamp != o_timestamp) dirty = true;
 #endif
 
     long lat = myGNSS.packetUBXNAVPVT->callbackData->lat;
@@ -135,7 +135,7 @@ void TrGPS::loop() {
   }
 
   int t = myGNSS.getSIV();
-  if (t != _siv) {
+  if (t < 50 && t != _siv) {
     dirty = true;
     _siv = t;
   }

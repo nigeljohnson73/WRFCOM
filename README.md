@@ -14,8 +14,8 @@ Things to install
 -----------------
 I will assume you are comfortable with the Arduino IDE.
 
-You should install the ESP8266 and ESP32 boards into your board manager (depending on which you want to use). 
-Add these to your "Additional Boards Manager URLs" section in preferences.
+You should install the ESP8266 and ESP32 boards into your board manager if you haven't already (depending on which you 
+want to use). Add these to your "Additional Boards Manager URLs" section in preferences.
 
 ```
 https://dl.espressif.com/dl/package_esp32_index.json, 
@@ -55,21 +55,23 @@ The following microcontrollers have been tested and in my preferred order:
 * LOLIN D1 mini (ESP8266 board) Wiring is fun, you'll need something to power the board and half a [QWIIC cable][QWIIC-CONNECTOR] soldered to the board.
 * [LIPO battery pack][LIPO-1100MAH]
 
-[ESP32-S3]: https://shop.pimoroni.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic?variant=40017517215827
-[ESP32-S3-NOPSRAM]: https://shop.pimoroni.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram?variant=39878737395795
-[ESP32-S2]: https://shop.pimoroni.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic?variant=39537754210387
+[ESP32-S3]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic
+[ESP32-S3-NOPSRAM]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram
+[ESP32-S2]: https://thepihut.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic
 [LIPO-1100MAH]: https://smile.amazon.co.uk/dp/B087LTZW61
 
 ### Sensors
 * [PCF8523 Real Time Clock Breakout Board][PCF8523]
 * [DPS310 Barometric Pressure Sensor][DPS310]
-* Another pressure sensor I have tried is the [BMP390 Barometric Pressure Sensor][BMP390]
 * [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
 * [SparkFun OpenLog][OPENLOG]
 * [Simple class 10 MicroSD card][SDCARD]
 * [SAM-M8Q GPS Breakout][SAM-M8Q]
-* A smaller GPS option (and chinese network compliant) is the similar [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
-* 5x [QWIIC connector cables][QWIIC-CONNECTOR-50]
+* 5-7 [QWIIC connector cables][QWIIC-CONNECTOR-50]
+
+### Alternate components
+* [BMP390 Barometric Pressure Sensor][BMP390]
+* A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
 
 [PCF8523]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
 [BMP390]: https://shop.pimoroni.com/products/adafruit-bmp390-precision-barometric-pressure-and-altimeter-stemma-qt-qwiic?variant=32302189346899
@@ -78,52 +80,26 @@ The following microcontrollers have been tested and in my preferred order:
 [ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
 [UFL-ANTENNA]: https://shop.pimoroni.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain?variant=4487793281
 [SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
-[OPENLOG]: https://shop.pimoroni.com/products/sparkfun-qwiic-openlog?variant=40046785953875
-[QWIIC-CONNECTOR-100]: https://shop.pimoroni.com/products/jst-sh-cable-qwiic-stemma-qt-compatible?variant=31910609813587
-[QWIIC-CONNECTOR-50]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
+[OPENLOG]: https://thepihut.com/products/sparkfun-openlog
+[QWIIC-CONNECTOR-100]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable-100mm-long
+[QWIIC-CONNECTOR-50]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable
 [SDCARD]: https://smile.amazon.co.uk/dp/B07R59FHVG
 
 If you want to control a parachute as well, then you will need a servo, and if you want touch control, a button is useful:
 
 <!-- * [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER] -->
-* [Servo extension cable][TOWER-EXTENSION] that you will need to solder the female end to you microcontroller GND, BATT for power and GPIO12 for signal
 * [Micro servo][TOWER-PRO]
-* [Buck converter][BUCKY-5V] that you need to splice into the servo power lines (preferably on the board side of the extension)
+* [Buck converter][BUCKY-5V]
 * SparkFun Qwiic Button[Green][BUTTON-GREEN] or [Red][BUTTON-RED]
 
-[SERVO-FEATHER]: https://shop.pimoroni.com/products/8-channel-pwm-or-servo-featherwing-add-on-for-all-feather-boards?variant=13710765383
 [TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
 [BUCKY-5V]: https://thepihut.com/products/dc-dc-automatic-step-up-down-power-module-3-15v-to-5v-600ma?variant=39824836886723
-[TOWER-EXTENSION]: https://thepihut.com/products/servo-motor-sg92r-micro
-[BUTTON-GREEN]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
-[BUTTON-RED]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
+[SERVO-EXTENSION]: https://thepihut.com/products/servo-motor-sg92r-micro
+[BUTTON-GREEN]: https://thepihut.com/products/sparkfun-qwiic-button-green-led
+[BUTTON-RED]: https://thepihut.com/products/sparkfun-qwiic-button-red-led
 
-<!--
-### LiPO battery option
-This setup is lighter, smaller and more monitorable.
-
-* [1,100mAh LiPO battery][LIPO-BATTERY]
-* [LC709203F LiPoly fuel guage][LIPO-MONITOR] (built into the Feather boards so you won't need the external QWIIC board)
-* Optionally the [LiPo Amigo charger and switch][AMIGO] or a plain [LiPO charger][LIPO-CHARGER]
-
-[AMIGO]: https://shop.pimoroni.com/products/lipo-amigo?variant=39779302539347
-[LIPO-BATTERY]: https://smile.amazon.co.uk/dp/B087LTZW61
-[LIPO-CHARGER]: https://thepihut.com/products/lipo-charger-type-c
-[LIPO-MONITOR]: https://shop.pimoroni.com/products/adafruit-lc709203f-lipoly-liion-fuel-gauge-and-battery-monitor-stemma-jst-ph-qt-qwiic?variant=32236623396947
-
-### PP3 battery option
-This option will run the controller but you have no visibility of the power level.
-
-* [PP3 battery][PP3-BATTERY]
-* [PP3 battery snap][PP3-SNAP]
-* [5v power regulator][REGULATOR-5V]
-* 2x [JST power leads][JST-POWER] (one for the 5v rail of the microcontroller and one for the servo board)
-
-[JST-POWER]: https://shop.pimoroni.com/products/jst-2-wire-assembly?variant=711377809
-[PP3-SNAP]: https://shop.pimoroni.com/products/pp3-battery-snap?variant=371728927
-[REGULATOR-5V]: https://smile.amazon.co.uk/dp/B08HK6Z91G
-[PP3-BATTERY]: https://smile.amazon.co.uk/dp/B093CBYWSL
--->
+You will need to cut the extension cable and solder the female side to your microcontroller. GND, BATT for power and GPIO12 for signal. You will also need to 
+splice in the buck converter into the power line (not the signal). Preferably on the controller end so you can use any servo.
 
 Libraries required
 ------------------
@@ -135,7 +111,6 @@ Libraries required
 * RTCLib (for the PCF8523 RTC module)
 * SparkFun Qwiic OpenLog (for the OpenLog module)
 * SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS module)
-<!-- * Adafruit PWM Servo Driver Library (for the 8-channel servo board) -->
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)
 * [ESPAsyncWebServer][ESPAsyncWebServer] and [AsyncTCP][AsyncTCP] (unzip into your library folder and remove the `-master` in the folder name)
 
@@ -144,7 +119,6 @@ Libraries required
 
 Known issues
 ------------
-
  * Access point on the D1 minii is a bit pants, but fine on the S3 chips.
 
 

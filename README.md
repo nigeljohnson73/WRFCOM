@@ -22,12 +22,14 @@ https://dl.espressif.com/dl/package_esp32_index.json,
 http://arduino.esp8266.com/stable/package_esp8266com_index.json
 ```
 
+<!--
 You will need to install the file system plugins for 
 [ESP32](https://microcontrollerslab.com/install-esp32-filesystem-uploader-in-arduino-ide-spiffs/) and/or 
 [ESP8266](https://randomnerdtutorials.com/install-esp8266-filesystem-uploader-arduino-ide/) depending 
 on which platform youre using. This will allow you to upload the static (mostly image) files for the web pages.
 
 I have also found the [ESP Exception Decoder](https://github.com/me-no-dev/EspExceptionDecoder) to be very useful.
+-->
 
 Code to update
 --------------
@@ -43,62 +45,72 @@ Hardware required
 -----------------
 Apart from the controller you will also need sensors and battery bits. For the sake of sanity I used off the shelf QWIIC
 connecting sensor breakout boards. If you're good with soldering, you can certainly make things a lot smaller (and 
-probably cheaper).
+probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be well within my capability.
 
-The following microcontrollers have been tested:
+The following microcontrollers have been tested and in my preferred order:
 
-* LOLIN D1 mini (ESP8266 board) Wiring is fun, you'll need a [power socket][JST-POWER] and half a [QWIIC cable][QWIIC-CONNECTOR]
 * [ESP32-S3 Feather][ESP32-S3] Dual core, BT, WiFi 4MB flash, 2MB PSRAM
 * [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BT, WiFi 8MB flash, No PSRAM
 * [ESP32-S2 Feather][ESP32-S2] No Bluetooth
+* LOLIN D1 mini (ESP8266 board) Wiring is fun, you'll need something to power the board and half a [QWIIC cable][QWIIC-CONNECTOR] soldered to the board.
+* [LIPO battery pack][LIPO-1100MAH]
 
 [ESP32-S3]: https://shop.pimoroni.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic?variant=40017517215827
 [ESP32-S3-NOPSRAM]: https://shop.pimoroni.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram?variant=39878737395795
 [ESP32-S2]: https://shop.pimoroni.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic?variant=39537754210387
+[LIPO-1100MAH]: https://smile.amazon.co.uk/dp/B087LTZW61
 
 ### Sensors
-* [PCF8523 Real Time Clock Breakout Board][RTC]
-* [BMP390 Barometric Pressure Sensor][BMP390]
-* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][IMU]
+* [PCF8523 Real Time Clock Breakout Board][PCF8523]
+* [DPS310 Barometric Pressure Sensor][DPS310]
+* Another pressure sensor I have tried is the [BMP390 Barometric Pressure Sensor][BMP390]
+* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
 * [SparkFun OpenLog][OPENLOG]
 * [Simple class 10 MicroSD card][SDCARD]
-* [ZOE-M8Q GPS Breakout][GPS]
-* [QWIIC connector cables][QWIIC-CONNECTOR]
+* [SAM-M8Q GPS Breakout][SAM-M8Q]
+* A smaller GPS option (and chinese network compliant) is the similar [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
+* 5x [QWIIC connector cables][QWIIC-CONNECTOR-50]
 
-[RTC]: https://shop.pimoroni.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic?variant=39421340680275
+[PCF8523]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
 [BMP390]: https://shop.pimoroni.com/products/adafruit-bmp390-precision-barometric-pressure-and-altimeter-stemma-qt-qwiic?variant=32302189346899
-[IMU]: https://shop.pimoroni.com/products/adafruit-lsm6dso32-6-dof-accelerometer-and-gyroscope-stemma-qt-qwiic?variant=32237051641939
-[GPS]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
+[DPS310]: https://thepihut.com/products/adafruit-dps310-precision-barometric-pressure-altitude-sensor
+[LSM6DSO32]: https://thepihut.com/products/adafruit-lsm6dso32-6-dof-accelerometer-and-gyroscope
+[ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
+[UFL-ANTENNA]: https://shop.pimoroni.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain?variant=4487793281
+[SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
 [OPENLOG]: https://shop.pimoroni.com/products/sparkfun-qwiic-openlog?variant=40046785953875
-[QWIIC-CONNECTOR]: https://shop.pimoroni.com/products/jst-sh-cable-qwiic-stemma-qt-compatible?variant=31910609813587
+[QWIIC-CONNECTOR-100]: https://shop.pimoroni.com/products/jst-sh-cable-qwiic-stemma-qt-compatible?variant=31910609813587
+[QWIIC-CONNECTOR-50]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
 [SDCARD]: https://smile.amazon.co.uk/dp/B07R59FHVG
 
-If you want to control a parachute as well, then you will need the following, and can only really use the PP3 battery
-option.
+If you want to control a parachute as well, then you will need a servo, and if you want touch control, a button is useful:
 
 <!-- * [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER] -->
+* [Servo extension cable][TOWER-EXTENSION] that you will need to solder the female end to you microcontroller GND, BATT for power and GPIO12 for signal
 * [Micro servo][TOWER-PRO]
-* Optionally [SparkFun Qwiic Button][BUTTON]
+* [Buck converter][BUCKY-5V] that you need to splice into the servo power lines (preferably on the board side of the extension)
+* SparkFun Qwiic Button[Green][BUTTON-GREEN] or [Red][BUTTON-RED]
 
 [SERVO-FEATHER]: https://shop.pimoroni.com/products/8-channel-pwm-or-servo-featherwing-add-on-for-all-feather-boards?variant=13710765383
-<!-- [MICRO-SERVO]: https://shop.pimoroni.com/products/servo-generic-sub-micro-size?variant=19330899143 -->
 [TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
-[BUTTON]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
+[BUCKY-5V]: https://thepihut.com/products/dc-dc-automatic-step-up-down-power-module-3-15v-to-5v-600ma?variant=39824836886723
+[TOWER-EXTENSION]: https://thepihut.com/products/servo-motor-sg92r-micro
+[BUTTON-GREEN]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
+[BUTTON-RED]: https://shop.pimoroni.com/products/sparkfun-qwiic-button-green-led?variant=32000924647507
 
+<!--
 ### LiPO battery option
 This setup is lighter, smaller and more monitorable.
 
-* [1,200mAh LiPO battery][LIPO-BATTERY]
+* [1,100mAh LiPO battery][LIPO-BATTERY]
 * [LC709203F LiPoly fuel guage][LIPO-MONITOR] (built into the Feather boards so you won't need the external QWIIC board)
-<!-- * [AP3429A 3.3V Buck Converter Breakout][REGULATOR-3v] -->
-* Optionally the [LiPo Amigo charger and switch][AMIGO]
+* Optionally the [LiPo Amigo charger and switch][AMIGO] or a plain [LiPO charger][LIPO-CHARGER]
 
-<!-- [REGULATOR-3v]: https://shop.pimoroni.com/products/ap3429a-3-3v-buck-converter-breakout-3-3v-output-1-2a-max?variant=32173899546707 -->
-[LIPO-BATTERY]: https://shop.pimoroni.com/products/lipo-battery-pack?variant=20429082183
 [AMIGO]: https://shop.pimoroni.com/products/lipo-amigo?variant=39779302539347
+[LIPO-BATTERY]: https://smile.amazon.co.uk/dp/B087LTZW61
+[LIPO-CHARGER]: https://thepihut.com/products/lipo-charger-type-c
 [LIPO-MONITOR]: https://shop.pimoroni.com/products/adafruit-lc709203f-lipoly-liion-fuel-gauge-and-battery-monitor-stemma-jst-ph-qt-qwiic?variant=32236623396947
 
-<!-- 
 ### PP3 battery option
 This option will run the controller but you have no visibility of the power level.
 
@@ -116,21 +128,27 @@ This option will run the controller but you have no visibility of the power leve
 Libraries required
 ------------------
 * NTPClient (for getting the network time)
-* Adafruit BMP3XX Library (for the BMP390 Barometric Pressure Sensor)
-* Adafruit LSM6DS, Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32 32g 6DOF IMU)
+* Adafruit BMP3XX Library (if youre using the BMP390 Barometric Pressure Sensor)
+* Adafruit LSM6DS, (for the LSM6DSO32 32g 6DOF IMU)
+* Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32 IMU and DPS310 Barometric Pressure Sensor)
 * Adafruit LC709203F (for the LiPO monitor)
 * RTCLib (for the PCF8523 RTC module)
 * SparkFun Qwiic OpenLog (for the OpenLog module)
-* SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q GPS module)
+* SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS module)
 <!-- * Adafruit PWM Servo Driver Library (for the 8-channel servo board) -->
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)
 * [ESPAsyncWebServer][ESPAsyncWebServer] and [AsyncTCP][AsyncTCP] (unzip into your library folder and remove the `-master` in the folder name)
 
 [ESPAsyncWebServer]: https://github.com/me-no-dev/ESPAsyncWebServer
 [AsyncTCP]: https://github.com/me-no-dev/AsyncTCP
+
 Known issues
 ------------
 
+ * Access point on the D1 minii is a bit pants, but fine on the S3 chips.
+
+
+<!--
 ### Access points
 At this point, the code is designed to create an access point if it cannot connect to a wireless network. However, this
 appears to be really slow and flakey for some reason. For use out in the field, I'd recommend setting up a hotspot on 
@@ -144,3 +162,4 @@ ip neigh
 
 Future plans for the ESP32 build will possibly include a BTLE broadcast of it's IP address... or possibly using the bluetooth
 connection in an app (for android only) or, better yet, working out why this is so flakey.
+-->

@@ -120,7 +120,7 @@ void TrGPS::loop() {
     _timestamp += hms;
     _timestamp += F("Z");
 
-#if _DEBUG_
+#if _DEBUG_ && _XDEBUG_
     if (_timestamp != o_timestamp) dirty = true;
 #endif
 
@@ -142,7 +142,7 @@ void TrGPS::loop() {
 
   _connected = _siv > 3; // You need at least 3 satellites to ensure 3D accuracy
 
-#if _XDEBUG_
+#if _DEBUG_
   if (dirty) {
     Serial.print(F("Time: "));
     Serial.print(_timestamp);

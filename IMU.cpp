@@ -155,31 +155,6 @@ void TrIMU::begin() {
 void TrIMU::loop() {
   if (!isEnabled()) return;
   dso32.getEvent(&accel, &gyro, &temp);
-
-  //  Serial.print("\t\tTemperature ");
-  //  Serial.print(temp.temperature);
-  //  Serial.println(" deg C");
-  //
-  //  /* Display the results (acceleration is measured in m/s^2) */
-  //  Serial.print("\t\tAccel X: ");
-  //  Serial.print(accel.acceleration.x);
-  //  Serial.print(" \tY: ");
-  //  Serial.print(accel.acceleration.y);
-  //  Serial.print(" \tZ: ");
-  //  Serial.print(accel.acceleration.z);
-  //  Serial.println(" m/s^2 ");
-  //
-  //  /* Display the results (rotation is measured in rad/s) */
-  //  Serial.print("\t\tGyro X: ");
-  //  Serial.print(gyro.gyro.x);
-  //  Serial.print(" \tY: ");
-  //  Serial.print(gyro.gyro.y);
-  //  Serial.print(" \tZ: ");
-  //  Serial.print(gyro.gyro.z);
-  //  Serial.println(" radians/s ");
-  //  Serial.println();
-  //
-  //  delay(100);
 }
 
 double TrIMU::getTemperature() {
@@ -215,4 +190,19 @@ double TrIMU::getAccelerationY() {
 double TrIMU::getAccelerationZ() {
   if (!isEnabled()) return 0.;
   return accel.acceleration.z;
+}
+
+double TrIMU::getMagX() {
+  if (!isEnabled()) return 0.;
+return 0;
+}
+
+double TrIMU::getMagY() {
+  if (!isEnabled()) return 0.;
+  return 0;
+}
+
+double TrIMU::getMagZ() {
+  if (!isEnabled()) return 0.;
+  return 0;
 }

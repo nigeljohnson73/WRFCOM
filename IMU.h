@@ -25,8 +25,28 @@ class TrIMU {
       return _enabled;
     };
 
+    bool hasGyro() {
+      return _has_gyro;
+    };
+
+    bool hasAcc() {
+      return _has_acc;
+    };
+
+    bool hasMag() {
+      return _has_mag;
+    };
+
+    bool hasTemp() {
+      return _has_temp;
+    };
+
   private:
     bool _enabled = false;
+    bool _has_gyro = false;
+    bool _has_acc = false;
+    bool _has_mag = false;
+    bool _has_temp = false;
 };
 
 extern TrIMU IMU;

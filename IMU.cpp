@@ -20,6 +20,10 @@ void TrIMU::begin() {
     return;
   }
   _enabled = true;
+  // 032 has temp, acc and gyrp
+  _has_temp = true;
+  _has_gyro = true;
+  _has_acc = true;
 
   for (int x = 0; x < 5; x++) {
     dso32.getEvent(&accel, &gyro, &temp);

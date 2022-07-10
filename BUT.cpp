@@ -16,8 +16,8 @@ void TrBUT::begin() {
     Serial.println("BUT disconnected");
     return;
   }
-  //  button.LEDoff();  //start with the LED off
-  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
+    button.LEDoff();  //start with the LED off
+//  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
 
 #if _DEBUG_
   Serial.print("BUT initialised: 0x");
@@ -92,8 +92,8 @@ void TrBUT::loop() {
   } else if (SRV.isArmed()) {
     button.LEDconfig(_brightness / 10, _cycleTime, _offTime);
   } else if (GPS.isConnected()) {
-    button.LEDoff();
-  } else {
     button.LEDconfig(_brightness / 40, _cycleTime * 2, _offTime);
+  } else {
+    button.LEDoff();
   }
 }

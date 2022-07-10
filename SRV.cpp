@@ -19,6 +19,10 @@
 #include <Servo.h>
 #endif
 
+#define MIN_VAL 700
+#define MAX_VAL 2300
+
+
 Servo myservo;
 TrSRV SRV;
 
@@ -28,11 +32,24 @@ void TrSRV::begin() {
 #if !USE_SERVO
   return;
 #endif
-  myservo.attach(SERVO_PIN);
+
+#if ESP32
+  // Allow allocation of all timers
+  Serial.print("mysero.setPeriodHertz(50)");
+  Serial.println();
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  myservo.setPeriodHertz(50);
+#endif
+
+  myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL);
+  //  myservo.write(90); // center for starters
+
   _enabled =  true;
   arm(false);
 
-  //  myservo.write(30);
 #if _DEBUG_
   //    Serial.println("SRV disconnected");
   Serial.print("SRV initialised: TBD");
@@ -41,11 +58,18 @@ void TrSRV::begin() {
 }
 
 //long last_srv = 0;
+//bool deployed = false;
+
 void TrSRV::loop() {
-  //  long now = millis();
+  //    long now = millis();
+  //  //
+  //  if (last_srv == 0) last_srv = now;
   //
-  //  if ((last_srv == 0) || ((now - last_srv) > 5000)) {
+  //  if ((now - last_srv) > 1000) {
   //    last_srv = now;
+  //    //      if(deployed) myservo.write(0);
+  //    //      else myservo.write(180);
+  //    //      deployed = !deployed;
   //    arm(!isArmed());
   //  }
 }
@@ -53,7 +77,8 @@ void TrSRV::loop() {
 void TrSRV::arm(bool tf) {
   if (!isEnabled()) return;
 
-  int ang = 30 + (tf ? 120 : 0);
+#define stow_angle 30
+  int ang = stow_angle + (tf ? (180 - stow_angle) : 0); // Armed should be 180. Stow angle so it doesn't bind
 #if _DEBUG_ && _XDEBUG_
   Serial.print("SRV::arm(");
   Serial.print(tf ? "true" : "false");

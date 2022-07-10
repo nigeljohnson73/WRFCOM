@@ -22,7 +22,7 @@ class TrSRV {
 
   private:
     bool _enabled = false;
-    bool _armed = true;
+    bool _armed = false;
 };
 
 extern TrSRV SRV;

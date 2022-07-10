@@ -44,17 +44,16 @@ void registerUri(String uri, void (*func)(void)) {
 }
 #endif
 
-void registerStaticUri(String uri, String filename) {
-  //WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
-}
+//void registerStaticUri(String uri, String filename) {
+//  //WebServer.serveStatic(uri.c_str(), SPIFFS, filename.c_str());
+//}
 
 #ifdef ESP32
 void registerNotFound(ArRequestHandlerFunction func) {
-  WebServer.onNotFound(func);
 #else
 void registerNotFound(void (*func)(void)) {
-  WebServer.onNotFound(func);
 #endif
+  WebServer.onNotFound(func);
 }
 
 String getUri() {
@@ -73,11 +72,12 @@ void serverResponse(int code, String type, const char * content, size_t len) {
 #ifdef ESP32
   if (__request) {
 
-    Serial.print("serverResponse(): ");
+#if _DEBUG_ && _XDEBUG_
+    Serial.print("serverResponse(<binary data>): ");
     Serial.print(len);
     Serial.print(" bytes being sent");
     Serial.println();
-    Serial.flush();
+#endif
 
     // This only sends a code 200. The input code is redundant
     AsyncResponseStream *response = __request->beginResponseStream(type, len);
@@ -103,102 +103,23 @@ void serverResponse(int code, String type, String content) {
 }
 
 void serverLoop() {
-  // TODO: This will probably be different on ESP32
 #ifdef ESP32
+  // It's all handled in the background
 #else
   WebServer.handleClient();
 #endif
 }
 
-///*******************************************************************************************************************************************
-//   _    _      _                     __                  _   _
-//  | |  | |    | |                   / _|                | | (_)
-//  | |__| | ___| |_ __   ___ _ __   | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
-//  |  __  |/ _ \ | '_ \ / _ \ '__|  |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
-//  | |  | |  __/ | |_) |  __/ |     | | | |_| | | | | (__| |_| | (_) | | | \__ \
-//  |_|  |_|\___|_| .__/ \___|_|     |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
-//                | |
-//                |_|
-//*/
-//
-//// Convert hex character to integer
-//unsigned char h2int(char c) {
-//  if (c >= '0' && c <= '9') {
-//    return ((unsigned char)c - '0');
-//  }
-//  if (c >= 'a' && c <= 'f') {
-//    return ((unsigned char)c - 'a' + 10);
-//  }
-//  if (c >= 'A' && c <= 'F') {
-//    return ((unsigned char)c - 'A' + 10);
-//  }
-//  return (0);
-//}
-//
-//// Decode a URL string
-//String urldecode(String str) {
-//
-//  String encodedString = "";
-//  char c;
-//  char code0;
-//  char code1;
-//  for (int i = 0; i < str.length(); i++) {
-//    c = str.charAt(i);
-//    if (c == '+') {
-//      encodedString += ' ';
-//    } else if (c == '%') {
-//      i++;
-//      code0 = str.charAt(i);
-//      i++;
-//      code1 = str.charAt(i);
-//      c = (h2int(code0) << 4) | h2int(code1);
-//      encodedString += c;
-//    } else {
-//
-//      encodedString += c;
-//    }
-//
-//    yield();
-//  }
-//
-//  return encodedString;
-//}
-//
-//// encode a string for URLing safely
-//String urlencode(String str) {
-//  String encodedString = "";
-//  char c;
-//  char code0;
-//  char code1;
-//  char code2;
-//  for (int i = 0; i < str.length(); i++) {
-//    c = str.charAt(i);
-//    if (c == ' ') {
-//      encodedString += '+';
-//    } else if (isalnum(c)) {
-//      encodedString += c;
-//    } else {
-//      code1 = (c & 0xf) + '0';
-//      if ((c & 0xf) > 9) {
-//        code1 = (c & 0xf) - 10 + 'A';
-//      }
-//      c = (c >> 4) & 0xf;
-//      code0 = c + '0';
-//      if (c > 9) {
-//        code0 = c - 10 + 'A';
-//      }
-//      code2 = '\0';
-//      encodedString += '%';
-//      encodedString += code0;
-//      encodedString += code1;
-//      //encodedString+=code2;
-//    }
-//    yield();
-//  }
-//  return encodedString;
-//
-//}
-
+/*******************************************************************************************************************************************
+   _    _      _                     __                  _   _
+  | |  | |    | |                   / _|                | | (_)
+  | |__| | ___| |_ __   ___ _ __   | |_ _   _ _ __   ___| |_ _  ___  _ __  ___
+  |  __  |/ _ \ | '_ \ / _ \ '__|  |  _| | | | '_ \ / __| __| |/ _ \| '_ \/ __|
+  | |  | |  __/ | |_) |  __/ |     | | | |_| | | | | (__| |_| | (_) | | | \__ \
+  |_|  |_|\___|_| .__/ \___|_|     |_|  \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
+                | |
+                |_|
+*/
 
 /*******************************************************************************************************************************************
    _    _ _____  _____                  _     _             _   _
@@ -249,30 +170,30 @@ void addPage(String uri, void (*func)(void)) {
   addPage(uri, func, "", true);
 }
 
-void addStaticPage(String uri, String filename, String title, bool hidden) {
-#if _XDEBUG_
-  Serial.print("WebServer::addStaticPage(");
-  Serial.print(uri);
-  if (hidden) Serial.print(", hidden");
-  else Serial.print(String(", '") + title + "'");
-  Serial.print("): called");
-  Serial.println();
-#endif
-
-  if (!hidden) {
-    titles[pcount] = title;
-    urls[pcount++] = uri;
-  }
-  // TODO: this will be different for ESP32
-  registerStaticUri(uri, filename);
-}
-void addStaticPage(String uri, String filename, String title) {
-  addStaticPage(uri, filename, title, false);
-}
-
-void addStaticPage(String uri, String filename) {
-  addStaticPage(uri, filename, "", true);
-}
+//void addStaticPage(String uri, String filename, String title, bool hidden) {
+//#if _XDEBUG_
+//  Serial.print("WebServer::addStaticPage(");
+//  Serial.print(uri);
+//  if (hidden) Serial.print(", hidden");
+//  else Serial.print(String(", '") + title + "'");
+//  Serial.print("): called");
+//  Serial.println();
+//#endif
+//
+//  if (!hidden) {
+//    titles[pcount] = title;
+//    urls[pcount++] = uri;
+//  }
+//  // TODO: this will be different for ESP32
+//  registerStaticUri(uri, filename);
+//}
+//void addStaticPage(String uri, String filename, String title) {
+//  addStaticPage(uri, filename, title, false);
+//}
+//
+//void addStaticPage(String uri, String filename) {
+//  addStaticPage(uri, filename, "", true);
+//}
 
 /*******************************************************************************************************************************************
    _    _ _______ __  __ _                                          _          __  __
@@ -877,26 +798,6 @@ void showFavIcon() {
 TrWEB::TrWEB() {};
 
 void TrWEB::begin() {
-  //if (!SPIFFS.begin()) {
-  //  _static_files = false;
-  //#if _DEBUG_
-  //    Serial.println("         SPIFFS: Disabled");
-  //#endif
-  //  } else {
-  //#if _DEBUG_
-  //    Serial.println("         SPIFFS: Enabled");
-  //#endif
-  //  }
-
-  // Public static pages hidden by default
-  addStaticPage("/favicon.ico", "/favicon.png");
-  addStaticPage("/favicon.png", "/favicon.png");
-  addStaticPage("/log_start.png", "/log_start.png");
-  addStaticPage("/log_stop.png", "/log_stop.png");
-  addStaticPage("/srv_arm.png", "/srv_arm.png");
-  addStaticPage("/srv_disarm.png", "/srv_disarm.png");
-  addStaticPage("/ajax-loader-bar.gif", "/ajax-loader-bar.gif");
-
   // Public pages visible by default
   addPage("/", showRoot, "Home");
   addPage("/about", showAbout, "About");
@@ -906,7 +807,9 @@ void TrWEB::begin() {
   addPage("/favicon.png", showFavIcon);
   addPage("/api/log/start", handle_logStart);
   addPage("/api/log/stop", handle_logStop);
+
 #if USE_SERVO
+// Allow for dervo hndling if enabled
   addPage("/api/srv/arm", handle_srvArm);
   addPage("/api/srv/disarm", handle_srvDisarm);
 #endif

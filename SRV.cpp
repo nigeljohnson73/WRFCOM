@@ -21,6 +21,7 @@
 
 #define MIN_VAL 700
 #define MAX_VAL 2300
+#define STOW_ANGLE 30
 
 
 Servo myservo;
@@ -44,41 +45,27 @@ void TrSRV::begin() {
   myservo.setPeriodHertz(50);
 #endif
 
-  myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL);
-  //  myservo.write(90); // center for starters
+  if(!myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL)) {
+      Serial.println("SRV disconnected");
+  }
 
   _enabled =  true;
   arm(false);
 
 #if _DEBUG_
   //    Serial.println("SRV disconnected");
-  Serial.print("SRV initialised: TBD");
+  Serial.print("SRV initialised: DISARMED");
   Serial.println();
 #endif
 }
 
-//long last_srv = 0;
-//bool deployed = false;
-
 void TrSRV::loop() {
-  //    long now = millis();
-  //  //
-  //  if (last_srv == 0) last_srv = now;
-  //
-  //  if ((now - last_srv) > 1000) {
-  //    last_srv = now;
-  //    //      if(deployed) myservo.write(0);
-  //    //      else myservo.write(180);
-  //    //      deployed = !deployed;
-  //    arm(!isArmed());
-  //  }
 }
 
 void TrSRV::arm(bool tf) {
   if (!isEnabled()) return;
 
-#define stow_angle 30
-  int ang = stow_angle + (tf ? (180 - stow_angle) : 0); // Armed should be 180. Stow angle so it doesn't bind
+  int ang = STOW_ANGLE + (tf ? (180 - STOW_ANGLE) : 0); // Armed should be 180. Stow angle so it doesn't bind
 #if _DEBUG_ && _XDEBUG_
   Serial.print("SRV::arm(");
   Serial.print(tf ? "true" : "false");

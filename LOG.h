@@ -45,6 +45,7 @@ class TrLOG {
     double _peak_gps_altitude;
     double _start_latitude;
     double _start_longitude;
+    double _ground_distance;
     double _furthest_ground_distance;
     double _final_latitude;
     double _final_longitude;

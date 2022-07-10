@@ -120,18 +120,37 @@ void TrLOG::loop() {
   }
 
   if (IMU.isEnabled()) {
-    line += comma + String(IMU.getTemperature());
-    line += comma + String(IMU.getAccelerationX());
-    line += comma + String(IMU.getAccelerationY());
-    line += comma + String(IMU.getAccelerationZ());
-    line += comma + String(IMU.getGyroX());
-    line += comma + String(IMU.getGyroY());
-    line += comma + String(IMU.getGyroZ());
-
-    double g_force = sqrt(pow(IMU.getAccelerationX(), 2) + pow(IMU.getAccelerationY(), 2) + pow(IMU.getAccelerationZ(), 2));
-    _peak_g = max(g_force, _peak_g);
+    if (IMU.hasTemp()) {
+      line += comma + String(IMU.getTemperature());
+    } else {
+      line += comma;
+    }
+    if (IMU.hasAcc()) {
+      line += comma + String(IMU.getAccelerationX());
+      line += comma + String(IMU.getAccelerationY());
+      line += comma + String(IMU.getAccelerationZ());
+      double g_force = sqrt(pow(IMU.getAccelerationX(), 2) + pow(IMU.getAccelerationY(), 2) + pow(IMU.getAccelerationZ(), 2));
+      _peak_g = max(g_force, _peak_g);
+      line += comma + g_force;
+    } else {
+      line += ",,,";
+    }
+    if (IMU.hasGyro()) {
+      line += comma + String(IMU.getGyroX());
+      line += comma + String(IMU.getGyroY());
+      line += comma + String(IMU.getGyroZ());
+    } else {
+      line += ",,,";
+    }
+    if (IMU.hasMag()) {
+      line += comma + String(IMU.getMagX());
+      line += comma + String(IMU.getMagY());
+      line += comma + String(IMU.getMagZ());
+    } else {
+      line += ",,,";
+    }
   } else {
-    line += ",,,,,,,";
+    line += ",,,,,,,,,,,";
   }
 
   if (GPS.isEnabled()) {
@@ -140,14 +159,16 @@ void TrLOG::loop() {
       line += comma + String(GPS.getLatitude(), 7);
       line += comma + String(GPS.getLongitude(), 7);
       line += comma + String(GPS.getAltitude(), 4);
-
-      _furthest_ground_distance = max(gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude), _furthest_ground_distance);
+      _ground_distance = gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude);
+      
+      line += comma + String(_ground_distance);
+      _furthest_ground_distance = max(_ground_distance, _furthest_ground_distance);
       _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
     } else {
-      line += ",,,";
+      line += ",,,,";
     }
   } else {
-    line += ",,,,";
+    line += ",,,,,";
   }
   line += comma + (_chute_deployed ? "Yes" : "No");
 
@@ -166,7 +187,7 @@ void TrLOG::syncLog() {
     return;
   }
 
-    long log_size = myLog.size(_log_fn);
+  long log_size = myLog.size(_log_fn);
 
   if (!myLog.append(_log_fn)) {
     Serial.print("LOG::sync() - Failed to open file '");
@@ -187,10 +208,10 @@ void TrLOG::syncLog() {
   Serial.print("' ");
   double fs = log_size;
   String sm = "KB";
-  fs = fs/1024.;
-  if(fs >=1000) {
-	  fs = fs/1024.;
-	  sm = "MB";
+  fs = fs / 1024.;
+  if (fs >= 1000) {
+    fs = fs / 1024.;
+    sm = "MB";
   }
   Serial.print(fs);
   Serial.print(" ");
@@ -278,87 +299,87 @@ void TrLOG::syncLog() {
 //  }
 //}
 void TrLOG::tidy() {
-//  //myLog.searchDirectory("*"); //Give me everything
-//  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
-//  //myLog.searchDirectory("*/"); //Get just directories
-//  //myLog.searchDirectory("*.*"); //Get just files
-//  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
-//  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
-//
-//  Serial.print("LOG::tidy() - Scanning root folder for empty files");
-//  Serial.println();
-//  myLog.changeDirectory("..");
-//
-//  String dir = "";
-//  myLog.searchDirectory("*.*");
-//  String fileName = myLog.getNextDirectoryItem();
-//  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
-//  {
-//    //Get size of file
-////    long sizeOfFile = myLog.size(fileName);
-//
-//
-//      Serial.print("LOG::tidy() - file '");
-//      Serial.print(dir);
-//      Serial.print("/");
-//      Serial.print(fileName);
-//      Serial.print("'");
-//      Serial.println();
-//
-//
-////    if (sizeOfFile == -1) {
-////      Serial.print("LOG::tidy() - file '");
-////      Serial.print(dir);
-////      Serial.print("/");
-////      Serial.print(fileName);
-////      Serial.print("' cannot be found???");
-////      Serial.println();
-////    } else {
-////      Serial.print("LOG::tidy() - file '");
-////      Serial.print(dir);
-////      Serial.print("/");
-////      Serial.print(fileName);
-////      Serial.print("' is ");
-////      Serial.print(double(sizeOfFile) / (1024.), 3);
-////      Serial.print (" KB");
-////      if (sizeOfFile == 0) {
-////        Serial.print (" - deleting");
-////
-////      }
-////      Serial.println();
-////    }
-//
-////    fileName = myLog.getNextDirectoryItem();
-////    Serial.print("LOG::tidy() - next file is '");
-////    Serial.print(fileName);
-////    Serial.print ("'");
-////    Serial.println();
-//
-//    
-//    
-//    
-//    Serial.println(fileName);
-//    fileName = myLog.getNextDirectoryItem();
-//  }
-//
-////  deleteEmptyFiles("");
-//
-//  //  myLog.searchDirectory("*.TXT");
-//  //  deleteEmpty("");
-//
-////  if (_log_dir.length() > 0) {
-////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
-////    Serial.println();
-////    myLog.changeDirectory("..");
-////    myLog.changeDirectory(_log_dir);
-////
-////    myLog.searchDirectory("*.*");
-////    deleteEmptyFiles(String("/") + _log_dir);
-////
-////    //    myLog.searchDirectory("*.csv");
-////    //    deleteEmpty(String("/") + _log_dir);
-////  }
-//  Serial.print("LOG::tidy() - process complete");
+  //  //myLog.searchDirectory("*"); //Give me everything
+  //  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
+  //  //myLog.searchDirectory("*/"); //Get just directories
+  //  //myLog.searchDirectory("*.*"); //Get just files
+  //  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
+  //  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
+  //
+  //  Serial.print("LOG::tidy() - Scanning root folder for empty files");
+  //  Serial.println();
+  //  myLog.changeDirectory("..");
+  //
+  //  String dir = "";
+  //  myLog.searchDirectory("*.*");
+  //  String fileName = myLog.getNextDirectoryItem();
+  //  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
+  //  {
+  //    //Get size of file
+  ////    long sizeOfFile = myLog.size(fileName);
+  //
+  //
+  //      Serial.print("LOG::tidy() - file '");
+  //      Serial.print(dir);
+  //      Serial.print("/");
+  //      Serial.print(fileName);
+  //      Serial.print("'");
+  //      Serial.println();
+  //
+  //
+  ////    if (sizeOfFile == -1) {
+  ////      Serial.print("LOG::tidy() - file '");
+  ////      Serial.print(dir);
+  ////      Serial.print("/");
+  ////      Serial.print(fileName);
+  ////      Serial.print("' cannot be found???");
+  ////      Serial.println();
+  ////    } else {
+  ////      Serial.print("LOG::tidy() - file '");
+  ////      Serial.print(dir);
+  ////      Serial.print("/");
+  ////      Serial.print(fileName);
+  ////      Serial.print("' is ");
+  ////      Serial.print(double(sizeOfFile) / (1024.), 3);
+  ////      Serial.print (" KB");
+  ////      if (sizeOfFile == 0) {
+  ////        Serial.print (" - deleting");
+  ////
+  ////      }
+  ////      Serial.println();
+  ////    }
+  //
+  ////    fileName = myLog.getNextDirectoryItem();
+  ////    Serial.print("LOG::tidy() - next file is '");
+  ////    Serial.print(fileName);
+  ////    Serial.print ("'");
+  ////    Serial.println();
+  //
+  //
+  //
+  //
+  //    Serial.println(fileName);
+  //    fileName = myLog.getNextDirectoryItem();
+  //  }
+  //
+  ////  deleteEmptyFiles("");
+  //
+  //  //  myLog.searchDirectory("*.TXT");
+  //  //  deleteEmpty("");
+  //
+  ////  if (_log_dir.length() > 0) {
+  ////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
+  ////    Serial.println();
+  ////    myLog.changeDirectory("..");
+  ////    myLog.changeDirectory(_log_dir);
+  ////
+  ////    myLog.searchDirectory("*.*");
+  ////    deleteEmptyFiles(String("/") + _log_dir);
+  ////
+  ////    //    myLog.searchDirectory("*.csv");
+  ////    //    deleteEmpty(String("/") + _log_dir);
+  ////  }
+  //  Serial.print("LOG::tidy() - process complete");
 }
 
 void TrLOG::resetCapture() {
@@ -431,7 +452,7 @@ void TrLOG::startCapture() {
   Serial.print("'");
   Serial.println();
 
-  header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU GyroX, IMU GyroY, IMU GyroZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, Chute");
+  header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
   //_log = header;
 
   Serial.print("LOG::startCapture() - Moving to the root directory");
@@ -544,10 +565,10 @@ void TrLOG::stopCapture() {
   Serial.print("' is ");
   double fs = log_size;
   String sm = "KB";
-  fs = fs/1024.;
-  if(fs >=1000) {
-	  fs = fs/1024.;
-	  sm = "MB";
+  fs = fs / 1024.;
+  if (fs >= 1000) {
+    fs = fs / 1024.;
+    sm = "MB";
   }
   Serial.print(fs);
   Serial.print(" ");
@@ -555,7 +576,7 @@ void TrLOG::stopCapture() {
   Serial.println();
 #endif
 
-//  tidy();
+  //  tidy();
 
   if (GPS.isEnabled() && GPS.isConnected()) {
     _final_latitude = GPS.getLatitude();

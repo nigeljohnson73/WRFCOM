@@ -34,7 +34,7 @@ I have also found the [ESP Exception Decoder](https://github.com/me-no-dev/EspEx
 Code to update
 --------------
 To maintain the ability for you to modify the settings without causing a code thing if you're working on the code, 
-you should create a file called `myConfig.h` and in it define any of the overridable settings for example:
+you should create a file called `myConfig.h` and in it define any of the overridable settings in `App.h` for example:
 
 ```
 #define WIFI_SSID "YOUR-WIFI-SSID"
@@ -72,11 +72,14 @@ The following microcontrollers have been tested and in my preferred order:
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
 * A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
+* * [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
+
 
 [PCF8523]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
 [BMP390]: https://shop.pimoroni.com/products/adafruit-bmp390-precision-barometric-pressure-and-altimeter-stemma-qt-qwiic?variant=32302189346899
 [DPS310]: https://thepihut.com/products/adafruit-dps310-precision-barometric-pressure-altitude-sensor
 [LSM6DSO32]: https://thepihut.com/products/adafruit-lsm6dso32-6-dof-accelerometer-and-gyroscope
+[LSM6DSOX]: https://thepihut.com/products/adafruit-lsm6dsox-lis3mdl-precision-9-dof-imu?variant=31618642182206
 [ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
 [UFL-ANTENNA]: https://shop.pimoroni.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain?variant=4487793281
 [SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
@@ -104,9 +107,10 @@ splice in the buck converter into the power line (not the signal). Preferably on
 Libraries required
 ------------------
 * NTPClient (for getting the network time)
-* Adafruit BMP3XX Library (if youre using the BMP390 Barometric Pressure Sensor)
-* Adafruit LSM6DS, (for the LSM6DSO32 32g 6DOF IMU)
-* Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32 IMU and DPS310 Barometric Pressure Sensor)
+* Adafruit BMP3XX Library (for the BMP390 Barometric Pressure Sensor)
+* Adafruit LSM6DS (for the LSM6DSO32 and LSMM6DOX IMU)
+* Adafruit LIS3MDL (for the LIS3MDL magnetometer)
+* Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32/oX IMU and DPS310 Barometric Pressure Sensor)
 * Adafruit LC709203F (for the LiPO monitor)
 * RTCLib (for the PCF8523 RTC module)
 * SparkFun Qwiic OpenLog (for the OpenLog module)

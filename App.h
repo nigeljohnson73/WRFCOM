@@ -97,6 +97,7 @@
 #include "BUT.h"
 #include "GPS.h"
 #include "IMU.h"
+#include "LED.h"
 #include "LOG.h"
 #include "NET.h"
 #include "RTC.h"

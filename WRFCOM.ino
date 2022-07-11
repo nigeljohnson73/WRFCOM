@@ -24,6 +24,7 @@ void setup() {
   Serial.println();
 
   BUT.begin(); // Switch it off early
+  LED.begin(); // Switch it off early
   NET.setHostname(_AP_NAME_);
   NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
 
@@ -45,6 +46,7 @@ void loop() {
   unsigned long now = millis();
 
   NET.loop();
+  LED.loop();
   BUT.loop();
   if (last_sweep == 0 || (now - last_sweep) >= (1000.0 / double(SENSOR_HZ))) {
     last_sweep = now;

@@ -34,7 +34,7 @@ void TrIMU::begin() {
   //Serial.println("LSM6DSO32 Found!");
   Serial.print("IMU initialised: LSM6DSO32, ");
 
-  //  dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_8_G);
+  dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
   //Serial.print("Accelerometer: ");
   switch (dso32.getAccelRange()) {
     case LSM6DSO32_ACCEL_RANGE_4_G:

@@ -21,7 +21,7 @@
 
 #define MIN_VAL 700
 #define MAX_VAL 2300
-#define STOW_ANGLE 30
+#define STOW_ANGLE 110
 
 
 Servo myservo;
@@ -36,8 +36,6 @@ void TrSRV::begin() {
 
 #if ESP32
   // Allow allocation of all timers
-  Serial.print("mysero.setPeriodHertz(50)");
-  Serial.println();
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
@@ -50,11 +48,12 @@ void TrSRV::begin() {
   }
 
   _enabled =  true;
-  arm(false);
+  arm(true);
 
 #if _DEBUG_
-  //    Serial.println("SRV disconnected");
-  Serial.print("SRV initialised: DISARMED");
+  Serial.print("SRV initialised: Stow angle - ");
+  Serial.print(STOW_ANGLE);
+  Serial.print(" degrees");
   Serial.println();
 #endif
 }

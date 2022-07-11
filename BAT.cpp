@@ -8,7 +8,7 @@ TrBAT BAT;
 TrBAT::TrBAT() {};
 
 void TrBAT::begin() {
-#if !USR_LIPO
+#if !USE_LIPO
   return;
 #endif
 

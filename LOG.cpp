@@ -1,19 +1,5 @@
 #include "LOG.h"
 
-#if ESP32
-
-#ifndef LED_PIN
-#define LED_PIN 13
-#endif
-
-#else
-
-#ifndef LED_PIN
-#define LED_PIN LED_BUILTIN
-#endif
-
-#endif
-
 #include "SparkFun_Qwiic_OpenLog_Arduino_Library.h"
 OpenLog myLog;
 
@@ -46,8 +32,6 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
 TrLOG::TrLOG() {};
 
 void TrLOG::begin() {
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, LOW);
 
   //  Wire.begin();
   if (!myLog.begin()) {
@@ -160,7 +144,7 @@ void TrLOG::loop() {
       line += comma + String(GPS.getLongitude(), 7);
       line += comma + String(GPS.getAltitude(), 4);
       _ground_distance = gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude);
-      
+
       line += comma + String(_ground_distance);
       _furthest_ground_distance = max(_ground_distance, _furthest_ground_distance);
       _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
@@ -444,58 +428,26 @@ void TrLOG::startCapture() {
   fn += ".csv";
   _log_fn = fn;
 
-  Serial.print("LOG::startCapture() - sorted file name: '");
-  Serial.print((_log_dir.length() > 0) ? "/" : "");
-  Serial.print(_log_dir);
-  Serial.print("/");
-  Serial.print(_log_fn);
-  Serial.print("'");
-  Serial.println();
-
+//  Serial.print("LOG::startCapture() - calculated file name: '");
+//  Serial.print((_log_dir.length() > 0) ? "/" : "");
+//  Serial.print(_log_dir);
+//  Serial.print("/");
+//  Serial.print(_log_fn);
+//  Serial.print("'");
+//  Serial.println();
+//
   header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
   //_log = header;
 
-  Serial.print("LOG::startCapture() - Moving to the root directory");
-  Serial.println();
-  myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails)
-  if (_log_dir.length() > 0) {
-    // try to Change into it
-    if (!myLog.changeDirectory(_log_dir)) {
-      Serial.print("LOG::startCapture() - failed to change into log directory '/");
-      Serial.print(_log_dir);
-      Serial.print("' - attempting to create it");
-      Serial.println();
-
-      // Create the new directory
-      if (!myLog.makeDirectory(_log_dir)) {
-        Serial.print("LOG::startCapture() - failed to create log directory '/");
-        Serial.print(_log_dir);
-        Serial.print("', stay in the root then");
-        Serial.println();
-        _log_dir = "";
-      } else {
-        // Change into it
-        if (!myLog.changeDirectory(_log_dir)) {
-          Serial.print("LOG::startCapture() - failed to change into log directory '/");
-          Serial.print(_log_dir);
-          Serial.print("' again... stay in the root then");
-          Serial.println();
-          _log_dir = "";
-        }
-      }
-    }
-  }
-  Serial.print("LOG: working log file is now '");
-  Serial.print((_log_dir.length() > 0) ? "/" : "");
-  Serial.print(_log_dir);
-  Serial.print("/");
-  Serial.print(_log_fn);
-  Serial.print("'");
-  Serial.println();
+  //  Serial.print("LOG::startCapture() - Moving to the root directory");
+  //  Serial.println();
+  myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails, cuz we are in the root in that case)
+  myLog.makeDirectory(_log_dir);
+  myLog.changeDirectory(_log_dir);
 
   // Now create our log file where we are.
   if (!myLog.append(_log_fn)) {
-    Serial.print("LOG: Failed to create file '");
+    Serial.print("LOG: Failed to file '");
     Serial.print((_log_dir.length() > 0) ? "/" : "");
     Serial.print(_log_dir);
     Serial.print("/");
@@ -503,7 +455,7 @@ void TrLOG::startCapture() {
     Serial.print("' to append to");
     Serial.println();
   } else {
-    Serial.print("LOG: created new log file '");
+    Serial.print("LOG: appending to log file '");
     Serial.print((_log_dir.length() > 0) ? "/" : "");
     Serial.print(_log_dir);
     Serial.print("/");
@@ -534,12 +486,9 @@ void TrLOG::startCapture() {
 #endif
 
   _logging = true;
-  digitalWrite(LED_PIN, HIGH);
-
 }
 
 void TrLOG::stopCapture() {
-  digitalWrite(LED_PIN, LOW);
   _logging = false;
   if (!myLog.syncFile()) {
 #if _DEBUG_

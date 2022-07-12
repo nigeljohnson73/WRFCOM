@@ -61,37 +61,39 @@ void TrLED::loop() {
     if (GPS.isConnected()) {
       NEO.setPixelColor(0, NEO.Color(0x00, 0x00, 0xff));
     } else {
-      NEO.setPixelColor(0, NEO.Color(0x99, 0x66, 0x00));
+      NEO.setPixelColor(0, NEO.Color(0x99, 0x33, 0x00));
     }
   } else {
-    NEO.setPixelColor(0, NEO.Color(0x99, 0x00, 0x00));
+    NEO.setPixelColor(0, NEO.Color(0x66, 0x00, 0x00));
   }
   NEO.show();
 
   if (LOG.isCapturing()) {
-    digitalWrite(LED_PIN, HIGH);
+    _blip = true;
   } else {
     unsigned long now = millis();
 
     if ((now - _sequence_started) < _sequence_duration) {
-      if ((now - _blip_started) < _blip_duration) {
-        // We are in blip
-        if (!_blip && _n_blips > 0) {
-          // We are not blipping and we should be
-          if ((now - _blip_started) < _blip_on_duration) {
-            _blip = true;
-          } else {
-            _blip = false;
+      // So we are in a sequence
+      if (_n_blips > 0) {
+        // we should be blipping
+        if ((now - _blip_started) <= _blip_on_duration) {
+          // In the honemoon period, light 'er up
+          _blip = true;
+        } else {
+          // regardless of whether we should preparing another pone or just in the off period, still lights out
+          _blip = false;
+          if ((now - _blip_started) > (_blip_on_duration + _blip_off_duration)) {
+            // we are past when the blip should finish, lets do another one... if needed
+            if (_n_blips > 0) {
+              _n_blips -= 1;
+              _blip_started = now;
+            }
           }
         }
-      } else {
-        _blip = false;
-        if (now - _blip_started >= _blip_duration) {
-          _blip_started = now;
-          if (_n_blips) _n_blips -= 1;
-        }
       }
-    } else if (_n_blips == 0) {
+    } else {
+      // Start a new sequence with the right blinky paraneters
       if (NET.isApMode()) {
         blink(2);
       } else {
@@ -99,7 +101,6 @@ void TrLED::loop() {
       }
       _sequence_started = now;
     }
-    digitalWrite(LED_PIN, _blip ? HIGH : LOW);
   }
-
+  digitalWrite(LED_PIN, _blip ? HIGH : LOW);
 }

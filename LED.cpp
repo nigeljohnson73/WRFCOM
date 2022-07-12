@@ -93,7 +93,7 @@ void TrLED::loop() {
         }
       }
     } else {
-      // Start a new sequence with the right blinky paraneters
+      // Start a new sequence with the right blinky parameters
       if (NET.isApMode()) {
         blink(2);
       } else {

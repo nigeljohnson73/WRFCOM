@@ -235,10 +235,7 @@ String htmlHeader(String title) {
   ret += "</title>";
 
   ret += "<link rel='shortcut icon' href='/favicon.png' type='image/png' />";
-  //  if (WEB.fsWorking()) {
-  //    ret += "<link rel='preload' as='image' href='/ajax-loader-bar.gif' />";
-  //  }
-
+  ret += "<link rel='apple-touch-icon' href='/favicon.png' />";
   ret += "<style>";
 
   ret += "html, body {height: 100%;}";
@@ -864,7 +861,8 @@ void TrWEB::begin() {
   serverBegin();
 
 #if _DEBUG_
-  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
+//  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
+  Serial.println(String("WEB initialised: http://") + NET.getIpAddress() + "/");
   if (!NET.isApMode()) {
     Serial.println(String("                 http://") + NET.getHostname() + ".local/");
     //  Serial.println(String("                 http://") + NET.getHostname() + "/");

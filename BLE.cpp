@@ -109,11 +109,17 @@ void TrBLE::begin() {
   // Create the BLE Service
   BLEService *pService = pServer->createService(WRFCOM_SERVICE_UUID);
 
-  // Create a BLE Characteristic
-  //  pBle2904_bms_enabled = new BLE2904();
-  //  pBle2904_bms_enabled->setFormat(0x01); // unsigned bit
-  //  pBle2904_bms_enabled->setUnit( 0x2AE2); // Boolean
-  //  pBmsEnabled->addDescriptor(pBle2904_bms_enabled);
+  // Create BLE Characteristics
+  pBmsEnabled = pService->createCharacteristic(
+                  BMSENABLED_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_bms_enabled = new BLE2904();
+  pBle2904_bms_enabled->setFormat(0x01); // unsigned bit
+  pBle2904_bms_enabled->setUnit( 0x2AE2); // Boolean
+  pBmsEnabled->addDescriptor(pBle2904_bms_enabled);
 
   pBattery = pService->createCharacteristic(
                BATTERY_CHARACTERISTIC_UUID,
@@ -124,119 +130,112 @@ void TrBLE::begin() {
   pBle2904_battery = new BLE2904();
   pBle2904_battery->setFormat(0x10); // int32
   pBle2904_battery->setUnit(0x27AD); // Percentage
-  //  pBle2904_battery->setExponent(-4); // Hundreths of a percent
   pBattery->addDescriptor(pBle2904_battery);
 
-  //  pGpsEnabled = pService->createCharacteristic(
-  //                  GPSENABLED_CHARACTERISTIC_UUID,
-  //                  BLECharacteristic::PROPERTY_READ   |
-  //                  BLECharacteristic::PROPERTY_NOTIFY |
-  //                  BLECharacteristic::PROPERTY_INDICATE
-  //                );
-  //  pBle2904_gps_enabled = new BLE2904();
-  //  pBle2904_gps_enabled->setFormat(0x01); // unsigned bit
-  //  pBle2904_gps_enabled->setUnit( 0x2AE2); // Boolean
-  //  pGpsEnabled->addDescriptor(pBle2904_gps_enabled);
+  pGpsEnabled = pService->createCharacteristic(
+                  GPSENABLED_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_gps_enabled = new BLE2904();
+  pBle2904_gps_enabled->setFormat(0x01); // unsigned bit
+  pBle2904_gps_enabled->setUnit( 0x2AE2); // Boolean
+  pGpsEnabled->addDescriptor(pBle2904_gps_enabled);
 
-  //    pGpsLocked = pService->createCharacteristic(
-  //                   GPSLOCKED_CHARACTERISTIC_UUID,
-  //                   BLECharacteristic::PROPERTY_READ   |
-  //                   BLECharacteristic::PROPERTY_NOTIFY |
-  //                   BLECharacteristic::PROPERTY_INDICATE
-  //                 );
-  //    pBle2904_gps_locked = new BLE2904();
-  //    pBle2904_gps_locked->setFormat(0x01); // unsigned bit
-  //    pBle2904_gps_locked->setUnit( 0x2AE2); // Boolean
-  //    pGpsLocked->addDescriptor(pBle2904_gps_locked);
+  pGpsLocked = pService->createCharacteristic(
+                 GPSLOCKED_CHARACTERISTIC_UUID,
+                 BLECharacteristic::PROPERTY_READ   |
+                 BLECharacteristic::PROPERTY_NOTIFY |
+                 BLECharacteristic::PROPERTY_INDICATE
+               );
+  pBle2904_gps_locked = new BLE2904();
+  pBle2904_gps_locked->setFormat(0x01); // unsigned bit
+  pBle2904_gps_locked->setUnit( 0x2AE2); // Boolean
+  pGpsLocked->addDescriptor(pBle2904_gps_locked);
 
-  //    pSiv = pService->createCharacteristic(
-  //             SIV_CHARACTERISTIC_UUID,
-  //             BLECharacteristic::PROPERTY_READ   |
-  //             BLECharacteristic::PROPERTY_NOTIFY |
-  //             BLECharacteristic::PROPERTY_INDICATE
-  //           );
-  //    pBle2904_siv = new BLE2904();
-  //    pBle2904_siv->setFormat(0x08); // unsigned int32
-  //    pBle2904_siv->setUnit(0x2700); // Unitless
-  //    pSiv->addDescriptor(pBle2904_siv);
+  pSiv = pService->createCharacteristic(
+           SIV_CHARACTERISTIC_UUID,
+           BLECharacteristic::PROPERTY_READ   |
+           BLECharacteristic::PROPERTY_NOTIFY |
+           BLECharacteristic::PROPERTY_INDICATE
+         );
+  pBle2904_siv = new BLE2904();
+  pBle2904_siv->setFormat(0x08); // unsigned int32
+  pBle2904_siv->setUnit(0x2700); // Unitless
+  pSiv->addDescriptor(pBle2904_siv);
 
-  //    pLatitude = pService->createCharacteristic(
-  //                  LATITUDE_CHARACTERISTIC_UUID,
-  //                  BLECharacteristic::PROPERTY_READ   |
-  //                  BLECharacteristic::PROPERTY_NOTIFY |
-  //                  BLECharacteristic::PROPERTY_INDICATE
-  //                );
-  //    pBle2904_latitude = new BLE2904();
-  //    pBle2904_latitude->setFormat(0x10); // int32
-  //    pBle2904_latitude->setUnit(0x2763); // Plane angle (degree)
-  //    pBle2904_latitude->setExponent(-7);
-  //    pLatitude->addDescriptor(pBle2904_latitude);
+  pLatitude = pService->createCharacteristic(
+                LATITUDE_CHARACTERISTIC_UUID,
+                BLECharacteristic::PROPERTY_READ   |
+                BLECharacteristic::PROPERTY_NOTIFY |
+                BLECharacteristic::PROPERTY_INDICATE
+              );
+  pBle2904_latitude = new BLE2904();
+  pBle2904_latitude->setFormat(0x10); // int32
+  pBle2904_latitude->setUnit(0x2763); // Plane angle (degree)
+  pBle2904_latitude->setExponent(-7);
+  pLatitude->addDescriptor(pBle2904_latitude);
 
-  //    pLongitude = pService->createCharacteristic(
-  //                   LONGITUDE_CHARACTERISTIC_UUID,
-  //                   BLECharacteristic::PROPERTY_READ   |
-  //                   BLECharacteristic::PROPERTY_NOTIFY |
-  //                   BLECharacteristic::PROPERTY_INDICATE
-  //                 );
-  //    pBle2904_longitude = new BLE2904();
-  //    pBle2904_longitude->setFormat(0x10); // int32
-  //    pBle2904_longitude->setUnit(0x2763); // Plane angle (degree)
-  //    pBle2904_longitude->setExponent(-7);
-  //    pLongitude->addDescriptor(pBle2904_longitude);
+  pLongitude = pService->createCharacteristic(
+                 LONGITUDE_CHARACTERISTIC_UUID,
+                 BLECharacteristic::PROPERTY_READ   |
+                 BLECharacteristic::PROPERTY_NOTIFY |
+                 BLECharacteristic::PROPERTY_INDICATE
+               );
+  pBle2904_longitude = new BLE2904();
+  pBle2904_longitude->setFormat(0x10); // int32
+  pBle2904_longitude->setUnit(0x2763); // Plane angle (degree)
+  pBle2904_longitude->setExponent(-7);
+  pLongitude->addDescriptor(pBle2904_longitude);
 
-  //    pAltitude = pService->createCharacteristic(
-  //                  ALTITUDE_CHARACTERISTIC_UUID,
-  //                  BLECharacteristic::PROPERTY_READ   |
-  //                  BLECharacteristic::PROPERTY_NOTIFY |
-  //                  BLECharacteristic::PROPERTY_INDICATE
-  //                );
-  //    pBle2904_altitude = new BLE2904();
-  //    pBle2904_altitude->setFormat(0x10);
-  //    pBle2904_altitude->setUnit(0x2701); // length (meter)
-  //    pBle2904_altitude->setExponent(-3);
-  //    pAltitude->addDescriptor(pBle2904_altitude);
-  //
-  //    pBmpEnabled = pService->createCharacteristic(
-  //                    BMPENABLED_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
-  //    pBle2904_bmp_enabled = new BLE2904();
-  //    pBle2904_bmp_enabled->setFormat(0x01); // unsigned bit
-  //    pBle2904_bmp_enabled->setUnit( 0x2AE2); // Boolean
-  //    pBmpEnabled->addDescriptor(pBle2904_bmp_enabled);
+  pAltitude = pService->createCharacteristic(
+                ALTITUDE_CHARACTERISTIC_UUID,
+                BLECharacteristic::PROPERTY_READ   |
+                BLECharacteristic::PROPERTY_NOTIFY |
+                BLECharacteristic::PROPERTY_INDICATE
+              );
+  pBle2904_altitude = new BLE2904();
+  pBle2904_altitude->setFormat(0x10);
+  pBle2904_altitude->setUnit(0x2701); // length (meter)
+  pBle2904_altitude->setExponent(-3);
+  pAltitude->addDescriptor(pBle2904_altitude);
 
-  //    pPressure = pService->createCharacteristic(
-  //                  PRESSURE_CHARACTERISTIC_UUID,
-  //                  BLECharacteristic::PROPERTY_READ   |
-  //                  BLECharacteristic::PROPERTY_NOTIFY |
-  //                  BLECharacteristic::PROPERTY_INDICATE
-  //                );
-  //    pBle2904_pressure = new BLE2904();
-  //    pBle2904_pressure->setFormat(0x10); // int32
-  //    pBle2904_pressure->setUnit(0x2724); // Pascal
-  //    pBle2904_pressure->setExponent(-1); // Tenths of a pascal
-  //    pPressure->addDescriptor(pBle2904_pressure);
+  pBmpEnabled = pService->createCharacteristic(
+                  BMPENABLED_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_bmp_enabled = new BLE2904();
+  pBle2904_bmp_enabled->setFormat(0x01); // unsigned bit
+  pBle2904_bmp_enabled->setUnit( 0x2AE2); // Boolean
+  pBmpEnabled->addDescriptor(pBle2904_bmp_enabled);
 
-  //  pTemperature = pService->createCharacteristic(
-  //                   TEMPERATURE_CHARACTERISTIC_UUID,
-  //                   BLECharacteristic::PROPERTY_READ   |
-  //                   BLECharacteristic::PROPERTY_NOTIFY |
-  //                   BLECharacteristic::PROPERTY_INDICATE
-  //                 );
-  //  pBle2904_temperature = new BLE2904();
-  //  pBle2904_temperature->setFormat(0x10); // int32
-  //  pBle2904_temperature->setUnit(0x272F); // Celcius
-  //  pBle2904_temperature->setExponent(-2); // Hundreths of a degree
-  //  pTemperature->addDescriptor(pBle2904_temperature);
+  pPressure = pService->createCharacteristic(
+                PRESSURE_CHARACTERISTIC_UUID,
+                BLECharacteristic::PROPERTY_READ   |
+                BLECharacteristic::PROPERTY_NOTIFY |
+                BLECharacteristic::PROPERTY_INDICATE
+              );
+  pBle2904_pressure = new BLE2904();
+  pBle2904_pressure->setFormat(0x10); // int32
+  pBle2904_pressure->setUnit(0x2724); // Pascal
+  pBle2904_pressure->setExponent(-1); // Tenths of a pascal
+  pPressure->addDescriptor(pBle2904_pressure);
 
-  //  pBmsEnabled = pService->createCharacteristic(
-  //                  BMSENABLED_CHARACTERISTIC_UUID,
-  //                  BLECharacteristic::PROPERTY_READ   |
-  //                  BLECharacteristic::PROPERTY_NOTIFY |
-  //                  BLECharacteristic::PROPERTY_INDICATE
-  //                );
+  pTemperature = pService->createCharacteristic(
+                   TEMPERATURE_CHARACTERISTIC_UUID,
+                   BLECharacteristic::PROPERTY_READ   |
+                   BLECharacteristic::PROPERTY_NOTIFY |
+                   BLECharacteristic::PROPERTY_INDICATE
+                 );
+  pBle2904_temperature = new BLE2904();
+  pBle2904_temperature->setFormat(0x10); // int32
+  pBle2904_temperature->setUnit(0x272F); // Celcius
+  pBle2904_temperature->setExponent(-2); // Hundreths of a degree
+  pTemperature->addDescriptor(pBle2904_temperature);
+
 
 
 

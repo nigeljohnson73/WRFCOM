@@ -1,6 +1,13 @@
 #include "BLE.h"
+TrBLE BLE;
+TrBLE::TrBLE() {};
 
-#if _USE_BLE_
+#if !_USE_BLE_
+
+void TrBLE::begin() {}
+void TrBLE::loop() {}
+
+#else
 
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -87,13 +94,8 @@ class MyServerCallbacks: public BLEServerCallbacks {
       Serial.println("Device disconnected");
     }
 };
-#endif // _USE_BLE_
-
-TrBLE::TrBLE() {};
-TrBLE BLE;
 
 void TrBLE::begin() {
-#if _USE_BLE_
 
   BLEDevice::init(WRFCOM_SERVICE_NAME);
   if (false) {
@@ -235,9 +237,6 @@ void TrBLE::begin() {
   pBle2904_temperature->setExponent(-2); // Hundreths of a degree
   pTemperature->addDescriptor(pBle2904_temperature);
 
-
-
-
   // Configure advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(WRFCOM_SERVICE_UUID);
@@ -246,7 +245,6 @@ void TrBLE::begin() {
 
   // Start the service
   pService->start();
-
   BLEDevice::startAdvertising();
 
 #if _DEBUG_
@@ -256,11 +254,9 @@ void TrBLE::begin() {
 #endif
 
   _enabled = true;
-#endif // _USE_BLE_
 }
 
 void TrBLE::loop() {
-#if _USE_BLE_
   unsigned long now = millis();
 
   // disconnecting time to heal
@@ -401,5 +397,6 @@ void TrBLE::loop() {
       if (battery_value > 100) battery_value = 0;
     }
   }
-#endif // _USE_BLE_
 }
+
+#endif // _USE_BLE_

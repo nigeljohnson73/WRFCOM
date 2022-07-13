@@ -1,11 +1,11 @@
-#ifndef _BAT_h
-#define _BAT_h
+#ifndef _BMS_h
+#define _BMS_h
 
 #include "App.h"
 
-class TrBAT {
+class TrBMS {
   public:
-    TrBAT();
+    TrBMS();
 
     void begin();
     void loop();
@@ -21,6 +21,6 @@ class TrBAT {
     bool _enabled = false;
 };
 
-extern TrBAT BAT;
+extern TrBMS BMS;
 
 #endif

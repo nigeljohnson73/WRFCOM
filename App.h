@@ -36,11 +36,16 @@
 #endif
 
 // Configure LiPO and monitor use
-#ifndef USE_LIPO
-#define USE_LIPO true
+#ifndef USE_BMS
+#define USE_BMS true
 #endif
 
-// Should we use a QWIIC button
+// Should we use a BLE
+#ifndef USE_BLE
+#define USE_BLE true
+#endif
+
+// Should we use a physical button
 #ifndef USE_BUTTON
 #define USE_BUTTON true
 #endif
@@ -76,10 +81,15 @@
  // LC709203F_APA_3000MAH = 0x36,
 
 
-// How fast should we coll the sensors
+// How fast should we poll the sensors
 // The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
 #ifndef SENSOR_HZ
 #define SENSOR_HZ 14
+#endif
+
+// How fast should we push the BLE notification
+#ifndef BLE_HZ
+#define BLE_HZ 4
 #endif
 
 // Level of debugging to the serial port
@@ -92,7 +102,8 @@
 #endif
 
 #include <Arduino.h> // For type inclusion - String for example
-#include "BAT.h"
+#include "BMS.h"
+#include "BLE.h"
 #include "BMP.h"
 #include "BUT.h"
 #include "GPS.h"

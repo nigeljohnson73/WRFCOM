@@ -78,9 +78,9 @@ void TrLOG::loop() {
   String comma = ",";
   line += String(millis() - logging_started);
 
-  if (BAT.isEnabled()) {
-    line += comma + String(BAT.getCapacityPercent());
-    line += comma + String(BAT.getCapacityVoltage());
+  if (BMS.isEnabled()) {
+    line += comma + String(BMS.getCapacityPercent());
+    line += comma + String(BMS.getCapacityVoltage());
   } else {
     line += comma;
     line += comma;

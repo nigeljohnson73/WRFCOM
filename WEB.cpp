@@ -630,12 +630,12 @@ void showRoot() {
   content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
-#if USE_LIPO
+#if USE_BMS
   status = "disabled";
   text = "DISABLED";
-  if (BAT.isEnabled()) {
-    double pcnt = BAT.getCapacityPercent();
-    double volt = BAT.getCapacityVoltage();
+  if (BMS.isEnabled()) {
+    double pcnt = BMS.getCapacityPercent();
+    double volt = BMS.getCapacityVoltage();
     text = String(volt) + "v, " + String(pcnt) + "%";
     if (pcnt < 10) {
       status = "red";
@@ -645,7 +645,7 @@ void showRoot() {
       status = "green";
     }
   };
-  content += "<div class='status-wrapper'><div class='label'>BAT</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+  content += "<div class='status-wrapper'><div class='label'>BMS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
   content += "<div style='clear:both'></div>";

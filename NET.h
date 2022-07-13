@@ -11,17 +11,28 @@ class TrNET
     void begin(String ssid, String pass, long wait_secs);
     void loop();
 
-    bool isApMode();
     void setHostname(String name);
-    String getHostname();
+
+    String getTimestamp();
+
+    bool isEnabled() {
+      return _enabled;
+    };
 
     String getIpAddress() {
       return _ip_address;
     }
 
-    String getTimestamp();
+    bool isApMode() {
+      return _ap_ssid.length() > 0;
+    }
+
+    String getHostname() {
+      return _hostname;
+    }
 
   private:
+    bool _enabled;
     String _hostname;
     String _ip_address;
 

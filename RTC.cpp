@@ -8,6 +8,10 @@ TrRTC RTC;
 TrRTC::TrRTC() {};
 
 void TrRTC::begin() {
+#if !_USE_RTC
+  return;
+#endif
+
   if (!rtc.begin()) {
 #if _DEBUG_
     Serial.println("RTC disconnected");
@@ -56,6 +60,7 @@ void TrRTC::loop() {
 }
 
 bool TrRTC::setTimestamp(String iso) {
+  if (!isEnabled()) return false;
   if (iso.length() == 0) return false;
 
   rtc.adjust(DateTime(iso.c_str()));
@@ -63,7 +68,7 @@ bool TrRTC::setTimestamp(String iso) {
 }
 
 String TrRTC::getTimestamp() {
-  if (!isEnabled()) return "N/A";
+  if (!isEnabled()) return "";
 
   DateTime now = rtc.now();
   return now.timestamp() + "Z";

@@ -1,17 +1,27 @@
 #include "BMS.h"
+TrBMS BMS;
+TrBMS::TrBMS() {};
 
+#if !_USE_BMS_
+
+void TrBMS::begin() {}
+
+void TrBMS::loop() {}
+
+double TrBMS::getCapacityPercent() {
+  return 0.;
+}
+
+double TrBMS::getCapacityVoltage() {
+  return 0.;
+}
+
+#else
 #include "Adafruit_LC709203F.h"
 
 Adafruit_LC709203F lc;
-TrBMS BMS;
-
-TrBMS::TrBMS() {};
 
 void TrBMS::begin() {
-#if !USE_BMS
-  return;
-#endif
-
   if (!lc.begin()) {
 #if _DEBUG_
     Serial.println("BMS disconnected");
@@ -45,3 +55,5 @@ double TrBMS::getCapacityVoltage() {
 
   return lc.cellVoltage();
 }
+
+#endif

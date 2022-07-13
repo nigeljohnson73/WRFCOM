@@ -1,4 +1,17 @@
 #include "WEB.h"
+TrWEB WEB;
+TrWEB::TrWEB() {};
+
+#if !_USE_WIFI_
+
+void TrWEB::begin() {
+}
+
+void TrWEB::loop() {
+}
+
+#else
+
 #include "XBase64.h"
 
 #ifdef ESP32
@@ -11,7 +24,6 @@ ESP8266WebServer WebServer(80);
 #endif
 
 
-TrWEB WEB;
 
 // Adding and manging local URLs for the about page mostly
 const unsigned int pmax = 20;
@@ -169,31 +181,6 @@ void addPage(String uri, void (*func)(void)) {
 #endif
   addPage(uri, func, "", true);
 }
-
-//void addStaticPage(String uri, String filename, String title, bool hidden) {
-//#if _XDEBUG_
-//  Serial.print("WebServer::addStaticPage(");
-//  Serial.print(uri);
-//  if (hidden) Serial.print(", hidden");
-//  else Serial.print(String(", '") + title + "'");
-//  Serial.print("): called");
-//  Serial.println();
-//#endif
-//
-//  if (!hidden) {
-//    titles[pcount] = title;
-//    urls[pcount++] = uri;
-//  }
-//  // TODO: this will be different for ESP32
-//  registerStaticUri(uri, filename);
-//}
-//void addStaticPage(String uri, String filename, String title) {
-//  addStaticPage(uri, filename, title, false);
-//}
-//
-//void addStaticPage(String uri, String filename) {
-//  addStaticPage(uri, filename, "", true);
-//}
 
 /*******************************************************************************************************************************************
    _    _ _______ __  __ _                                          _          __  __
@@ -494,7 +481,7 @@ void showStats() {
   Serial.println("WebServer::showRoot(): responding");
 #endif
 
-  serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Stats", content));
+  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - Stats", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
@@ -521,7 +508,7 @@ void showAbout() {
   Serial.println("WebServer::showAbout(): called");
 #endif
   String content = "<h1>About ";
-  content += _AP_NAME_;
+  content += AP_NAME;
   content += "</h1>";
   content += "<div>";
   content += String("<p>Application Version: ") + VERSION + "</p>";
@@ -536,7 +523,7 @@ void showAbout() {
   Serial.println("WebServer::showAbout(): responding");
 #endif
 
-  serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - About", content));
+  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - About", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAbout(): complete");
@@ -562,7 +549,7 @@ void showRoot() {
 #if _DEBUG_
   Serial.println("WebServer::showRoot(): called");
 #endif
-  String content = String("<h2>") + _AP_NAME_ + "</h2>";
+  String content = String("<h2>") + AP_NAME + "</h2>";
   String status = "";
   String text = "";
 
@@ -615,7 +602,7 @@ void showRoot() {
   };
   content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-#if USE_SERVO
+#if _USE_SERVO_
   status = "disabled";
   text = "DISABLED";
   if (SRV.isEnabled()) {
@@ -630,7 +617,7 @@ void showRoot() {
   content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
-#if USE_BMS
+#if _USE_BMS_
   status = "disabled";
   text = "DISABLED";
   if (BMS.isEnabled()) {
@@ -679,7 +666,7 @@ void showRoot() {
   Serial.println("WebServer::showRoot(): responding");
 #endif
 
-  serverResponse(200, "text/html", htmlPage(String(_AP_NAME_) + " - Home", content));
+  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - Home", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
@@ -751,16 +738,6 @@ void handle_srvDisarm() {
   goToUrl("/");
 }
 
-
-
-
-
-
-
-
-
-
-
 #ifdef ESP32
 void showFavIcon(AsyncWebServerRequest * request) {
   __request = request;
@@ -792,7 +769,6 @@ void showFavIcon() {
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showFavIcon(): complete");
 #endif
-
 }
 
 #ifdef ESP32
@@ -801,6 +777,7 @@ void showAboutQr(AsyncWebServerRequest * request) {
 #else
 void showAboutQr() {
 #endif
+
 #if _DEBUG_
   Serial.println("WebServer::showAboutQr(): called");
 #endif
@@ -821,7 +798,6 @@ void showAboutQr() {
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAboutQr(): complete");
 #endif
-
 }
 
 
@@ -834,9 +810,8 @@ void showAboutQr() {
      |_|_| |_____/ \___|_|    \_/ \___|_|
 */
 
-TrWEB::TrWEB() {};
-
 void TrWEB::begin() {
+
   // Public pages visible by default
   addPage("/", showRoot, "Home");
   addPage("/about", showAbout, "About");
@@ -848,7 +823,7 @@ void TrWEB::begin() {
   addPage("/api/log/start", handle_logStart);
   addPage("/api/log/stop", handle_logStop);
 
-#if USE_SERVO
+#if _USE_SERVO_
   // Allow for dervo hndling if enabled
   addPage("/api/srv/arm", handle_srvArm);
   addPage("/api/srv/disarm", handle_srvDisarm);
@@ -861,7 +836,7 @@ void TrWEB::begin() {
   serverBegin();
 
 #if _DEBUG_
-//  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
+  //  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
   Serial.println(String("WEB initialised: http://") + NET.getIpAddress() + "/");
   if (!NET.isApMode()) {
     Serial.println(String("                 http://") + NET.getHostname() + ".local/");
@@ -873,3 +848,5 @@ void TrWEB::begin() {
 void TrWEB::loop() {
   serverLoop();
 }
+
+#endif // _USE_WIFI

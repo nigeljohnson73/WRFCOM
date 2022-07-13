@@ -1,8 +1,10 @@
 #include "BLE.h"
+
+#if _USE_BLE_
+
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-//#include <BLE2902.h>
 #include <BLE2904.h>
 
 bool deviceConnected = false;
@@ -46,8 +48,6 @@ int bmp_enabled_value = true ? 1 : 0;
 int pressure_value = int(1013.25 * 1000.0);
 int temperature_value = int(18.12 * 100.0);
 
-TrBLE BLE;
-
 // Full GATT charactersitics:
 // https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 //
@@ -87,14 +87,13 @@ class MyServerCallbacks: public BLEServerCallbacks {
       Serial.println("Device disconnected");
     }
 };
-
+#endif // _USE_BLE_
 
 TrBLE::TrBLE() {};
+TrBLE BLE;
 
 void TrBLE::begin() {
-#if !USE_BLE
-  return;
-#endif
+#if _USE_BLE_
 
   BLEDevice::init(WRFCOM_SERVICE_NAME);
   if (false) {
@@ -257,9 +256,11 @@ void TrBLE::begin() {
 #endif
 
   _enabled = true;
+#endif // _USE_BLE_
 }
 
 void TrBLE::loop() {
+#if _USE_BLE_
   unsigned long now = millis();
 
   // disconnecting time to heal
@@ -399,7 +400,6 @@ void TrBLE::loop() {
       battery_value += 1;
       if (battery_value > 100) battery_value = 0;
     }
-
-
   }
+#endif // _USE_BLE_
 }

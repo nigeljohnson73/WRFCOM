@@ -6,6 +6,11 @@
 // Preload our config to override any of the following parameters
 #include "myConfig.h"
 
+// Should we enable accees points and WiFi (and possibly allow OTA, NTP and AP mode)
+#ifndef _USE_WIFI_
+#define _USE_WIFI_ true
+#endif
+
 // Defaulting this to blank will just skip into Access Point mode
 #ifndef WIFI_SSID
 #define WIFI_SSID ""
@@ -22,41 +27,53 @@
 
 // In AP mode (When the Wifi will not connect) this is the password.
 // it needs to be at least 8 chars long for most devices to let you enter the details
-#ifndef _AP_NAME_
-#define _AP_NAME_ "WRFCOM"
+#ifndef AP_NAME
+#define AP_NAME "WRFCOM"
 #endif
 
-#ifndef _AP_PASSWORD_
-#define _AP_PASSWORD_ "12345678"
+#ifndef AP_PASSWORD
+#define AP_PASSWORD "12345678"
 #endif
 
-// If you going to be connected to a network, then this is good starter. Use ZULU/GMT/UTC
+// Should we enable OTA updates for debugging and easier access on your home network, it's slower though
+#ifndef _USE_OTA_
+#define _USE_OTA_ false
+#endif
+
+// If you going to be connected to a network, then this is good starter
 #ifndef _USE_NTP_
 #define _USE_NTP_ true
 #endif
 
+// Use ZULU/GMT/UTC
+#ifndef NTP_OFFSET_SECONDS
+#define NTP_OFFSET_SECONDS 0
+#endif
+
 // Configure LiPO and monitor use
-#ifndef USE_BMS
-#define USE_BMS true
+#ifndef _USE_BMS_
+#define _USE_BMS_ true
 #endif
 
 // Should we use a BLE
-#ifndef USE_BLE
-#define USE_BLE true
+#ifndef _USE_BLE_
+#define _USE_BLE_ true
 #endif
 
+// How fast should we push the BLE notification
+#ifndef BLE_HZ
+#define BLE_HZ 4
+#endif
+
+// TODO: Continue the _USE_XXX_ removing from here
 // Should we use a physical button
-#ifndef USE_BUTTON
-#define USE_BUTTON true
+#ifndef _USE_BUTTON_
+#define _USE_BUTTON_ true
 #endif
 
 // Should the servo code be used for parachute deployment
-#ifndef USE_SERVO
-#define USE_SERVO true
-#endif
-
-#ifndef _NTP_OFFSET_SECONDS_
-#define _NTP_OFFSET_SECONDS_ 0
+#ifndef _USE_SERVO_
+#define _USE_SERVO_ true
 #endif
 
 // How long should we do a log before auto shutting it off
@@ -64,9 +81,14 @@
 #define MAX_LOG_DURATION_SECONDS (5*60)
 #endif
 
-// Once the peak height has been reached, then at this point, throw out hte parachute
+// Once the peak height has been reached, then at this point, throw out the parachute
 #ifndef PARACHUTE_DEPLOY_APOGEE_OFFSET
 #define PARACHUTE_DEPLOY_APOGEE_OFFSET -2
+#endif
+
+// Once we have reached this far from where started, throw out the parachute
+#ifndef PARACHUTE_DEPLOY_DISTANCE
+#define PARACHUTE_DEPLOY_DISTANCE 50
 #endif
 
 #ifndef LIPO_SIZE
@@ -80,16 +102,10 @@
 //  LC709203F_APA_2000MAH = 0x2D,
  // LC709203F_APA_3000MAH = 0x36,
 
-
 // How fast should we poll the sensors
 // The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
 #ifndef SENSOR_HZ
 #define SENSOR_HZ 14
-#endif
-
-// How fast should we push the BLE notification
-#ifndef BLE_HZ
-#define BLE_HZ 4
 #endif
 
 // Level of debugging to the serial port
@@ -102,9 +118,9 @@
 #endif
 
 #include <Arduino.h> // For type inclusion - String for example
-#include "BMS.h"
 #include "BLE.h"
 #include "BMP.h"
+#include "BMS.h"
 #include "BUT.h"
 #include "GPS.h"
 #include "IMU.h"

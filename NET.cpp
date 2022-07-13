@@ -1,9 +1,17 @@
 #include "NET.h"
+TrNET NET;
+TrNET::TrNET(): _hostname(AP_NAME), _ap_pass(AP_PASSWORD) {}
 
-#if _USE_NTP_
-#include <NTPClient.h>
-#include <RTClib.h>  // For type inclusions
-#endif
+#if !_USE_WIFI_
+
+void TrNET::begin(String ssid, String pass, long wait_secs) {}
+void TrNET::loop() {}
+void TrNET::setHostname(String name) {}
+String TrNET::getTimestamp() {
+  return "";
+}
+
+#else
 
 #ifdef ESP32
 #include <WiFi.h>
@@ -15,8 +23,16 @@
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPClient.h>
 #endif
+
+#if _USE_OTA_
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+#endif
+
+#if _USE_NTP_
+#include <NTPClient.h>
+#include <RTClib.h>  // For type inclusions
+#endif
 
 #ifdef ESP32
 int espChipId() {
@@ -29,29 +45,21 @@ int espChipId() {
 }
 #endif
 
-TrNET NET;
-
-#if _USE_NTP_
+#if  _USE_NTP_
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", _NTP_OFFSET_SECONDS_);
+NTPClient timeClient(ntpUDP, "pool.ntp.org", NTP_OFFSET_SECONDS);
 #endif
-
-TrNET::TrNET(): _hostname(_AP_NAME_), _ap_pass(_AP_PASSWORD_) {}
-
-bool TrNET::isApMode() {
-  return _ap_ssid.length() > 0;
-}
-
-String TrNET::getHostname() {
-  return _hostname;
-}
 
 void TrNET::setHostname(String str) {
   _hostname = str;
 }
 
 void TrNET::begin(String ssid, String pass, long wait) {
+#if !_USE_WIFI_
+  return;
+#endif
+
   if (wait < 1 || wait > 300) {
     wait = 30;
   }
@@ -104,6 +112,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
 #endif
     }
 
+#if _USE_OTA_
     /******************************************
        Initialise OTA software update
     */
@@ -113,6 +122,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     // Hostname defaults to esp8266-[ChipID]
     // ArduinoOTA.setHostname("myesp8266");
     ArduinoOTA.setHostname(_hostname.c_str());
+    
 #if _DEBUG_
     Serial.println("   OTA hostname: " + String(ArduinoOTA.getHostname()));
 #endif
@@ -156,13 +166,14 @@ void TrNET::begin(String ssid, String pass, long wait) {
       }
     });
     ArduinoOTA.begin();
+#endif
 
 #if _USE_NTP_
     /******************************************
       Initialise time server
     */
     timeClient.begin();
-    timeClient.setTimeOffset(_NTP_OFFSET_SECONDS_);
+    timeClient.setTimeOffset(NTP_OFFSET_SECONDS);
     while (!timeClient.update()) {
       timeClient.forceUpdate();
     }
@@ -177,7 +188,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     /******************************************
       Start up in local mode
     */
-    if(ssid.length() > 0) Serial.println(" not connected.");
+    if (ssid.length() > 0) Serial.println(" not connected.");
     Serial.println("Starting WiFi in AP mode.");
     _ap_ssid = _hostname;
     _hostname = "";
@@ -200,7 +211,9 @@ void TrNET::begin(String ssid, String pass, long wait) {
 
 void TrNET::loop() {
   if (!isApMode()) {
+#if _USE_OTA_
     ArduinoOTA.handle();
+#endif
 #if _USE_NTP_
     timeClient.update();
 #endif
@@ -208,7 +221,9 @@ void TrNET::loop() {
 }
 
 String TrNET::getTimestamp() {
+  if (!isEnabled()) return "";
   if (isApMode()) return "";
+
 #if _USE_NTP_
   DateTime now(timeClient.getEpochTime());
   return now.timestamp() + "Z";
@@ -216,3 +231,5 @@ String TrNET::getTimestamp() {
   return "";
 #endif
 }
+
+#endif //_USE_WIFI_

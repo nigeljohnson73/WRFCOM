@@ -7,7 +7,7 @@ TrBUT BUT;
 TrBUT::TrBUT() {};
 
 void TrBUT::begin() {
-#if !USE_BUTTON
+#if !_USE_BUTTON_
   return;
 #endif
 

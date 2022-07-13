@@ -14,12 +14,15 @@ void setup() {
   Serial.println();
 
   BUT.begin(); // Switch it off early
-  NET.setHostname(_AP_NAME_);
+#if USE_NET
+  NET.setHostname(AP_NAME);
   NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
+#endif
 
   LED.begin();
+
   RTC.begin();
-#if USE_BMS
+#if _USE_BMS_
   BMS.begin();
 #endif
   BMP.begin();

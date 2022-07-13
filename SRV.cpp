@@ -30,7 +30,7 @@ TrSRV SRV;
 TrSRV::TrSRV() {};
 
 void TrSRV::begin() {
-#if !USE_SERVO
+#if !_USE_SERVO_
   return;
 #endif
 

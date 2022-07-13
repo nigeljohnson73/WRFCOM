@@ -1,23 +1,26 @@
 #include "BUT.h"
+TrBUT BUT;
+TrBUT::TrBUT() {};
+
+#if !_USE_BUTTON_
+
+void TrBUT::begin() {};
+void TrBUT::loop() {};
+
+#else
 #include <SparkFun_Qwiic_Button.h>
 
 QwiicButton button;
-TrBUT BUT;
-
-TrBUT::TrBUT() {};
 
 void TrBUT::begin() {
-#if !_USE_BUTTON_
-  return;
-#endif
 
   if (button.begin() == false) {
     //    Serial.println("Device did not acknowledge! Freezing.");
     Serial.println("BUT disconnected");
     return;
   }
-    button.LEDoff();  //start with the LED off
-//  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
+  button.LEDoff();  //start with the LED off
+  //  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
 
 #if _DEBUG_
   Serial.print("BUT initialised: 0x");
@@ -97,3 +100,5 @@ void TrBUT::loop() {
     button.LEDoff();
   }
 }
+
+#endif // _USE_BUTTON_

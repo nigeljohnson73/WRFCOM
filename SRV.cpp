@@ -1,5 +1,16 @@
 #include "SRV.h"
 
+TrSRV SRV;
+TrSRV::TrSRV() {};
+
+#if !_USE_SERVO_
+
+void TrSRV::begin() {}
+void TrSRV::loop() {}
+void TrSRV::arm(bool tf) {}
+
+#else
+
 #if ESP32
 #ifndef SERVO_PIN
 #define SERVO_PIN 12
@@ -25,14 +36,8 @@
 
 
 Servo myservo;
-TrSRV SRV;
-
-TrSRV::TrSRV() {};
 
 void TrSRV::begin() {
-#if !_USE_SERVO_
-  return;
-#endif
 
 #if ESP32
   // Allow allocation of all timers
@@ -43,8 +48,8 @@ void TrSRV::begin() {
   myservo.setPeriodHertz(50);
 #endif
 
-  if(!myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL)) {
-      Serial.println("SRV disconnected");
+  if (!myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL)) {
+    Serial.println("SRV disconnected");
   }
 
   _enabled =  true;
@@ -76,3 +81,5 @@ void TrSRV::arm(bool tf) {
   myservo.write(ang);
   _armed = tf;
 }
+
+#endif //_USE_SERVO_

@@ -55,7 +55,18 @@
 #define _USE_BMS_ true
 #endif
 
-// Should we use a BLE
+#ifndef LIPO_SIZE
+#define LIPO_SIZE 0x19
+#endif
+// Options: 
+//  LC709203F_APA_100MAH = 0x08,
+//  LC709203F_APA_200MAH = 0x0B,
+//  LC709203F_APA_500MAH = 0x10,
+//  LC709203F_APA_1000MAH = 0x19,
+//  LC709203F_APA_2000MAH = 0x2D,
+ // LC709203F_APA_3000MAH = 0x36,
+
+// Should we use Bluetooth LE
 #ifndef _USE_BLE_
 #define _USE_BLE_ true
 #endif
@@ -65,7 +76,6 @@
 #define BLE_HZ 4
 #endif
 
-// TODO: Continue the _USE_XXX_ removing from here
 // Should we use a physical button
 #ifndef _USE_BUTTON_
 #define _USE_BUTTON_ true
@@ -74,11 +84,6 @@
 // Should the servo code be used for parachute deployment
 #ifndef _USE_SERVO_
 #define _USE_SERVO_ true
-#endif
-
-// How long should we do a log before auto shutting it off
-#ifndef MAX_LOG_DURATION_SECONDS
-#define MAX_LOG_DURATION_SECONDS (5*60)
 #endif
 
 // Once the peak height has been reached, then at this point, throw out the parachute
@@ -91,16 +96,10 @@
 #define PARACHUTE_DEPLOY_DISTANCE 50
 #endif
 
-#ifndef LIPO_SIZE
-#define LIPO_SIZE 0x19
+// How long should we do a log before auto shutting it off
+#ifndef MAX_LOG_DURATION_SECONDS
+#define MAX_LOG_DURATION_SECONDS (5*60)
 #endif
-// Options: 
-//  LC709203F_APA_100MAH = 0x08,
-//  LC709203F_APA_200MAH = 0x0B,
-//  LC709203F_APA_500MAH = 0x10,
-//  LC709203F_APA_1000MAH = 0x19,
-//  LC709203F_APA_2000MAH = 0x2D,
- // LC709203F_APA_3000MAH = 0x36,
 
 // How fast should we poll the sensors
 // The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus

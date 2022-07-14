@@ -8,7 +8,7 @@
 
 // Should we enable accees points and WiFi (and possibly allow OTA, NTP and AP mode)
 #ifndef _USE_WIFI_
-#define _USE_WIFI_ true
+#define _USE_WIFI_ truw
 #endif
 
 // Defaulting this to blank will just skip into Access Point mode
@@ -37,7 +37,7 @@
 
 // Should we enable OTA updates for debugging and easier access on your home network, it's slower though
 #ifndef _USE_OTA_
-#define _USE_OTA_ false
+#define _USE_OTA_ true
 #endif
 
 // If you going to be connected to a network, then this is good starter

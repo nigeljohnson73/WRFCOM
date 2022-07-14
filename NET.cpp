@@ -11,28 +11,28 @@ String TrNET::getTimestamp() {
   return "";
 }
 
-#else
+#else // !_USE_WIFI_
 
 #ifdef ESP32
 #include <WiFi.h>
 #include <ESPmDNS.h>
 // TODO: Make some more shit work here
-#else
+#else // ESP32
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPClient.h>
-#endif
+#endif // ESP32
 
 #if _USE_OTA_
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#endif
+#endif // _USE_OTA_
 
 #if _USE_NTP_
 #include <NTPClient.h>
 #include <RTClib.h>  // For type inclusions
-#endif
+#endif // _USE_NTP_
 
 #ifdef ESP32
 int espChipId() {
@@ -43,23 +43,19 @@ int espChipId() {
   }
   return chipId;
 }
-#endif
+#endif // ESP32
 
 #if  _USE_NTP_
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", NTP_OFFSET_SECONDS);
-#endif
+#endif // _USE_NTP_
 
 void TrNET::setHostname(String str) {
   _hostname = str;
 }
 
 void TrNET::begin(String ssid, String pass, long wait) {
-#if !_USE_WIFI_
-  return;
-#endif
-
   if (wait < 1 || wait > 300) {
     wait = 30;
   }
@@ -67,9 +63,9 @@ void TrNET::begin(String ssid, String pass, long wait) {
   if (_hostname == String("")) {
 #ifdef ESP32
     _hostname = String ("TR-") + espChipId();
-#else
+#else // ESP32
     _hostname = String ("TR-") + ESP.getChipId();
-#endif
+#endif // ESP32
   }
 
   if (ssid.length() > 0) {
@@ -94,22 +90,22 @@ void TrNET::begin(String ssid, String pass, long wait) {
     _ip_address = WiFi.localIP().toString();
 #ifdef ESP32
     _hostname = WiFi.getHostname();
-#else
+#else // ESP32
     _hostname = WiFi.hostname().c_str();
-#endif
-    //Display.showIpAddress(_ip_address);
+#endif // ESP32
 
 #if _DEBUG_
     Serial.println(String("      WiFi SSID: ") + ssid);
     Serial.println(String("     IP address: ") + _ip_address);
-#endif
+#endif // _DEBUG_
+
     /******************************************
          Initialise mDNS
     */
     if (MDNS.begin(_hostname.c_str())) {
 #if _DEBUG_
       Serial.println(String("   DNS hostname: ") + _hostname + ".local");
-#endif
+#endif // _DEBUG_
     }
 
 #if _USE_OTA_
@@ -125,7 +121,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     
 #if _DEBUG_
     Serial.println("   OTA hostname: " + String(ArduinoOTA.getHostname()));
-#endif
+#endif // _DEBUG_
 
     // No authentication by default
     // ArduinoOTA.setPassword("admin");
@@ -166,7 +162,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
       }
     });
     ArduinoOTA.begin();
-#endif
+#endif // _USE_OTA_
 
 #if _USE_NTP_
     /******************************************
@@ -179,12 +175,11 @@ void TrNET::begin(String ssid, String pass, long wait) {
     }
 #if _DEBUG_
     Serial.println(String("NTP initialised: ") + getTimestamp());
-#endif
-    //#else
-    //    Serial.println(String("   NTP disabled");
-#endif
+#endif // _DEBUG_
 
-  } else {
+#endif // _USE_NTP_
+
+  } else { // WiFi did not connect to SSID
     /******************************************
       Start up in local mode
     */
@@ -213,10 +208,11 @@ void TrNET::loop() {
   if (!isApMode()) {
 #if _USE_OTA_
     ArduinoOTA.handle();
-#endif
+#endif // _USE_OTA_
+
 #if _USE_NTP_
     timeClient.update();
-#endif
+#endif // _USE_NTP_
   }
 }
 
@@ -227,9 +223,9 @@ String TrNET::getTimestamp() {
 #if _USE_NTP_
   DateTime now(timeClient.getEpochTime());
   return now.timestamp() + "Z";
-#else
+#else // _USE_NTP_
   return "";
-#endif
+#endif // _USE_NTP_
 }
 
 #endif //_USE_WIFI_

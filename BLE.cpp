@@ -113,7 +113,7 @@ void TrBLE::begin() {
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-//  BLEService *pService = pServer->createService(WRFCOM_SERVICE_UUID);
+  //  BLEService *pService = pServer->createService(WRFCOM_SERVICE_UUID);
   BLEService *pFlagsService = pServer->createService(WRFCOM_FLAGS_SERVICE_UUID);
   BLEService *pCoreService = pServer->createService(WRFCOM_CORE_SERVICE_UUID);
   BLEService *pGpsService = pServer->createService(WRFCOM_GPS_SERVICE_UUID);

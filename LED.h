@@ -14,9 +14,9 @@ class TrLED {
       return _enabled;
     };
 
-	void blink(unsigned n) {
-		_n_blips = n + 1;
-	}
+    void blink(unsigned n) {
+      _n_blips = n + 1;
+    }
   private:
     bool _enabled = false;
     unsigned long _sequence_started;

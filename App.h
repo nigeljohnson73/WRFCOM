@@ -58,13 +58,13 @@
 #ifndef LIPO_SIZE
 #define LIPO_SIZE 0x19
 #endif
-// Options: 
+// Options:
 //  LC709203F_APA_100MAH = 0x08,
 //  LC709203F_APA_200MAH = 0x0B,
 //  LC709203F_APA_500MAH = 0x10,
 //  LC709203F_APA_1000MAH = 0x19,
 //  LC709203F_APA_2000MAH = 0x2D,
- // LC709203F_APA_3000MAH = 0x36,
+// LC709203F_APA_3000MAH = 0x36,
 
 // Should we use Bluetooth LE
 #ifndef _USE_BLE_

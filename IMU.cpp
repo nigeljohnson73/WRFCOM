@@ -198,7 +198,7 @@ double TrIMU::getAccelerationZ() {
 
 double TrIMU::getMagX() {
   if (!isEnabled()) return 0.;
-return 0;
+  return 0;
 }
 
 double TrIMU::getMagY() {

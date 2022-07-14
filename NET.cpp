@@ -118,7 +118,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     // Hostname defaults to esp8266-[ChipID]
     // ArduinoOTA.setHostname("myesp8266");
     ArduinoOTA.setHostname(_hostname.c_str());
-    
+
 #if _DEBUG_
     Serial.println("   OTA hostname: " + String(ArduinoOTA.getHostname()));
 #endif // _DEBUG_

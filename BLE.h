@@ -19,8 +19,8 @@ class TrBLE {
     unsigned long _refresh_last = 0;
     unsigned long _refresh_millis = 1000 / BLE_HZ;
 
-	 unsigned long _last_disconnect = 0; // Allow for stack to unwind on a disconnection
-	 bool _disconnecting = false; // A disconnect has happened to pick up readvertising once the stack has caught up
+    unsigned long _last_disconnect = 0; // Allow for stack to unwind on a disconnection
+    bool _disconnecting = false; // A disconnect has happened to pick up readvertising once the stack has caught up
 };
 
 extern TrBLE BLE;

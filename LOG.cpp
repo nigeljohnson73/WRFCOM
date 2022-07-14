@@ -428,14 +428,14 @@ void TrLOG::startCapture() {
   fn += ".csv";
   _log_fn = fn;
 
-//  Serial.print("LOG::startCapture() - calculated file name: '");
-//  Serial.print((_log_dir.length() > 0) ? "/" : "");
-//  Serial.print(_log_dir);
-//  Serial.print("/");
-//  Serial.print(_log_fn);
-//  Serial.print("'");
-//  Serial.println();
-//
+  //  Serial.print("LOG::startCapture() - calculated file name: '");
+  //  Serial.print((_log_dir.length() > 0) ? "/" : "");
+  //  Serial.print(_log_dir);
+  //  Serial.print("/");
+  //  Serial.print(_log_fn);
+  //  Serial.print("'");
+  //  Serial.println();
+  //
   header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
   //_log = header;
 

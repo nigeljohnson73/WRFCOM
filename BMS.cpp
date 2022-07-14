@@ -35,8 +35,42 @@ void TrBMS::begin() {
   lc.setAlarmRSOC(0);
 
 #if _DEBUG_
-  Serial.print("BMS initialised: 0x");
-  Serial.println(lc.getICversion(), HEX);
+  Serial.print("BMS initialised: ");
+  switch (LIPO_SIZE) {
+    //  LC709203F_APA_100MAH = 0x08,
+    //  LC709203F_APA_200MAH = 0x0B,
+    //  LC709203F_APA_500MAH = 0x10,
+    //  LC709203F_APA_1000MAH = 0x19,
+    //  LC709203F_APA_2000MAH = 0x2D,
+    // LC709203F_APA_3000MAH = 0x36,
+
+    case 0x08:
+      Serial.print("100mAh/200mAh");
+      break;
+
+    case 0x10:
+      Serial.print("500mAh");
+      break;
+
+    case 0x19:
+      Serial.print("1000mAh");
+      break;
+
+    case 0x2D:
+      Serial.print("2000mAh");
+      break;
+
+    case 0x36:
+      Serial.print("3000mAh");
+      break;
+
+    default:
+      Serial.print("Unknown");
+      break;
+  }
+  Serial.print(" capacity, IC version: 0x");
+  Serial.print(lc.getICversion(), HEX);
+  Serial.println();
 #endif
   _enabled = true;
 }

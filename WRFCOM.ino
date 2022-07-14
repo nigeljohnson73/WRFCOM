@@ -14,25 +14,25 @@ void setup() {
   Serial.println();
 
   BUT.begin(); // Switch it off early
-#if USE_NET
-  NET.setHostname(AP_NAME);
-  NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
-#endif
-
   LED.begin();
 
   RTC.begin();
-#if _USE_BMS_
   BMS.begin();
-#endif
   BMP.begin();
   IMU.begin();
   GPS.begin();
   SRV.begin();
 
-  BLE.begin();
   LOG.begin();
+
+  BLE.begin();
+  NET.setHostname(AP_NAME);
+  NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
   WEB.begin();
+
+#if _DEBUG_
+  Serial.println ("Setup complete");
+#endif
 }
 
 long last_sweep = 0;

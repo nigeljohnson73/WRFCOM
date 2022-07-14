@@ -17,11 +17,14 @@ String TrNET::getTimestamp() {
 #include <WiFi.h>
 #include <ESPmDNS.h>
 // TODO: Make some more shit work here
+
 #else // ESP32
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
 #include <ESP8266HTTPClient.h>
+
 #endif // ESP32
 
 #if _USE_OTA_
@@ -56,6 +59,7 @@ void TrNET::setHostname(String str) {
 }
 
 void TrNET::begin(String ssid, String pass, long wait) {
+  _enabled = true;
   if (wait < 1 || wait > 300) {
     wait = 30;
   }
@@ -74,19 +78,27 @@ void TrNET::begin(String ssid, String pass, long wait) {
 
     WiFi.hostname(_hostname);
 
+#if _DEBUG_
     Serial.print("Connecting to WiFi network '");
     Serial.print(WIFI_SSID);
     Serial.print("'.");
+#endif // _DEBUG_
 
     unsigned long connect_millis = millis() + (wait * 1000);
     while ((WiFi.status() != WL_CONNECTED) && (millis() < connect_millis)) {
+#if _DEBUG_
       Serial.print(".");
+#endif // _DEBUG_
+
       delay(500);
     }
   }
 
   if (WiFi.status() == WL_CONNECTED) {
+#if _DEBUG_
     Serial.println(" connected!");
+#endif // _DEBUG_
+
     _ip_address = WiFi.localIP().toString();
 #ifdef ESP32
     _hostname = WiFi.getHostname();
@@ -162,6 +174,11 @@ void TrNET::begin(String ssid, String pass, long wait) {
       }
     });
     ArduinoOTA.begin();
+
+#if _DEBUG_
+    Serial.println("OTA initialised: OK");
+#endif // __DEBUG_
+
 #endif // _USE_OTA_
 
 #if _USE_NTP_
@@ -183,8 +200,12 @@ void TrNET::begin(String ssid, String pass, long wait) {
     /******************************************
       Start up in local mode
     */
+
+#if _DEBUG_
     if (ssid.length() > 0) Serial.println(" not connected.");
     Serial.println("Starting WiFi in AP mode.");
+#endif // _DEBUG_
+
     _ap_ssid = _hostname;
     _hostname = "";
 
@@ -199,8 +220,11 @@ void TrNET::begin(String ssid, String pass, long wait) {
     //    _ip_address = local_ip.toString();
     IPAddress _ip =  WiFi.softAPIP();
     _ip_address = _ip.toString();
+
+#if _DEBUG_
     Serial.println(String("        AP SSID: ") + _ap_ssid);
     Serial.println(String("     IP address: ") + _ip_address);
+#endif // _DEBUG_
   }
 }
 
@@ -223,9 +247,9 @@ String TrNET::getTimestamp() {
 #if _USE_NTP_
   DateTime now(timeClient.getEpochTime());
   return now.timestamp() + "Z";
-#else // _USE_NTP_
-  return "";
 #endif // _USE_NTP_
+
+  return "";
 }
 
 #endif //_USE_WIFI_

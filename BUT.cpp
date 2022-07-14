@@ -15,18 +15,20 @@ QwiicButton button;
 void TrBUT::begin() {
 
   if (button.begin() == false) {
-    //    Serial.println("Device did not acknowledge! Freezing.");
+
+#if _DEBUG_
     Serial.println("BUT disconnected");
+#endif // _DEBUG_
+
     return;
   }
   button.LEDoff();  //start with the LED off
-  //  button.LEDconfig(_brightness / 40, _cycleTime * 4, _offTime);
 
 #if _DEBUG_
   Serial.print("BUT initialised: 0x");
   Serial.print(button.getI2Caddress(), HEX);
   Serial.println();
-#endif
+#endif // _DEBUG_
 
   _enabled = true;
 }
@@ -39,11 +41,12 @@ void TrBUT::loop() {
     if (_last_pressed_at > 0) {
       if (!_button_held && ((now - _last_pressed_at) > _held_trigger)) {
         _button_held = true;
-#if _XDEBUG_
+#if _DEBUG_ && _XDEBUG_
         Serial.println("BUT::held()");
         Serial.println("SRV::arm(false)");
         Serial.println("LOG::capture(false)");
-#endif
+#endif // _DEBUG_ && _XDEBUG_
+
         if (SRV.isEnabled()) {
           SRV.arm(false);
         }
@@ -54,9 +57,10 @@ void TrBUT::loop() {
 
       }
     } else {
-#if _XDEBUG_
+#if _DEBUG_ && _XDEBUG_
       Serial.println("The button is newly pressed!");
-#endif
+#endif // _DEBUG_ && _XDEBUG_
+
       _last_pressed_at = now;
     }
   } else {
@@ -64,25 +68,30 @@ void TrBUT::loop() {
       //      Serial.println("The button is released!");
       // released
       if (!_button_held) {
-#if _XDEBUG_
+
+#if _DEBUG_ && _XDEBUG_
         Serial.println("BUT::click()");
-#endif
+#endif // _DEBUG_ && _XDEBUG_
+
         if (!(SRV.isEnabled() && SRV.isArmed())) {
           SRV.arm(true);
-#if _XDEBUG_
+
+#if _DEBUG_ && _XDEBUG_
           Serial.println("SRV::arm(true)");
-#endif
+#endif // _DEBUG_ && _XDEBUG_
+
         } else {
           //          logging = !logging;
           if (LOG.isEnabled()) {
             LOG.capture(!LOG.isCapturing());
           }
-#if _XDEBUG_
+#if _DEBUG_ && _XDEBUG_
           Serial.print("LOG::capture(");
           Serial.print((LOG.isEnabled() && LOG.isCapturing()) ? "true" : "false");
           Serial.print(")");
           Serial.println();
-#endif
+#endif // _DEBUG_ && _XDEBUG_
+
         }
       }
       _last_pressed_at = 0;

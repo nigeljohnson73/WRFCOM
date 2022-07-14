@@ -181,17 +181,17 @@ double TrIMU::getGyroZ() {
   return 57.3 * gyro.gyro.z;
 }
 
-double TrIMU::getAccelerationX() {
+double TrIMU::getAccX() {
   if (!isEnabled()) return 0.;
   return accel.acceleration.x;
 }
 
-double TrIMU::getAccelerationY() {
+double TrIMU::getAccY() {
   if (!isEnabled()) return 0.;
   return accel.acceleration.y;
 }
 
-double TrIMU::getAccelerationZ() {
+double TrIMU::getAccZ() {
   if (!isEnabled()) return 0.;
   return accel.acceleration.z;
 }

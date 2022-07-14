@@ -97,7 +97,11 @@ void TrLED::loop() {
       if (NET.isApMode()) {
         blink(2);
       } else {
-        blink(1);
+        if (NET.isEnabled()) {
+          blink(1);
+        } else if (BLE.isEnabled()) {
+          blink(3);
+        }
       }
       _sequence_started = now;
     }

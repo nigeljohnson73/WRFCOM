@@ -17,6 +17,8 @@ void TrBMP::begin() {
   }
 
   _enabled = true;
+  _has_temperature = true;
+  _has_pressure = true;
   // Set up oversampling and filter initialization
   bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
   bmp390.setPressureOversampling(BMP3_OVERSAMPLING_4X);

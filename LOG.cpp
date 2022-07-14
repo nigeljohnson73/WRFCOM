@@ -110,10 +110,10 @@ void TrLOG::loop() {
       line += comma;
     }
     if (IMU.hasAcc()) {
-      line += comma + String(IMU.getAccelerationX());
-      line += comma + String(IMU.getAccelerationY());
-      line += comma + String(IMU.getAccelerationZ());
-      double g_force = sqrt(pow(IMU.getAccelerationX(), 2) + pow(IMU.getAccelerationY(), 2) + pow(IMU.getAccelerationZ(), 2));
+      line += comma + String(IMU.getAccX());
+      line += comma + String(IMU.getAccY());
+      line += comma + String(IMU.getAccZ());
+      double g_force = sqrt(pow(IMU.getAccX(), 2) + pow(IMU.getAccY(), 2) + pow(IMU.getAccZ(), 2));
       _peak_g = max(g_force, _peak_g);
       line += comma + g_force;
     } else {

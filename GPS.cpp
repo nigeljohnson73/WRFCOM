@@ -47,16 +47,16 @@ void TrGPS::begin() {
   if (myGNSS.setNavigationFrequency(SENSOR_HZ)) {
     _refresh_hz = SENSOR_HZ;
 #if _DEBUG && _XDEBUG_
-    Serial.print(F("GPS: Refresh rate set to "));
-    Serial.print(SENSOR_HZ);
-    Serial.print(F(" Hz"));
+    Serial.print("GPS: Refresh rate set to ");
+    Serial.print(_refresh_hz);
+    Serial.print(" Hz");
     Serial.println();
 #endif
 #if _DEBUG_
   } else {
-    Serial.print(F("GPS: failed to set "));
-    Serial.print(SENSOR_HZ);
-    Serial.print(F(" fps"));
+    Serial.print("GPS: failed to set ");
+    Serial.print(_refresh_hz);
+    Serial.print(" Hz refresh");
     Serial.println();
 #endif
   }

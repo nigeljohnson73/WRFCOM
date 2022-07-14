@@ -18,12 +18,22 @@ class TrBMP {
       return _enabled;
     };
 
+    bool hasPressure() {
+      return _has_pressure;
+    };
+
+    bool hasTemperature() {
+      return _has_temperature;
+    };
+
     double getSeaLevelPressure() {
       return sea_level_pressure;
     }; // in hPa
 
   private:
     bool _enabled = false;
+    bool _has_pressure = false;
+    bool _has_temperature = false;
     double sea_level_pressure = 1013.25;
 };
 

@@ -65,19 +65,24 @@ int temperature_value = int(18.12 * 100.0);
 // https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf
 
 #define WRFCOM_SERVICE_NAME             "WRFCOM"
-#define WRFCOM_SERVICE_UUID             "9ddf3d45-ea85-467a-9b23-34a9e4900000"
+#define WRFCOM_CORE_SERVICE_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900000"
+#define WRFCOM_FLAGS_SERVICE_UUID       "9ddf3d45-ea85-467a-9b23-34a9e4900100"
+#define WRFCOM_GPS_SERVICE_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900200"
+#define WRFCOM_BMP_SERVICE_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900300"
+#define WRFCOM_IMU_SERVICE_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900400"
 
-#define BMSENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900100"
+#define BMSENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900101"
+#define GPSENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900102"
+#define GPSLOCKED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900103"
+#define BMPENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900104"
+
 #define BATTERY_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2A19)
 
-#define GPSENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900200"
-#define GPSLOCKED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900201"
-#define SIV_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900202"
+#define SIV_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900201"
 #define LATITUDE_CHARACTERISTIC_UUID    BLEUUID((uint16_t)0x2AAE)
 #define LONGITUDE_CHARACTERISTIC_UUID   BLEUUID((uint16_t)0x2AAF)
 #define ALTITUDE_CHARACTERISTIC_UUID    BLEUUID((uint16_t)0x2AB3)
 
-#define BMPENABLED_CHARACTERISTIC_UUID  "9ddf3d45-ea85-467a-9b23-34a9e4900300"
 #define PRESSURE_CHARACTERISTIC_UUID    BLEUUID((uint16_t)0x2A6D)
 #define TEMPERATURE_CHARACTERISTIC_UUID BLEUUID((uint16_t)0x2A6E)
 
@@ -108,10 +113,14 @@ void TrBLE::begin() {
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-  BLEService *pService = pServer->createService(WRFCOM_SERVICE_UUID);
+//  BLEService *pService = pServer->createService(WRFCOM_SERVICE_UUID);
+  BLEService *pFlagsService = pServer->createService(WRFCOM_FLAGS_SERVICE_UUID);
+  BLEService *pCoreService = pServer->createService(WRFCOM_CORE_SERVICE_UUID);
+  BLEService *pGpsService = pServer->createService(WRFCOM_GPS_SERVICE_UUID);
+  BLEService *pBmpService = pServer->createService(WRFCOM_BMP_SERVICE_UUID);
 
   // Create BLE Characteristics
-  pBmsEnabled = pService->createCharacteristic(
+  pBmsEnabled = pFlagsService->createCharacteristic(
                   BMSENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
@@ -122,7 +131,7 @@ void TrBLE::begin() {
   pBle2904_bms_enabled->setUnit( 0x2AE2); // Boolean
   pBmsEnabled->addDescriptor(pBle2904_bms_enabled);
 
-  pBattery = pService->createCharacteristic(
+  pBattery = pCoreService->createCharacteristic(
                BATTERY_CHARACTERISTIC_UUID,
                BLECharacteristic::PROPERTY_READ   |
                BLECharacteristic::PROPERTY_NOTIFY |
@@ -133,7 +142,7 @@ void TrBLE::begin() {
   pBle2904_battery->setUnit(0x27AD); // Percentage
   pBattery->addDescriptor(pBle2904_battery);
 
-  pGpsEnabled = pService->createCharacteristic(
+  pGpsEnabled = pFlagsService->createCharacteristic(
                   GPSENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
@@ -144,7 +153,7 @@ void TrBLE::begin() {
   pBle2904_gps_enabled->setUnit( 0x2AE2); // Boolean
   pGpsEnabled->addDescriptor(pBle2904_gps_enabled);
 
-  pGpsLocked = pService->createCharacteristic(
+  pGpsLocked = pFlagsService->createCharacteristic(
                  GPSLOCKED_CHARACTERISTIC_UUID,
                  BLECharacteristic::PROPERTY_READ   |
                  BLECharacteristic::PROPERTY_NOTIFY |
@@ -155,7 +164,7 @@ void TrBLE::begin() {
   pBle2904_gps_locked->setUnit( 0x2AE2); // Boolean
   pGpsLocked->addDescriptor(pBle2904_gps_locked);
 
-  pSiv = pService->createCharacteristic(
+  pSiv = pGpsService->createCharacteristic(
            SIV_CHARACTERISTIC_UUID,
            BLECharacteristic::PROPERTY_READ   |
            BLECharacteristic::PROPERTY_NOTIFY |
@@ -166,7 +175,7 @@ void TrBLE::begin() {
   pBle2904_siv->setUnit(0x2700); // Unitless
   pSiv->addDescriptor(pBle2904_siv);
 
-  pLatitude = pService->createCharacteristic(
+  pLatitude = pGpsService->createCharacteristic(
                 LATITUDE_CHARACTERISTIC_UUID,
                 BLECharacteristic::PROPERTY_READ   |
                 BLECharacteristic::PROPERTY_NOTIFY |
@@ -178,7 +187,7 @@ void TrBLE::begin() {
   pBle2904_latitude->setExponent(-7);
   pLatitude->addDescriptor(pBle2904_latitude);
 
-  pLongitude = pService->createCharacteristic(
+  pLongitude = pGpsService->createCharacteristic(
                  LONGITUDE_CHARACTERISTIC_UUID,
                  BLECharacteristic::PROPERTY_READ   |
                  BLECharacteristic::PROPERTY_NOTIFY |
@@ -190,7 +199,7 @@ void TrBLE::begin() {
   pBle2904_longitude->setExponent(-7);
   pLongitude->addDescriptor(pBle2904_longitude);
 
-  pAltitude = pService->createCharacteristic(
+  pAltitude = pGpsService->createCharacteristic(
                 ALTITUDE_CHARACTERISTIC_UUID,
                 BLECharacteristic::PROPERTY_READ   |
                 BLECharacteristic::PROPERTY_NOTIFY |
@@ -202,7 +211,7 @@ void TrBLE::begin() {
   pBle2904_altitude->setExponent(-3);
   pAltitude->addDescriptor(pBle2904_altitude);
 
-  pBmpEnabled = pService->createCharacteristic(
+  pBmpEnabled = pFlagsService->createCharacteristic(
                   BMPENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
@@ -213,7 +222,7 @@ void TrBLE::begin() {
   pBle2904_bmp_enabled->setUnit( 0x2AE2); // Boolean
   pBmpEnabled->addDescriptor(pBle2904_bmp_enabled);
 
-  pPressure = pService->createCharacteristic(
+  pPressure = pBmpService->createCharacteristic(
                 PRESSURE_CHARACTERISTIC_UUID,
                 BLECharacteristic::PROPERTY_READ   |
                 BLECharacteristic::PROPERTY_NOTIFY |
@@ -225,7 +234,7 @@ void TrBLE::begin() {
   pBle2904_pressure->setExponent(-1); // Tenths of a pascal
   pPressure->addDescriptor(pBle2904_pressure);
 
-  pTemperature = pService->createCharacteristic(
+  pTemperature = pBmpService->createCharacteristic(
                    TEMPERATURE_CHARACTERISTIC_UUID,
                    BLECharacteristic::PROPERTY_READ   |
                    BLECharacteristic::PROPERTY_NOTIFY |
@@ -239,12 +248,18 @@ void TrBLE::begin() {
 
   // Configure advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(WRFCOM_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_CORE_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_FLAGS_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_GPS_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_BMP_SERVICE_UUID);
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
 
   // Start the service
-  pService->start();
+  pCoreService->start();
+  pFlagsService->start();
+  pGpsService->start();
+  pBmpService->start();
   BLEDevice::startAdvertising();
 
 #if _DEBUG_
@@ -292,27 +307,33 @@ void TrBLE::loop() {
     _refresh_last = now;
 
     if (pGpsEnabled) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: GPSE: ");
       Serial.print(gps_enabled_value ? "TRUE" : "FALSE");
       Serial.println();
+#endif
       pGpsEnabled->setValue(gps_enabled_value);
       pGpsEnabled->notify();
       gps_enabled_value = !gps_enabled_value;
     }
 
     if (pGpsLocked) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: GPSL: ");
       Serial.print(gps_locked_value ? "TRUE" : "FALSE");
       Serial.println();
+#endif
       pGpsLocked->setValue(gps_locked_value);
       pGpsLocked->notify();
       gps_locked_value = !gps_locked_value;
     }
 
     if (pSiv) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: SIV: ");
       Serial.print(siv_value);
       Serial.println();
+#endif
       pSiv->setValue(siv_value);
       pSiv->notify();
       siv_value += 1;
@@ -320,77 +341,93 @@ void TrBLE::loop() {
     }
 
     if (pLatitude) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: LAT: ");
       Serial.print(latitude_value);
       Serial.print(" deg");
       Serial.println();
+#endif
       pLatitude->setValue(latitude_value);
       pLatitude->notify();
       latitude_value += 1;
     }
 
     if (pLongitude) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: LNG: ");
       Serial.print(longitude_value);
       Serial.print(" deg");
       Serial.println();
+#endif
       pLongitude->setValue(longitude_value);
       pLongitude->notify();
       longitude_value += 1;
     }
 
     if (pAltitude) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: ALT: ");
       Serial.print(altitude_value);
       Serial.print(" m");
       Serial.println();
+#endif
       pAltitude->setValue(altitude_value);
       pAltitude->notify();
       altitude_value += 1;
     }
 
     if (pBmpEnabled) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: BMP: ");
       Serial.print(bmp_enabled_value ? "TRUE" : "FALSE");
       Serial.println();
+#endif
       pBmpEnabled->setValue(bmp_enabled_value);
       pBmpEnabled->notify();
       bmp_enabled_value = !bmp_enabled_value;
     }
 
     if (pPressure) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: HPA: ");
       Serial.print(pressure_value);
       Serial.print(" Pa");
       Serial.println();
+#endif
       pPressure->setValue(pressure_value);
       pPressure->notify();
       pressure_value += 1;
     }
 
     if (pTemperature) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: TMP: ");
       Serial.print(temperature_value);
       Serial.print(" C");
       Serial.println();
+#endif
       pTemperature->setValue(temperature_value);
       pTemperature->notify();
       temperature_value += 1;
     }
 
     if (pBmsEnabled) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: BMSE: ");
       Serial.print(bms_enabled_value ? "TRUE" : "FALSE");
       Serial.println();
+#endif
       pBmsEnabled->setValue(bms_enabled_value);
       pBmsEnabled->notify();
       bms_enabled_value = !bms_enabled_value;
     }
 
     if (pBattery) {
+#if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: BAT: ");
       Serial.print(battery_value);
       Serial.println();
+#endif
       pBattery->setValue(battery_value);
       pBattery->notify();
       battery_value += 1;

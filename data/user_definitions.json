@@ -1,0 +1,104 @@
+{
+   "_comment": [
+      "Add UUIDs for your services, characteristics, and descriptors in this file.",
+      "The format is the UUID of the item, followed by an object containing the data.",
+      "'name' is a mandatory handle, while 'format' is optional.",
+      "Currently the only supported format is 'TEXT', default is 'NO_FORMAT'.",
+      "The application must be reloaded to access changes in this file."
+   ],
+   "uuid16bitServiceDefinitions": {},
+   "uuid128bitServiceDefinitions": {
+      "9ddf3d45ea85467a9b2334a9e4900100": {
+         "name": "WRFCOM Capability Service"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900000": {
+         "name": "WRFCOM Core Service"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900300": {
+         "name": "WRFCOM EMU Service"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900200": {
+         "name": "WRFCOM GPS service"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900400": {
+         "name": "WRFCOM IMU Service"
+      }
+   },
+   "uuid16bitCharacteristicDefinitions": {},
+   "uuid128bitCharacteristicDefinitions": {
+      "9ddf3d45ea85467a9b2334a9e4900002": {
+         "name": "WRFCOM WiFi Mode"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900003": {
+         "name": "WRFCOM IP Address"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900004": {
+         "name": "Parachute Armed"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900005": {
+         "name": "Log Capturing"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900501": {
+         "name": "WRFCOM Has Thermometer"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900502": {
+         "name": "WRFCOM Has Barometer"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900503": {
+         "name": "WRFCOM Has Accelerometer"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900504": {
+         "name": "WRFCOM Has Gyroscope"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900505": {
+         "name": "WRFCOM Has Magnetometer"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900101": {
+         "name": "WRFCOM BMS Enabled"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900102": {
+         "name": "WRFCOM GPS Enabled"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900103": {
+         "name": "WRFCOM GPS Locked"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900104": {
+         "name": "WRFCOM EMU Enabled"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900105": {
+         "name": "WRFCOM IMU Enabled"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900201": {
+         "name": "WRFCOM GPS Sats In View"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900601": {
+         "name": "WRFCOM Acceleration X"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900602": {
+         "name": "WRFCOM Acceleration Y"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900603": {
+         "name": "WRFCOM Acceleration Z"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900701": {
+         "name": "WRFCOM Angular Velocity X"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900702": {
+         "name": "WRFCOM Angular Velocity Y"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900703": {
+         "name": "WRFCOM Angular Velocity Z"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900801": {
+         "name": "WRFCOM Magnetic Density X"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900802": {
+         "name": "WRFCOM Magnetic Density Y"
+      },
+      "9ddf3d45ea85467a9b2334a9e4900803": {
+         "name": "WRFCOM Magnetic Density Z"
+      }
+   },
+   "uuid16bitDescriptorDefinitions": {},
+   "uuid128bitDescriptorDefinitions": {}
+}

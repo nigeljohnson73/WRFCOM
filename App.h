@@ -25,12 +25,14 @@
 #define WIFI_WAIT 30
 #endif
 
-// In AP mode (When the Wifi will not connect) this is the password.
-// it needs to be at least 8 chars long for most devices to let you enter the details
-#ifndef AP_NAME
-#define AP_NAME "WRFCOM"
+// This will be the access point name if no WiFi connection happens, but also the BLE server name
+// it needs to be a String type
+#ifndef DEVICE_NAME
+#define DEVICE_NAME (String("WRFCOM-") + espChipId())
 #endif
 
+// In AP mode (When the Wifi will not connect) this is the password.
+// it needs to be at least 8 chars long for most devices to let you enter the details
 #ifndef AP_PASSWORD
 #define AP_PASSWORD "12345678"
 #endif
@@ -116,7 +118,10 @@
 #define _XDEBUG_ false
 #endif
 
+
 #include <Arduino.h> // For type inclusion - String for example
+extern String espChipId();
+
 #include "BLE.h"
 #include "BMP.h"
 #include "BMS.h"

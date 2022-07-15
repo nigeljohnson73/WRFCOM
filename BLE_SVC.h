@@ -1,0 +1,61 @@
+#ifndef __BLE_SERVICE_DEFINITIONS__
+#define __BLE_SERVICE_DEFINITIONS__
+
+// Full GATT charactersitics:
+// https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
+//
+// Format types:
+// https://btprodspecificationrefs.blob.core.windows.net/assigned-numbers/Assigned%20Number%20Types/Format%20Types.pdf
+//
+// Characteristic and unit definitions:
+// https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf
+
+// Service definitions
+#define WRFCOM_CORE_SERVICE_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900000"
+#define WRFCOM_CAPABILITY_SERVICE_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900100"
+#define WRFCOM_GPS_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900200"
+#define WRFCOM_BMP_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900300"
+#define WRFCOM_IMU_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900400"
+
+// Core characteristics
+//#define NAME_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900001"
+#define WIFI_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900002"
+#define IPADDR_CHARACTERISTIC_UUID       "9ddf3d45-ea85-467a-9b23-34a9e4900003"
+#define BATTERY_CHARACTERISTIC_UUID      BLEUUID((uint16_t)0x2A19)
+#define ARMED_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900004"
+#define LOGGING_CHARACTERISTIC_UUID      "9ddf3d45-ea85-467a-9b23-34a9e4900005"
+
+//// Capability characteristics
+#define CTEMPERATURE_CHARACTERISTIC_UUID "9ddf3d45-ea85-467a-9b23-34a9e4900501"
+#define CPRESSURE_CHARACTERISTIC_UUID    "9ddf3d45-ea85-467a-9b23-34a9e4900502"
+#define CACC_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900503"
+#define CGYRO_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900504"
+#define CMAG_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900505"
+#define BMSENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900101"
+#define GPSENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900102"
+#define GPSLOCKED_CHARACTERISTIC_UUID    "9ddf3d45-ea85-467a-9b23-34a9e4900103"
+#define BMPENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900104"
+#define IMUENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900105"
+
+// GPS characteristics
+#define SIV_CHARACTERISTIC_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900201"
+#define LATITUDE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2AAE)
+#define LONGITUDE_CHARACTERISTIC_UUID    BLEUUID((uint16_t)0x2AAF)
+#define ALTITUDE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2AB3)
+
+// BMP characteristics
+#define PRESSURE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2A6D)
+#define TEMPERATURE_CHARACTERISTIC_UUID  BLEUUID((uint16_t)0x2A6E)
+
+// IMU characteristics
+#define ACCX_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900601"
+#define ACCY_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900602"
+#define ACCZ_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900603"
+#define GYROX_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900701"
+#define GYROY_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900702"
+#define GYROZ_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900703"
+#define MAGX_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900801"
+#define MAGY_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900802"
+#define MAGZ_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900803"
+
+#endif

@@ -5,6 +5,27 @@
 #include <Wire.h>
 #include "App.h"
 
+String espChipId() {
+#ifdef ESP32
+//  int chipId = 0;
+//  for (int i = 0; i < 17; i = i + 8) {
+//
+//    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+//  }
+  uint32_t chipId = 0;
+  for (int i = 0; i < 17; i = i + 8) {
+    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  }
+  char buffer[20];
+  sprintf(buffer, "%04X", chipId);
+
+  return String(buffer);
+
+#else // ESP32
+  return String(ESP.getChipId());
+#endif // ESP32
+}
+
 void setup() {
   Wire.begin(); // Initialise the IIC bus (GPS and buttons);
   Wire.setClock(400000); //Go super fast
@@ -26,7 +47,7 @@ void setup() {
   LOG.begin();
 
   BLE.begin();
-  NET.setHostname(AP_NAME);
+  NET.setHostname(DEVICE_NAME);
   NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
   WEB.begin();
 

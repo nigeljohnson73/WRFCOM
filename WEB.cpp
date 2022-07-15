@@ -475,7 +475,7 @@ void showStats() {
   Serial.println("WebServer::showRoot(): responding");
 #endif // _DEBUG_ && _XDEBUG_
 
-  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - Stats", content));
+  serverResponse(200, "text/html", htmlPage(String(DEVICE_NAME) + " - Stats", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
@@ -504,7 +504,7 @@ void showAbout() {
 #endif // _DEBUG_
 
   String content = "<h1>About ";
-  content += AP_NAME;
+  content += DEVICE_NAME;
   content += "</h1>";
   content += "<div>";
   content += String("<p>Application Version: ") + VERSION + "</p>";
@@ -519,7 +519,7 @@ void showAbout() {
   Serial.println("WebServer::showAbout(): responding");
 #endif // _DEBUG_ && _XDEBUG_
 
-  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - About", content));
+  serverResponse(200, "text/html", htmlPage(String(DEVICE_NAME) + " - About", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showAbout(): complete");
@@ -546,7 +546,7 @@ void showRoot() {
 #if _DEBUG_
   Serial.println("WebServer::showRoot(): called");
 #endif // _DEBUG_
-  String content = String("<h2>") + AP_NAME + "</h2>";
+  String content = String("<h2>") + DEVICE_NAME + "</h2>";
   String status = "";
   String text = "";
 
@@ -663,7 +663,7 @@ void showRoot() {
   Serial.println("WebServer::showRoot(): responding");
 #endif // _DEBUG_ && _XDEBUG_
 
-  serverResponse(200, "text/html", htmlPage(String(AP_NAME) + " - Home", content));
+  serverResponse(200, "text/html", htmlPage(String(DEVICE_NAME) + " - Home", content));
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");

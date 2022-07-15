@@ -1,4 +1,6 @@
 #include "BLE.h"
+#include "BLE_SVC.h"
+
 TrBLE BLE;
 TrBLE::TrBLE() {};
 
@@ -15,43 +17,43 @@ void TrBLE::loop() {}
 //#include <BLE2902.h>
 #include <BLE2904.h>
 
+// Used for connection monitoring
 bool deviceConnected = false;
 bool oldDeviceConnected = false;
 
+// The main server
 BLEServer* pServer = NULL;
 
-// Core
+// Core characteristics storage
 BLECharacteristic* pWifi = NULL;
 BLECharacteristic* pIpaddr = NULL;
 BLECharacteristic* pBattery = NULL;
 BLECharacteristic* pArmed = NULL;
 BLECharacteristic* pLogging = NULL;
 
-//// Capability
-//BLECharacteristic* pCPressure = NULL;
-//BLECharacteristic* pCTemperature = NULL;
-//BLECharacteristic* pCAccelerometer = NULL;
-//BLECharacteristic* pCGyroscope = NULL;
-//BLECharacteristic* pCMagnetometer = NULL;
-
-// Flags
+// Capability characteristics storage
+BLECharacteristic* pCPressure = NULL;
+BLECharacteristic* pCTemperature = NULL;
+BLECharacteristic* pCAccelerometer = NULL;
+BLECharacteristic* pCGyroscope = NULL;
+BLECharacteristic* pCMagnetometer = NULL;
 BLECharacteristic* pBmsEnabled = NULL;
 BLECharacteristic* pGpsEnabled = NULL;
 BLECharacteristic* pGpsLocked = NULL;
 BLECharacteristic* pBmpEnabled = NULL;
 BLECharacteristic* pImuEnabled = NULL;
 
-// GPS
+// GPS characteristics storage
 BLECharacteristic* pSiv = NULL;
 BLECharacteristic* pLatitude = NULL;
 BLECharacteristic* pLongitude = NULL;
 BLECharacteristic* pAltitude = NULL;
 
-// BMP
+// BMP characteristics storage
 BLECharacteristic* pPressure = NULL;
 BLECharacteristic* pTemperature = NULL;
 
-// IMU
+// IMU characteristics storage
 BLECharacteristic* pAccX = NULL;
 BLECharacteristic* pAccY = NULL;
 BLECharacteristic* pAccZ = NULL;
@@ -62,188 +64,113 @@ BLECharacteristic* pMagX = NULL;
 BLECharacteristic* pMagY = NULL;
 BLECharacteristic* pMagZ = NULL;
 
-// Core
+// Core descriptors storage
 BLE2904* pBle2904_wifi = NULL;
 BLE2904* pBle2904_ipaddr = NULL;
 BLE2904* pBle2904_battery = NULL;
 
-//// Flags
-//BLE2904* pBle2904_bms_enabled = NULL;
-//BLE2904* pBle2904_gps_enabled = NULL;
-//BLE2904* pBle2904_gps_locked = NULL;
-//BLE2904* pBle2904_bmp_enabled = NULL;
-//BLE2904* pBle2904_imu_enabled = NULL;
+// Capability descriptors storage
+BLE2904* pBle2904_ctemperature = NULL;
+BLE2904* pBle2904_cpressure = NULL;
+BLE2904* pBle2904_caccelerometer = NULL;
+BLE2904* pBle2904_cgyroscope = NULL;
+BLE2904* pBle2904_cmagnetometer = NULL;
+BLE2904* pBle2904_bms_enabled = NULL;
+BLE2904* pBle2904_gps_enabled = NULL;
+BLE2904* pBle2904_gps_locked = NULL;
+BLE2904* pBle2904_bmp_enabled = NULL;
+BLE2904* pBle2904_imu_enabled = NULL;
 
-// GPS
+// GPS descriptors storage
 BLE2904* pBle2904_siv = NULL;
 BLE2904* pBle2904_latitude = NULL;
 BLE2904* pBle2904_longitude = NULL;
 BLE2904* pBle2904_altitude = NULL;
 
-// BMP
+// BMP descriptors storage
 BLE2904* pBle2904_pressure = NULL;
 BLE2904* pBle2904_temperature = NULL;
 
-// IMU
+// IMU descriptors storage
 BLE2904* pBle2904_acc_x = NULL;
 BLE2904* pBle2904_acc_y = NULL;
 BLE2904* pBle2904_acc_z = NULL;
 BLE2904* pBle2904_gyro_x = NULL;
 BLE2904* pBle2904_gyro_y = NULL;
 BLE2904* pBle2904_gyro_z = NULL;
-//BLE2904* pBle2904_mag_x = NULL;
-//BLE2904* pBle2904_mag_y = NULL;
-//BLE2904* pBle2904_mag_z = NULL;
+BLE2904* pBle2904_mag_x = NULL;
+BLE2904* pBle2904_mag_y = NULL;
+BLE2904* pBle2904_mag_z = NULL;
 
-//// Capability
-//BLE2904* pBle2904_ctemperature = NULL;
-//BLE2904* pBle2904_cpressure = NULL;
-//BLE2904* pBle2904_caccelerometer = NULL;
-//BLE2904* pBle2904_cgyroscope = NULL;
-//BLE2904* pBle2904_cmagnetometer = NULL;
-
-// Core
+// Core data values
 String wifi_value = "STA";
 String ipaddr_value = "192.168.999.999";
 uint8_t battery_value = int(12.34);
 uint8_t armed_value = true ? 1 : 0;
 uint8_t logging_value = true ? 1 : 0;
 
-// Flags
+// Capability data values
+uint8_t ctemperature_value = true ? 1 : 0;
+uint8_t cpressure_value = true ? 1 : 0;
+uint8_t caccelerometer_value = false ? 1 : 0;
+uint8_t cgyroscope_value = true ? 1 : 0;
+uint8_t cmagnetometer_value = false ? 1 : 0;
 uint8_t bms_enabled_value = true ? 1 : 0;
 uint8_t gps_enabled_value = true ? 1 : 0;
 uint8_t gps_locked_value = false ? 1 : 0;
 uint8_t bmp_enabled_value = true ? 1 : 0;
 uint8_t imu_enabled_value = true ? 1 : 0;
 
-// GPS
+// GPS data values
 uint8_t siv_value = 0;
 int latitude_value = int(51.012323 * 10000000.0);
 int longitude_value = (0.4612323 * 10000000.0);
 int altitude_value = int(1.234 * 1000.0); //int(23.441*1000);
 
-// BMP
+// BMP data values
 int pressure_value = int(1013.25 * 1000.0);
 int temperature_value = int(18.12 * 100.0);
 
-// IMU
+// IMU data values
 int accx_value = int(0.1 * 10000.);
 int accy_value = int(-0.1 * 10000.);
 int accz_value = int(9.79 * 10000.);
 int gyrox_value = int(0.1 * 10000.);
 int gyroy_value = int(-0.1 * 10000.);
 int gyroz_value = int(0.0 * 10000.);
-//int magx_value = int(123.45 * 100.);
-//int magy_value = int(-0.2 * 100.);
-//int magz_value = int(0.3 * 100.);
+int magx_value = int(123.45 * 100.);
+int magy_value = int(-123.45 * 100.);
+int magz_value = int(1.234 * 100.);
 
-//// Capability
-//uint8_t cpressure_value = true ? 1 : 0;
-//uint8_t ctemperature_value = true ? 1 : 0;
-//uint8_t caccelerometer_value = true ? 1 : 0;
-//uint8_t cgyroscope_value = true ? 1 : 0;
-//uint8_t cmagnetometer_value = false ? 1 : 0;
-
-// Full GATT charactersitics:
-// https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
-//
-// Format types:
-// https://btprodspecificationrefs.blob.core.windows.net/assigned-numbers/Assigned%20Number%20Types/Format%20Types.pdf
-//
-// Characteristic and unit definitions:
-// https://btprodspecificationrefs.blob.core.windows.net/assigned-values/16-bit%20UUID%20Numbers%20Document.pdf
-
-#define WRFCOM_SERVICE_NAME              "WRFCOM"
-#define WRFCOM_CORE_SERVICE_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900000"
-#define WRFCOM_FLAGS_SERVICE_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900100"
-#define WRFCOM_GPS_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900200"
-#define WRFCOM_BMP_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900300"
-//#define WRFCOM_IMU_SERVICE_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900400"
-//#define WRFCOM_CAPABILITY_SERVICE_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900500"
-#define WRFCOM_IMUACC_SERVICE_UUID       "9ddf3d45-ea85-467a-9b23-34a9e4900600"
-#define WRFCOM_IMUGYRO_SERVICE_UUID      "9ddf3d45-ea85-467a-9b23-34a9e4900700"
-//#define WRFCOM_IMUMAG_SERVICE_UUID       "9ddf3d45-ea85-467a-9b23-34a9e4900800"
-
-// Core
-//#define NAME_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900001"
-#define WIFI_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900002"
-#define IPADDR_CHARACTERISTIC_UUID       "9ddf3d45-ea85-467a-9b23-34a9e4900003"
-#define BATTERY_CHARACTERISTIC_UUID      BLEUUID((uint16_t)0x2A19)
-#define ARMED_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900004"
-#define LOGGING_CHARACTERISTIC_UUID      "9ddf3d45-ea85-467a-9b23-34a9e4900005"
-
-//// Capability
-//#define CTEMPERATURE_CHARACTERISTIC_UUID "9ddf3d45-ea85-467a-9b23-34a9e4900501"
-//#define CPRESSURE_CHARACTERISTIC_UUID    "9ddf3d45-ea85-467a-9b23-34a9e4900502"
-//#define CACC_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900503"
-//#define CGYRO_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900504"
-//#define CMAG_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900505"
-
-// Flags
-#define BMSENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900101"
-#define GPSENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900102"
-#define GPSLOCKED_CHARACTERISTIC_UUID    "9ddf3d45-ea85-467a-9b23-34a9e4900103"
-#define BMPENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900104"
-#define IMUENABLED_CHARACTERISTIC_UUID   "9ddf3d45-ea85-467a-9b23-34a9e4900105"
-
-// GPS
-#define SIV_CHARACTERISTIC_UUID          "9ddf3d45-ea85-467a-9b23-34a9e4900201"
-#define LATITUDE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2AAE)
-#define LONGITUDE_CHARACTERISTIC_UUID    BLEUUID((uint16_t)0x2AAF)
-#define ALTITUDE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2AB3)
-
-// BMP
-#define PRESSURE_CHARACTERISTIC_UUID     BLEUUID((uint16_t)0x2A6D)
-#define TEMPERATURE_CHARACTERISTIC_UUID  BLEUUID((uint16_t)0x2A6E)
-
-// IMU Acc
-#define ACCX_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900601"
-#define ACCY_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900602"
-#define ACCZ_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900603"
-
-// IMU Gyro
-#define GYROX_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900701"
-#define GYROY_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900702"
-#define GYROZ_CHARACTERISTIC_UUID        "9ddf3d45-ea85-467a-9b23-34a9e4900703"
-
-// IMU Mag
-//#define MAGX_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900801"
-//#define MAGY_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900802"
-//#define MAGZ_CHARACTERISTIC_UUID         "9ddf3d45-ea85-467a-9b23-34a9e4900803"
-
+// Class to handle writes to the arm control value
 class MyArmCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string value = pCharacteristic->getValue();
 
       if (value.length() > 0) {
-        Serial.println("*********\nMyArmCallbacks()");
-        Serial.print("New value: ");
-        for (int i = 0; i < value.length(); i++)
-          Serial.print(value[i]?"TRUE":"FALSE");
-
+        Serial.println("BLE::armCallback():");
+        Serial.print(value[0] ? "TRUE" : "FALSE");
         Serial.println();
-        Serial.println("*********");
+        SRV.arm(value[0] ? true : false);
       }
     }
 };
 
+// Class to handle writes to the logging control value
 class MyLogCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
       std::string value = pCharacteristic->getValue();
 
       if (value.length() > 0) {
-        Serial.println("*********\nMyLogCallbacks()");
-        Serial.print("New value: ");
-        for (int i = 0; i < value.length(); i++)
-          Serial.print(value[i]?"TRUE":"FALSE");
-
+        Serial.println("BLE::logCallback():");
+        Serial.print(value[0] ? "TRUE" : "FALSE");
         Serial.println();
-        Serial.println("*********");
+        LOG.capture(value[0] ? true : false);
       }
     }
 };
 
-// Can't get rid of this - it handles connection requests
+// Class to hand the connection events
 class MyServerCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
       deviceConnected = true;
@@ -259,7 +186,9 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 void TrBLE::begin() {
 
-  BLEDevice::init(WRFCOM_SERVICE_NAME);
+  //  String server_name = DEVICE_NAME;//String(DEVICE_NAME) + "-" + espChipId();
+
+  BLEDevice::init(DEVICE_NAME.c_str());
   if (false) {
     Serial.println("BLE disconnected");
     return;
@@ -270,15 +199,11 @@ void TrBLE::begin() {
   pServer->setCallbacks(new MyServerCallbacks());
 
   // Create the BLE Service
-  BLEService *pCoreService = pServer->createService(WRFCOM_CORE_SERVICE_UUID);
-  //  BLEService *pCapabilityService = pServer->createService(WRFCOM_CAPABILITY_SERVICE_UUID);
-  BLEService *pFlagsService = pServer->createService(WRFCOM_FLAGS_SERVICE_UUID);
-  BLEService *pGpsService = pServer->createService(WRFCOM_GPS_SERVICE_UUID);
-  BLEService *pBmpService = pServer->createService(WRFCOM_BMP_SERVICE_UUID);
-  ////BLEService *pImuService = pServer->createService(WRFCOM_IMU_SERVICE_UUID);
-  BLEService *pImuAccService = pServer->createService(WRFCOM_IMUACC_SERVICE_UUID);
-  BLEService *pImuGyroService = pServer->createService(WRFCOM_IMUGYRO_SERVICE_UUID);
-  //BLEService *pImuMagService = pServer->createService(WRFCOM_IMUMAG_SERVICE_UUID);
+  BLEService *pCoreService = pServer->createService(BLEUUID(WRFCOM_CORE_SERVICE_UUID), 60);
+  BLEService *pCapabilityService = pServer->createService(BLEUUID(WRFCOM_CAPABILITY_SERVICE_UUID), 60);
+  BLEService *pGpsService = pServer->createService(BLEUUID(WRFCOM_GPS_SERVICE_UUID), 60);
+  BLEService *pBmpService = pServer->createService(BLEUUID(WRFCOM_BMP_SERVICE_UUID), 60);
+  BLEService *pImuService = pServer->createService(BLEUUID(WRFCOM_IMU_SERVICE_UUID), 60);
 
   // Create BLE Characteristics
   // Core
@@ -338,37 +263,123 @@ void TrBLE::begin() {
 
 
 
+  //Capability
+  pCTemperature = pCapabilityService->createCharacteristic(
+                    CTEMPERATURE_CHARACTERISTIC_UUID,
+                    BLECharacteristic::PROPERTY_READ   |
+                    BLECharacteristic::PROPERTY_NOTIFY |
+                    BLECharacteristic::PROPERTY_INDICATE
+                  );
+  pBle2904_ctemperature = new BLE2904();
+  pBle2904_ctemperature->setFormat(0x01); // Boolean
+  pBle2904_ctemperature->setUnit(0x2700); // Unitless
+  pCTemperature->addDescriptor(pBle2904_ctemperature);
+
+  pCPressure = pCapabilityService->createCharacteristic(
+                 CPRESSURE_CHARACTERISTIC_UUID,
+                 BLECharacteristic::PROPERTY_READ   |
+                 BLECharacteristic::PROPERTY_NOTIFY |
+                 BLECharacteristic::PROPERTY_INDICATE
+               );
+  pBle2904_cpressure = new BLE2904();
+  pBle2904_cpressure->setFormat(0x01); // Boolean
+  pBle2904_cpressure->setUnit(0x2700); // Unitless
+  pCPressure->addDescriptor(pBle2904_cpressure);
+
+  pCAccelerometer = pCapabilityService->createCharacteristic(
+                      CACC_CHARACTERISTIC_UUID,
+                      BLECharacteristic::PROPERTY_READ   |
+                      BLECharacteristic::PROPERTY_NOTIFY |
+                      BLECharacteristic::PROPERTY_INDICATE
+                    );
+  pBle2904_caccelerometer = new BLE2904();
+  pBle2904_caccelerometer->setFormat(0x01); // Boolean
+  pBle2904_caccelerometer->setUnit(0x2700); // Unitless
+  pCAccelerometer->addDescriptor(pBle2904_caccelerometer);
+
+  pCGyroscope = pCapabilityService->createCharacteristic(
+                  CGYRO_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_cgyroscope = new BLE2904();
+  pBle2904_cgyroscope->setFormat(0x01); // Boolean
+  pBle2904_cgyroscope->setUnit(0x2700); // Unitless
+  pCGyroscope->addDescriptor(pBle2904_cgyroscope);
+
+  pCMagnetometer = pCapabilityService->createCharacteristic(
+                     CMAG_CHARACTERISTIC_UUID,
+                     BLECharacteristic::PROPERTY_READ   |
+                     BLECharacteristic::PROPERTY_NOTIFY |
+                     BLECharacteristic::PROPERTY_INDICATE
+                   );
+  pBle2904_cmagnetometer = new BLE2904();
+  pBle2904_cmagnetometer->setFormat(0x01); // Boolean
+  pBle2904_cmagnetometer->setUnit(0x2700); // Unitless
+  pCMagnetometer->addDescriptor(pBle2904_cmagnetometer);
+
+
+
+
+
+
   // Flags
-  pGpsEnabled = pFlagsService->createCharacteristic(
+  pGpsEnabled = pCapabilityService->createCharacteristic(
                   GPSENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
                 );
-  pGpsLocked = pFlagsService->createCharacteristic(
+  pBle2904_bms_enabled = new BLE2904();
+  pBle2904_bms_enabled->setFormat(0x01); // Boolean
+  pBle2904_bms_enabled->setUnit(0x2700); // Unitless
+  pGpsEnabled->addDescriptor(pBle2904_bms_enabled);
+
+  pGpsLocked = pCapabilityService->createCharacteristic(
                  GPSLOCKED_CHARACTERISTIC_UUID,
                  BLECharacteristic::PROPERTY_READ   |
                  BLECharacteristic::PROPERTY_NOTIFY |
                  BLECharacteristic::PROPERTY_INDICATE
                );
-  pBmsEnabled = pFlagsService->createCharacteristic(
+  pBle2904_gps_enabled = new BLE2904();
+  pBle2904_gps_enabled->setFormat(0x01); // Boolean
+  pBle2904_gps_enabled->setUnit(0x2700); // Unitless
+  pGpsLocked->addDescriptor(pBle2904_gps_enabled);
+
+  pBmsEnabled = pCapabilityService->createCharacteristic(
                   BMSENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
                 );
-  pBmpEnabled = pFlagsService->createCharacteristic(
+  pBle2904_gps_locked = new BLE2904();
+  pBle2904_gps_locked->setFormat(0x01); // Boolean
+  pBle2904_gps_locked->setUnit(0x2700); // Unitless
+  pBmsEnabled->addDescriptor(pBle2904_gps_locked);
+
+  pBmpEnabled = pCapabilityService->createCharacteristic(
                   BMPENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
                 );
-  pImuEnabled = pFlagsService->createCharacteristic(
+  pBle2904_bmp_enabled = new BLE2904();
+  pBle2904_bmp_enabled->setFormat(0x01); // Boolean
+  pBle2904_bmp_enabled->setUnit(0x2700); // Unitless
+  pBmpEnabled->addDescriptor(pBle2904_bmp_enabled);
+
+  pImuEnabled = pCapabilityService->createCharacteristic(
                   IMUENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
                 );
+  pBle2904_imu_enabled = new BLE2904();
+  pBle2904_imu_enabled->setFormat(0x01); // Boolean
+  pBle2904_imu_enabled->setUnit(0x2700); // Unitless
+  pImuEnabled->addDescriptor(pBle2904_imu_enabled);
+
 
 
 
@@ -459,7 +470,7 @@ void TrBLE::begin() {
 
 
   // IMU Acc
-  pAccX = pImuAccService->createCharacteristic(
+  pAccX = pImuService->createCharacteristic(
             ACCX_CHARACTERISTIC_UUID,
             BLECharacteristic::PROPERTY_READ   |
             BLECharacteristic::PROPERTY_NOTIFY |
@@ -471,7 +482,7 @@ void TrBLE::begin() {
   pBle2904_acc_x->setExponent(-3); // mm/s2
   pAccX->addDescriptor(pBle2904_acc_x);
 
-  pAccY = pImuAccService->createCharacteristic(
+  pAccY = pImuService->createCharacteristic(
             ACCY_CHARACTERISTIC_UUID,
             BLECharacteristic::PROPERTY_READ   |
             BLECharacteristic::PROPERTY_NOTIFY |
@@ -483,7 +494,7 @@ void TrBLE::begin() {
   pBle2904_acc_y->setExponent(-3); // mm/s2
   pAccY->addDescriptor(pBle2904_acc_y);
 
-  pAccZ = pImuAccService->createCharacteristic(
+  pAccZ = pImuService->createCharacteristic(
             ACCZ_CHARACTERISTIC_UUID,
             BLECharacteristic::PROPERTY_READ   |
             BLECharacteristic::PROPERTY_NOTIFY |
@@ -501,7 +512,7 @@ void TrBLE::begin() {
 
 
   // IMU Gyro
-  pGyroX = pImuGyroService->createCharacteristic(
+  pGyroX = pImuService->createCharacteristic(
              GYROX_CHARACTERISTIC_UUID,
              BLECharacteristic::PROPERTY_READ   |
              BLECharacteristic::PROPERTY_NOTIFY |
@@ -513,7 +524,7 @@ void TrBLE::begin() {
   pBle2904_gyro_x->setExponent(-4); // 10 thousandths of a R/s
   pGyroX->addDescriptor(pBle2904_gyro_x);
 
-  pGyroY = pImuGyroService->createCharacteristic(
+  pGyroY = pImuService->createCharacteristic(
              GYROY_CHARACTERISTIC_UUID,
              BLECharacteristic::PROPERTY_READ   |
              BLECharacteristic::PROPERTY_NOTIFY |
@@ -525,7 +536,7 @@ void TrBLE::begin() {
   pBle2904_gyro_y->setExponent(-4); // 10 thousandths of a R/s
   pGyroY->addDescriptor(pBle2904_gyro_y);
 
-  pGyroZ = pImuGyroService->createCharacteristic(
+  pGyroZ = pImuService->createCharacteristic(
              GYROZ_CHARACTERISTIC_UUID,
              BLECharacteristic::PROPERTY_READ   |
              BLECharacteristic::PROPERTY_NOTIFY |
@@ -537,51 +548,48 @@ void TrBLE::begin() {
   pBle2904_gyro_z->setExponent(-4); // 10 thousandths of a R/s
   pGyroZ->addDescriptor(pBle2904_gyro_z);
 
-  // IMU Gyro
-  //  pMagX = pImuMagService->createCharacteristic(
-  //            MAGX_CHARACTERISTIC_UUID,
-  //            BLECharacteristic::PROPERTY_READ   |
-  //            BLECharacteristic::PROPERTY_NOTIFY |
-  //            BLECharacteristic::PROPERTY_INDICATE
-  //          );
-  //  pBle2904_mag_x = new BLE2904();
-  //  pBle2904_mag_x->setFormat(0x10); // int32
-  //  pBle2904_mag_x->setUnit(0x272D); // magnetic flux density (tesla)
-  //  pBle2904_gyro_x->setExponent(-8); // hundredths of a uTesla
-  //  pGyroX->addDescriptor(pBle2904_gyro_x);
 
 
-  // Capability
-  //  pCTemperature = pCapabilityService->createCharacteristic(
-  //                    CTEMPERATURE_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
-  //  pCPressure = pCapabilityService->createCharacteristic(
-  //                    CPRESSURE_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
-  //  pCAccelerometer = pCapabilityService->createCharacteristic(
-  //                    CACC_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
-  //  pCGyroscope = pCapabilityService->createCharacteristic(
-  //                    CGYRO_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
-  //  pCMagnetometer = pCapabilityService->createCharacteristic(
-  //                    CMAG_CHARACTERISTIC_UUID,
-  //                    BLECharacteristic::PROPERTY_READ   |
-  //                    BLECharacteristic::PROPERTY_NOTIFY |
-  //                    BLECharacteristic::PROPERTY_INDICATE
-  //                  );
+
+
+
+  // IMU Mag
+  pMagX = pImuService->createCharacteristic(
+            MAGX_CHARACTERISTIC_UUID,
+            BLECharacteristic::PROPERTY_READ   |
+            BLECharacteristic::PROPERTY_NOTIFY |
+            BLECharacteristic::PROPERTY_INDICATE
+          );
+  pBle2904_mag_x = new BLE2904();
+  pBle2904_mag_x->setFormat(0x10); // int32
+  pBle2904_mag_x->setUnit(0x272D); // magnetic flux density (tesla)
+  pBle2904_mag_x->setExponent(-8); // hundredths of a uTesla
+  pMagX->addDescriptor(pBle2904_mag_x);
+
+  pMagY = pImuService->createCharacteristic(
+            MAGX_CHARACTERISTIC_UUID,
+            BLECharacteristic::PROPERTY_READ   |
+            BLECharacteristic::PROPERTY_NOTIFY |
+            BLECharacteristic::PROPERTY_INDICATE
+          );
+  pBle2904_mag_y = new BLE2904();
+  pBle2904_mag_y->setFormat(0x10); // int32
+  pBle2904_mag_y->setUnit(0x272D); // magnetic flux density (tesla)
+  pBle2904_mag_y->setExponent(-8); // hundredths of a uTesla
+  pMagY->addDescriptor(pBle2904_mag_y);
+
+  pMagZ = pImuService->createCharacteristic(
+            MAGX_CHARACTERISTIC_UUID,
+            BLECharacteristic::PROPERTY_READ   |
+            BLECharacteristic::PROPERTY_NOTIFY |
+            BLECharacteristic::PROPERTY_INDICATE
+          );
+  pBle2904_mag_z = new BLE2904();
+  pBle2904_mag_z->setFormat(0x10); // int32
+  pBle2904_mag_z->setUnit(0x272D); // magnetic flux density (tesla)
+  pBle2904_mag_z->setExponent(-8); // hundredths of a uTesla
+  pMagZ->addDescriptor(pBle2904_mag_z);
+
 
 
 
@@ -589,33 +597,26 @@ void TrBLE::begin() {
   // Configure advertising
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
   pAdvertising->addServiceUUID(WRFCOM_CORE_SERVICE_UUID);
-  //  pAdvertising->addServiceUUID(WRFCOM_CAPABILITY_SERVICE_UUID);
-  pAdvertising->addServiceUUID(WRFCOM_FLAGS_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_CAPABILITY_SERVICE_UUID);
   pAdvertising->addServiceUUID(WRFCOM_GPS_SERVICE_UUID);
   pAdvertising->addServiceUUID(WRFCOM_BMP_SERVICE_UUID);
-  ////  pAdvertising->addServiceUUID(WRFCOM_IMU_SERVICE_UUID);
-  pAdvertising->addServiceUUID(WRFCOM_IMUACC_SERVICE_UUID);
-  pAdvertising->addServiceUUID(WRFCOM_IMUGYRO_SERVICE_UUID);
-  //  pAdvertising->addServiceUUID(WRFCOM_IMUMAG_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_IMU_SERVICE_UUID);
   pAdvertising->setScanResponse(false);
   pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
 
-  // Start the service
+  // Start the services
   pCoreService->start();
-  //pCapabilityService->start();
-  pFlagsService->start();
+  pCapabilityService->start();
   pGpsService->start();
   pBmpService->start();
-  ////pImuService->start();
-  pImuAccService->start();
-  pImuGyroService->start();
-  //pImuMagService->start();
+  pImuService->start();
 
+  // Startup the device
   BLEDevice::startAdvertising();
 
 #if _DEBUG_
-  Serial.print("BLE initialised: OK");
-  //  Serial.print(button.getI2Caddress(), HEX);
+  Serial.print("BLE initialised: ");
+  Serial.print(DEVICE_NAME);
   Serial.println();
 #endif
 
@@ -732,73 +733,62 @@ void TrBLE::loop() {
 
 
 
-    //    // Capability
-    //    if (pCPressure) {
-    //      //int cpressure_value = true ? 1 : 0;
-    //      cpressure_value = BMP.hasPressure() ? 1 : 0;
-    //#if _DEBUG_ && _XDEBUG_
-    //      Serial.print("Writing: CPRESSURE: ");
-    //      Serial.print(cpressure_value ? "TRUE" : "FALSE");
-    //      Serial.println();
-    //#endif
-    //      pCPressure->setValue(&cpressure_value,1);
-    //      pCPressure->notify();
-    //    }
-    //
-    //    if (pCTemperature) {
-    //    //int ctemperature_value = true ? 1 : 0;
-    //      ctemperature_value = BMP.hasTemperature() ? 1 : 0;
-    //#if _DEBUG_ && _XDEBUG_
-    //      Serial.print("Writing: CTEMP: ");
-    //      Serial.print(ctemperature_value ? "TRUE" : "FALSE");
-    //      Serial.println();
-    //#endif
-    //      pCTemperature->setValue(&ctemperature_value,1);
-    //      pCTemperature->notify();
-    //    }
-    //
-    //    if (pCAccelerometer) {
-    //    //int caccelerometer_value = true ? 1 : 0;
-    //      caccelerometer_value = IMU.hasAcc() ? 1 : 0;
-    //#if _DEBUG_ && _XDEBUG_
-    //      Serial.print("Writing: CACC: ");
-    //      Serial.print(caccelerometer_value ? "TRUE" : "FALSE");
-    //      Serial.println();
-    //#endif
-    //      pCAccelerometer->setValue(&caccelerometer_value,1);
-    //      pCAccelerometer->notify();
-    //    }
-    //
-    //    if (pCGyroscope) {
-    //    //int cgyroscope_value = true ? 1 : 0;
-    //      cgyroscope_value = IMU.hasAcc() ? 1 : 0;
-    //#if _DEBUG_ && _XDEBUG_
-    //      Serial.print("Writing: CGYRO: ");
-    //      Serial.print(cgyroscope_value ? "TRUE" : "FALSE");
-    //      Serial.println();
-    //#endif
-    //      pCGyroscope->setValue(&cgyroscope_value,1);
-    //      pCGyroscope->notify();
-    //    }
-    //
-    //    if (pCMagnetometer) {
-    //    //int cmagnetometer_value = false ? 1 : 0;
-    //      cmagnetometer_value = IMU.hasMag() ? 1 : 0;
-    //#if _DEBUG_ && _XDEBUG_
-    //      Serial.print("Writing: CMAG: ");
-    //      Serial.print(cmagnetometer_value ? "TRUE" : "FALSE");
-    //      Serial.println();
-    //#endif
-    //      pCMagnetometer->setValue(&cmagnetometer_value,1);
-    //      pCMagnetometer->notify();
-    //    }
+    // Capability
+    if (pCPressure) {
+      cpressure_value = BMP.hasPressure() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: CPRESSURE: ");
+      Serial.print(cpressure_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pCPressure->setValue(&cpressure_value, 1);
+      pCPressure->notify();
+    }
 
+    if (pCTemperature) {
+      ctemperature_value = BMP.hasTemperature() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: CTEMP: ");
+      Serial.print(ctemperature_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pCTemperature->setValue(&ctemperature_value, 1);
+      pCTemperature->notify();
+    }
 
+    if (pCAccelerometer) {
+      caccelerometer_value = IMU.hasAcc() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: CACC: ");
+      Serial.print(caccelerometer_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pCAccelerometer->setValue(&caccelerometer_value, 1);
+      pCAccelerometer->notify();
+    }
 
+    if (pCGyroscope) {
+      cgyroscope_value = IMU.hasAcc() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: CGYRO: ");
+      Serial.print(cgyroscope_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pCGyroscope->setValue(&cgyroscope_value, 1);
+      pCGyroscope->notify();
+    }
 
+    if (pCMagnetometer) {
+      cmagnetometer_value = IMU.hasMag() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: CMAG: ");
+      Serial.print(cmagnetometer_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pCMagnetometer->setValue(&cmagnetometer_value, 1);
+      pCMagnetometer->notify();
+    }
 
-
-    // Flags
     if (pBmsEnabled) {
       bms_enabled_value = BMS.isEnabled() ? 1 : 0;
 #if _DEBUG_ && _XDEBUG_
@@ -872,7 +862,6 @@ void TrBLE::loop() {
     }
 
     if (pLatitude) {
-      //int latitude_value = int(51.012323 * 10000000.0);
       latitude_value = int(GPS.getLatitude() * 10000000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: LAT: ");
@@ -885,7 +874,6 @@ void TrBLE::loop() {
     }
 
     if (pLongitude) {
-      //int longitude_value = (0.4612323 * 10000000.0);
       longitude_value = int(GPS.getLongitude() * 10000000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: LNG: ");
@@ -898,7 +886,6 @@ void TrBLE::loop() {
     }
 
     if (pAltitude) {
-      //int altitude_value = int(1.234 * 1000.0); //int(23.441*1000);
       altitude_value = int(GPS.getAltitude() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: ALT: ");
@@ -917,7 +904,6 @@ void TrBLE::loop() {
 
     // BMP
     if (pPressure) {
-      //int pressure_value = int(1013.25 * 1000.0);
       pressure_value = int(BMP.getPressure() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: HPA: ");
@@ -930,7 +916,6 @@ void TrBLE::loop() {
     }
 
     if (pTemperature) {
-      //int temperature_value = int(18.12 * 100.0);
       temperature_value = int(BMP.getTemperature() * 100.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: TMP: ");
@@ -948,7 +933,6 @@ void TrBLE::loop() {
 
     // IMU-Acc
     if (pAccX) {
-      //int accx_value = int(0.1 * 10000.);
       accx_value = int(IMU.getAccX() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUAX: ");
@@ -961,7 +945,6 @@ void TrBLE::loop() {
     }
 
     if (pAccY) {
-      //int accx_value = int(0.1 * 10000.);
       accy_value = int(IMU.getAccY() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUAY: ");
@@ -974,7 +957,6 @@ void TrBLE::loop() {
     }
 
     if (pAccZ) {
-      //int accx_value = int(0.1 * 10000.);
       accz_value = int(IMU.getAccZ() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUAZ: ");
@@ -992,7 +974,6 @@ void TrBLE::loop() {
 
     // IMU-Gyro
     if (pGyroX) {
-      //int accx_value = int(0.1 * 10000.);
       gyrox_value = int(IMU.getGyroX() * (PI / 180.) * 10000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUGX: ");
@@ -1007,7 +988,6 @@ void TrBLE::loop() {
     }
 
     if (pGyroY) {
-      //int accy_value = int(0.1 * 10000.);
       gyroy_value = int(IMU.getGyroY() * (PI / 180.) * 10000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUGY: ");
@@ -1022,7 +1002,6 @@ void TrBLE::loop() {
     }
 
     if (pGyroX) {
-      //int gyroz_value = int(0.1 * 10000.);
       gyroz_value = int(IMU.getGyroZ() * (PI / 180.) * 10000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: IMUGY: ");
@@ -1034,6 +1013,49 @@ void TrBLE::loop() {
 #endif
       pGyroZ->setValue(gyroz_value);
       pGyroZ->notify();
+    }
+
+
+
+
+
+    // IMU-Mag
+    if (pMagX) {
+      magx_value = int(IMU.getMagX() * 100.0);
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: IMUMX: ");
+      Serial.print(magx_value);
+      Serial.print("*10^-2 uTesla");
+      Serial.println();
+#endif
+      pMagX->setValue(magx_value);
+      pMagX->notify();
+    }
+
+    // IMU-Mag
+    if (pMagY) {
+      magy_value = int(IMU.getMagX() * 100.0);
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: IMUMY: ");
+      Serial.print(magy_value);
+      Serial.print("*10^-2 uTesla");
+      Serial.println();
+#endif
+      pMagY->setValue(magy_value);
+      pMagY->notify();
+    }
+
+    // IMU-Mag
+    if (pMagZ) {
+      magz_value = int(IMU.getMagZ() * 100.0);
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: IMUMX: ");
+      Serial.print(magz_value);
+      Serial.print("*10^-2 uTesla");
+      Serial.println();
+#endif
+      pMagZ->setValue(magz_value);
+      pMagZ->notify();
     }
   }
 }

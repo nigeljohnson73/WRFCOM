@@ -1,6 +1,6 @@
 #include "NET.h"
 TrNET NET;
-TrNET::TrNET(): _hostname(AP_NAME), _ap_pass(AP_PASSWORD) {}
+TrNET::TrNET(): _hostname(DEVICE_NAME), _ap_pass(AP_PASSWORD) {}
 
 #if !_USE_WIFI_
 
@@ -16,7 +16,6 @@ String TrNET::getTimestamp() {
 #ifdef ESP32
 #include <WiFi.h>
 #include <ESPmDNS.h>
-// TODO: Make some more shit work here
 
 #else // ESP32
 
@@ -37,17 +36,6 @@ String TrNET::getTimestamp() {
 #include <RTClib.h>  // For type inclusions
 #endif // _USE_NTP_
 
-#ifdef ESP32
-int espChipId() {
-  int chipId = 0;
-  for (int i = 0; i < 17; i = i + 8) {
-
-    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-  }
-  return chipId;
-}
-#endif // ESP32
-
 #if  _USE_NTP_
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
@@ -65,11 +53,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
   }
 
   if (_hostname == String("")) {
-#ifdef ESP32
     _hostname = String ("TR-") + espChipId();
-#else // ESP32
-    _hostname = String ("TR-") + ESP.getChipId();
-#endif // ESP32
   }
 
   if (ssid.length() > 0) {

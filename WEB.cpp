@@ -9,7 +9,8 @@ void TrWEB::loop() {}
 
 #else // !_USE_WIFI_
 
-#include "XBase64.h"
+#include "lib/XBase64.h"
+#include "lib/XBase64.cpp"
 
 #ifdef ESP32
 #include <WiFi.h>

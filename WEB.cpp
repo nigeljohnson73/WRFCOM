@@ -621,9 +621,9 @@ void showRoot() {
     double pcnt = BMS.getCapacityPercent();
     double volt = BMS.getCapacityVoltage();
     text = String(volt) + "v, " + String(pcnt) + "%";
-    if (pcnt < 10) {
+    if (pcnt <= 10) {
       status = "red";
-    } else if (pcnt < 30) {
+    } else if (pcnt <= 30) {
       status = "amber";
     } else {
       status = "green";

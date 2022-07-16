@@ -1,5 +1,6 @@
 /**************
   SPIFFS doesnt work on the Feather S3 :(
+  Use the "Huge App" for this in Partition Scheme, unless you really want OTA in which case use "Minimal SPIFFS"
 */
 
 #include <Wire.h>
@@ -39,7 +40,7 @@ void setup() {
 
   RTC.begin();
   BMS.begin();
-  BMP.begin();
+  EMU.begin();
   IMU.begin();
   GPS.begin();
   SRV.begin();
@@ -67,7 +68,7 @@ void loop() {
     last_sweep = now;
     RTC.loop();
     BMS.loop();
-    BMP.loop();
+    EMU.loop();
     IMU.loop();
     GPS.loop();
     SRV.loop();

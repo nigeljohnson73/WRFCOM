@@ -49,7 +49,7 @@ BLECharacteristic* pLatitude = NULL;
 BLECharacteristic* pLongitude = NULL;
 BLECharacteristic* pAltitude = NULL;
 
-// BMP characteristics storage
+// EMU characteristics storage
 BLECharacteristic* pPressure = NULL;
 BLECharacteristic* pTemperature = NULL;
 
@@ -87,7 +87,7 @@ BLE2904* pBle2904_latitude = NULL;
 BLE2904* pBle2904_longitude = NULL;
 BLE2904* pBle2904_altitude = NULL;
 
-// BMP descriptors storage
+// EMU descriptors storage
 BLE2904* pBle2904_pressure = NULL;
 BLE2904* pBle2904_temperature = NULL;
 
@@ -127,7 +127,7 @@ int latitude_value = int(51.012323 * 10000000.0);
 int longitude_value = (0.4612323 * 10000000.0);
 int altitude_value = int(1.234 * 1000.0); //int(23.441*1000);
 
-// BMP data values
+// EMU data values
 int pressure_value = int(1013.25 * 1000.0);
 int temperature_value = int(18.12 * 100.0);
 
@@ -202,7 +202,7 @@ void TrBLE::begin() {
   BLEService *pCoreService = pServer->createService(BLEUUID(WRFCOM_CORE_SERVICE_UUID), 60);
   BLEService *pCapabilityService = pServer->createService(BLEUUID(WRFCOM_CAPABILITY_SERVICE_UUID), 60);
   BLEService *pGpsService = pServer->createService(BLEUUID(WRFCOM_GPS_SERVICE_UUID), 60);
-  BLEService *pBmpService = pServer->createService(BLEUUID(WRFCOM_BMP_SERVICE_UUID), 60);
+  BLEService *pBmpService = pServer->createService(BLEUUID(WRFCOM_EMU_SERVICE_UUID), 60);
   BLEService *pImuService = pServer->createService(BLEUUID(WRFCOM_IMU_SERVICE_UUID), 60);
 
   // Create BLE Characteristics
@@ -359,7 +359,7 @@ void TrBLE::begin() {
   pBmsEnabled->addDescriptor(pBle2904_gps_locked);
 
   pBmpEnabled = pCapabilityService->createCharacteristic(
-                  BMPENABLED_CHARACTERISTIC_UUID,
+                  EMUENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
@@ -439,7 +439,7 @@ void TrBLE::begin() {
 
 
 
-  // BMP
+  // EMU
   pPressure = pBmpService->createCharacteristic(
                 PRESSURE_CHARACTERISTIC_UUID,
                 BLECharacteristic::PROPERTY_READ   |
@@ -599,10 +599,10 @@ void TrBLE::begin() {
   pAdvertising->addServiceUUID(WRFCOM_CORE_SERVICE_UUID);
   pAdvertising->addServiceUUID(WRFCOM_CAPABILITY_SERVICE_UUID);
   pAdvertising->addServiceUUID(WRFCOM_GPS_SERVICE_UUID);
-  pAdvertising->addServiceUUID(WRFCOM_BMP_SERVICE_UUID);
+  pAdvertising->addServiceUUID(WRFCOM_EMU_SERVICE_UUID);
   pAdvertising->addServiceUUID(WRFCOM_IMU_SERVICE_UUID);
-  pAdvertising->setScanResponse(false);
-  pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
+  //pAdvertising->setScanResponse(false);
+  //pAdvertising->setMinPreferred(0x0);  // set value to 0x00 to not advertise this parameter
 
   // Start the services
   pCoreService->start();
@@ -735,7 +735,7 @@ void TrBLE::loop() {
 
     // Capability
     if (pCPressure) {
-      cpressure_value = BMP.hasPressure() ? 1 : 0;
+      cpressure_value = EMU.hasPressure() ? 1 : 0;
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: CPRESSURE: ");
       Serial.print(cpressure_value ? "TRUE" : "FALSE");
@@ -746,7 +746,7 @@ void TrBLE::loop() {
     }
 
     if (pCTemperature) {
-      ctemperature_value = BMP.hasTemperature() ? 1 : 0;
+      ctemperature_value = EMU.hasTemperature() ? 1 : 0;
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: CTEMP: ");
       Serial.print(ctemperature_value ? "TRUE" : "FALSE");
@@ -834,9 +834,9 @@ void TrBLE::loop() {
     }
 
     if (pBmpEnabled) {
-      bmp_enabled_value = BMP.isEnabled() ? 1 : 0;
+      bmp_enabled_value = EMU.isEnabled() ? 1 : 0;
 #if _DEBUG_ && _XDEBUG_
-      Serial.print("Writing: BMP: ");
+      Serial.print("Writing: EMU: ");
       Serial.print(bmp_enabled_value ? "TRUE" : "FALSE");
       Serial.println();
 #endif
@@ -902,9 +902,9 @@ void TrBLE::loop() {
 
 
 
-    // BMP
+    // EMU
     if (pPressure) {
-      pressure_value = int(BMP.getPressure() * 1000.0);
+      pressure_value = int(EMU.getPressure() * 1000.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: HPA: ");
       Serial.print(pressure_value);
@@ -916,7 +916,7 @@ void TrBLE::loop() {
     }
 
     if (pTemperature) {
-      temperature_value = int(BMP.getTemperature() * 100.0);
+      temperature_value = int(EMU.getTemperature() * 100.0);
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: TMP: ");
       Serial.print(temperature_value);

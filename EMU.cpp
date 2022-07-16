@@ -1,17 +1,17 @@
-#include "BMP.h"
+#include "EMU.h"
 
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 
 Adafruit_BMP3XX bmp390;
-TrBMP BMP;
+TrEMU EMU;
 
-TrBMP::TrBMP() {};
+TrEMU::TrEMU() {};
 
-void TrBMP::begin() {
+void TrEMU::begin() {
   if (!bmp390.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
 #if _DEBUG_
-    Serial.println("BMP disconnected");
+    Serial.println("EMU disconnected");
 #endif
     return;
   }
@@ -35,7 +35,7 @@ void TrBMP::begin() {
   }
 
 #if _DEBUG_
-  Serial.print("BMP initialised: BMP390, ");
+  Serial.print("EMU initialised: BMP390, ");
   Serial.print(getPressure());
   Serial.print(" hPa, ");
   Serial.print(getTemperature());
@@ -46,7 +46,7 @@ void TrBMP::begin() {
   //  setAltitude(22);
 }
 
-void TrBMP::loop() {
+void TrEMU::loop() {
   if (!isEnabled()) return;
 
   if (! bmp390.performReading()) {
@@ -55,7 +55,7 @@ void TrBMP::loop() {
   }
 }
 
-void TrBMP::setAltitude(double h) {
+void TrEMU::setAltitude(double h) {
   if (!isEnabled()) {
     return;
   }
@@ -70,24 +70,24 @@ void TrBMP::setAltitude(double h) {
 #if _DEBUG_
   Serial.print("BMP390::setAltitude(");
   Serial.print(h);
-  Serial.print(" m): BMP at sea-level = " );
+  Serial.print(" m): EMU at sea-level = " );
   Serial.print(p0);
   Serial.print(" hPa");
   Serial.println();
 #endif
 }
 
-double TrBMP::getPressure() {
+double TrEMU::getPressure() {
   if (!isEnabled()) return 0.;
   return bmp390.pressure / 100.0;
 }
 
-double TrBMP::getTemperature() {
+double TrEMU::getTemperature() {
   if (!isEnabled()) return 0.;
   return bmp390.temperature;
 }
 
-double TrBMP::getAltitude() {
+double TrEMU::getAltitude() {
   if (!isEnabled()) return 0.;
   return bmp390.readAltitude(sea_level_pressure);
 }

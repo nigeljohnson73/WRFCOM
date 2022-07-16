@@ -1,11 +1,11 @@
-#ifndef _BMP_h
-#define _BMP_h
+#ifndef _EMU_h
+#define _EMU_h
 
 #include "App.h"
 
-class TrBMP {
+class TrEMU {
   public:
-    TrBMP();
+    TrEMU();
 
     void setAltitude(double m); // will calculate sea level pressure based on this passed value
     void begin();
@@ -37,6 +37,6 @@ class TrBMP {
     double sea_level_pressure = 1013.25;
 };
 
-extern TrBMP BMP;
+extern TrEMU EMU;
 
 #endif

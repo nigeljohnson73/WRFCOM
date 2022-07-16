@@ -87,11 +87,11 @@ void TrLOG::loop() {
   }
 
 
-  if (BMP.isEnabled()) {
-    double alt = BMP.getAltitude();
-    line += comma + String(BMP.getTemperature());
-    line += comma + String(BMP.getSeaLevelPressure());
-    line += comma + String(BMP.getPressure());
+  if (EMU.isEnabled()) {
+    double alt = EMU.getAltitude();
+    line += comma + String(EMU.getTemperature());
+    line += comma + String(EMU.getSeaLevelPressure());
+    line += comma + String(EMU.getPressure());
     line += comma + String(alt);
 
     _peak_bmp_altitude = max(alt, _peak_bmp_altitude);
@@ -382,8 +382,8 @@ void TrLOG::resetCapture() {
     if (RTC.isEnabled()) {
       // Set time from GPS;
     }
-    if (BMP.isEnabled()) {
-      BMP.setAltitude(GPS.getAltitude());
+    if (EMU.isEnabled()) {
+      EMU.setAltitude(GPS.getAltitude());
     }
   }
 }
@@ -436,7 +436,7 @@ void TrLOG::startCapture() {
   //  Serial.print("'");
   //  Serial.println();
   //
-  header += F("millis, BAT Pcnt, BAT Volts, BMP Temp, BMP MSL hPa, BMP hPa, BMP Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
+  header += F("millis, BAT Pcnt, BAT Volts, EMU Temp, EMU MSL hPa, EMU hPa, EMU Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
   //_log = header;
 
   //  Serial.print("LOG::startCapture() - Moving to the root directory");
@@ -544,13 +544,13 @@ void TrLOG::stopCapture() {
     Serial.print("[not calculated]");
     Serial.println();
   }
-  if (BMP.isEnabled()) {
-    Serial.print("       Peak BMP Altitude: ");
+  if (EMU.isEnabled()) {
+    Serial.print("       Peak EMU Altitude: ");
     Serial.print(_peak_bmp_altitude);
     Serial.print (" m");
     Serial.println();
   } else {
-    Serial.print("       Peak BMP Altitude: ");
+    Serial.print("       Peak EMU Altitude: ");
     Serial.print("[not calculated]");
     Serial.println();
   }
@@ -618,7 +618,7 @@ String TrLOG::getLogSummary() {
     ret += "Parachute deployed: ";
     ret += _chute_deployed ? "Yes" : "No";
 
-    if (BMP.isEnabled()) {
+    if (EMU.isEnabled()) {
       ret += "\n";
       ret += "Peak Altitude: ";
       ret += _peak_bmp_altitude;

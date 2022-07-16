@@ -39,7 +39,7 @@
 
 // Should we enable OTA updates for debugging and easier access on your home network, it's slower though
 #ifndef _USE_OTA_
-#define _USE_OTA_ true
+#define _USE_OTA_ false
 #endif
 
 // If you going to be connected to a network, then this is good starter
@@ -123,7 +123,7 @@
 extern String espChipId();
 
 #include "BLE.h"
-#include "BMP.h"
+#include "EMU.h"
 #include "BMS.h"
 #include "BUT.h"
 #include "GPS.h"

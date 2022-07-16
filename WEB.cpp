@@ -382,10 +382,10 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "BMP Temperature";
+  title = "EMU Temperature";
   status = "green";
-  text = String(BMP.getTemperature());
-  if (!BMP.isEnabled()) {
+  text = String(EMU.getTemperature());
+  if (!EMU.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
@@ -396,10 +396,10 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "BMP Pressure";
+  title = "EMU Pressure";
   status = "green";
-  text = String(BMP.getPressure());
-  if (!BMP.isEnabled()) {
+  text = String(EMU.getPressure());
+  if (!EMU.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
@@ -407,15 +407,15 @@ void showStats() {
     text = "[not configured]";
   } else {
     text += " hPa (";
-    text += BMP.getSeaLevelPressure();
+    text += EMU.getSeaLevelPressure();
     text += " MSL)";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-  title = "BMP Altitude";
+  title = "EMU Altitude";
   status = "green";
-  text = String(BMP.getAltitude());
-  if (!BMP.isEnabled()) {
+  text = String(EMU.getAltitude());
+  if (!EMU.isEnabled()) {
     status = "disabled";
     text = "[disconnected]";
   } else if (text.length() == 0) {
@@ -577,11 +577,11 @@ void showRoot() {
 
   status = "red";
   text = "DISABLED";
-  if (BMP.isEnabled()) {
+  if (EMU.isEnabled()) {
     status = "green";
     text = "OK";
   };
-  content += "<div class='status-wrapper'><div class='label'>BMP</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+  content += "<div class='status-wrapper'><div class='label'>EMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
   status = "red";
   text = "DISABLED";

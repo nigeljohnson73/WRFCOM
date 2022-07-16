@@ -45,7 +45,11 @@ void TrBMS::begin() {
     // LC709203F_APA_3000MAH = 0x36,
 
     case 0x08:
-      Serial.print("100mAh/200mAh");
+      Serial.print("100mAh");
+      break;
+
+    case 0x0B:
+      Serial.print("200mAh");
       break;
 
     case 0x10:

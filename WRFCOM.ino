@@ -28,7 +28,7 @@ String espChipId() {
 }
 
 void setup() {
-  Wire.begin(); // Initialise the IIC bus (GPS and buttons);
+  Wire.begin(); // Initialise the IIC bus
   Wire.setClock(400000); //Go super fast
 
   Serial.begin(115200);

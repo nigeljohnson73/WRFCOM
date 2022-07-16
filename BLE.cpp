@@ -42,6 +42,8 @@ BLECharacteristic* pGpsEnabled = NULL;
 BLECharacteristic* pGpsLocked = NULL;
 BLECharacteristic* pBmpEnabled = NULL;
 BLECharacteristic* pImuEnabled = NULL;
+BLECharacteristic* pSrvEnabled = NULL;
+BLECharacteristic* pRtcEnabled = NULL;
 
 // GPS characteristics storage
 BLECharacteristic* pSiv = NULL;
@@ -80,6 +82,8 @@ BLE2904* pBle2904_gps_enabled = NULL;
 BLE2904* pBle2904_gps_locked = NULL;
 BLE2904* pBle2904_bmp_enabled = NULL;
 BLE2904* pBle2904_imu_enabled = NULL;
+BLE2904* pBle2904_srv_enabled = NULL;
+BLE2904* pBle2904_rtc_enabled = NULL;
 
 // GPS descriptors storage
 BLE2904* pBle2904_siv = NULL;
@@ -120,6 +124,8 @@ uint8_t gps_enabled_value = true ? 1 : 0;
 uint8_t gps_locked_value = false ? 1 : 0;
 uint8_t bmp_enabled_value = true ? 1 : 0;
 uint8_t imu_enabled_value = true ? 1 : 0;
+uint8_t srv_enabled_value = true ? 1 : 0;
+uint8_t rtc_enabled_value = true ? 1 : 0;
 
 // GPS data values
 uint8_t siv_value = 0;
@@ -379,6 +385,28 @@ void TrBLE::begin() {
   pBle2904_imu_enabled->setFormat(0x01); // Boolean
   pBle2904_imu_enabled->setUnit(0x2700); // Unitless
   pImuEnabled->addDescriptor(pBle2904_imu_enabled);
+
+  pSrvEnabled = pCapabilityService->createCharacteristic(
+                  SRVENABLED_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_srv_enabled = new BLE2904();
+  pBle2904_srv_enabled->setFormat(0x01); // Boolean
+  pBle2904_srv_enabled->setUnit(0x2700); // Unitless
+  pSrvEnabled->addDescriptor(pBle2904_srv_enabled);
+
+  pRtcEnabled = pCapabilityService->createCharacteristic(
+                  RTCENABLED_CHARACTERISTIC_UUID,
+                  BLECharacteristic::PROPERTY_READ   |
+                  BLECharacteristic::PROPERTY_NOTIFY |
+                  BLECharacteristic::PROPERTY_INDICATE
+                );
+  pBle2904_rtc_enabled = new BLE2904();
+  pBle2904_rtc_enabled->setFormat(0x01); // Boolean
+  pBle2904_rtc_enabled->setUnit(0x2700); // Unitless
+  pRtcEnabled->addDescriptor(pBle2904_rtc_enabled);
 
 
 
@@ -842,6 +870,28 @@ void TrBLE::loop() {
 #endif
       pBmpEnabled->setValue(&bmp_enabled_value, 1);
       pBmpEnabled->notify();
+    }
+
+    if (pSrvEnabled) {
+      srv_enabled_value = SRV.isEnabled() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: SRV: ");
+      Serial.print(srv_enabled_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pSrvEnabled->setValue(&srv_enabled_value, 1);
+      pSrvEnabled->notify();
+    }
+
+    if (pRtcEnabled) {
+      rtc_enabled_value = RTC.isEnabled() ? 1 : 0;
+#if _DEBUG_ && _XDEBUG_
+      Serial.print("Writing: RTC: ");
+      Serial.print(rtc_enabled_value ? "TRUE" : "FALSE");
+      Serial.println();
+#endif
+      pRtcEnabled->setValue(&rtc_enabled_value, 1);
+      pRtcEnabled->notify();
     }
 
 

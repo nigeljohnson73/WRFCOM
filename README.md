@@ -3,7 +3,7 @@
 This is a small project that uses off the shelf modules as much as possible to build a data logger for attaching to a 
 water bottle rocket... or any kind of vehicle. The idea is that is used GPS and barimetric pressure to define your 
 location with some additional parameters from Gyros and Accelerometers (maybe magnetometers). All of this data being 
-logged to an SD card as fast as possible and running from a small battery. THe interface should be a web page from the 
+logged to an SD card as fast as possible and running from a small battery. The interface should be a web page from the 
 on-board WiFi Access Point, as well as a load of Bluetooth LE (BLE) data and control.
 
 See the '[BLE Remote Controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' for more on that.
@@ -15,7 +15,7 @@ Things to install
 -----------------
 I will assume you are comfortable with the Arduino IDE.
 
-You should install the ESP8266 and ESP32 boards into your board manager if you haven't already (depending on which you 
+You should install the latest ESP32 boards into your board manager if you haven't already (depending on which you 
 want to use). Add these to your "Additional Boards Manager URLs" section in preferences.
 
 ```

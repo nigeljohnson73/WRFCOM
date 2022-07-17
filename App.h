@@ -85,7 +85,7 @@
 
 // Should we use a physical button
 #ifndef _USE_BUTTON_
-#define _USE_BUTTON_ true
+#define _USE_BUTTON_ false
 #endif
 
 // Should the servo code be used for parachute deployment

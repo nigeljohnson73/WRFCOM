@@ -18,7 +18,12 @@ class TrBMS {
     };
 
   private:
+    void updateData();
+
     bool _enabled = false;
+    double _percentage;
+    double _voltage;
+    unsigned long _last_updated;
 };
 
 extern TrBMS BMS;

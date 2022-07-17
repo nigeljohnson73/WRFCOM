@@ -8,6 +8,8 @@ void TrBMS::begin() {}
 
 void TrBMS::loop() {}
 
+void TrBMS::updateData() {}
+
 double TrBMS::getCapacityPercent() {
   return 0.;
 }
@@ -16,11 +18,25 @@ double TrBMS::getCapacityVoltage() {
   return 0.;
 }
 
+
 #else
 #include "Adafruit_LC709203F.h"
 
 Adafruit_LC709203F lc;
 
+void TrBMS::updateData() {
+  if (!isEnabled()) return;
+  unsigned long now = millis();
+  if ((now - _last_updated) >= 500) {
+    _last_updated = now;
+    // Smooth and cap to within limits
+    _percentage = max(0.0, min(100.0, (_percentage + lc.cellPercent()) / 2.0)); 
+    // Only smooth
+    _voltage = (_voltage + lc.cellVoltage()) / 2.0;
+  }
+
+
+}
 void TrBMS::begin() {
   if (!lc.begin()) {
 #if _DEBUG_
@@ -84,14 +100,14 @@ void TrBMS::loop() {
 
 double TrBMS::getCapacityPercent() {
   if (!isEnabled()) return 0.;
-
-  return lc.cellPercent();
+  updateData();
+  return _percentage;
 }
 
 double TrBMS::getCapacityVoltage() {
   if (!isEnabled()) return 0.;
-
-  return lc.cellVoltage();
+  updateData();
+  return _voltage;
 }
 
 #endif

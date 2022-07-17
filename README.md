@@ -3,12 +3,10 @@
 This is a small project that uses off the shelf modules as much as possible to build a data logger for attaching to a 
 water bottle rocket... or any kind of vehicle. The idea is that is used GPS and barimetric pressure to define your 
 location with some additional parameters from Gyros and Accelerometers (maybe magnetometers). All of this data being 
-logged to an SD card as fast as possible and running from a small battery. Optionally I want to add a parachute 
-deployment mechanism as well. Control should also be via a web page delivered through it's own Wireless Access Point 
-(maybe BTLE if I can work it out).
+logged to an SD card as fast as possible and running from a small battery. THe interface should be a web page from the 
+on-board WiFi Access Point, as well as a load of Bluetooth LE (BLE) data and control.
 
-See the '[remote controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' side of things for the Bluetooth LE remote.
-
+See the '[BLE Remote Controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' for more on that.
 
 It would be nice if I could build an app that would suck off the data and display it without having to pull the SD
 card, but that is a stretch goal.

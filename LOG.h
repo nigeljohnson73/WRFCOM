@@ -41,7 +41,7 @@ class TrLOG {
     const unsigned long _sync_interval = 5000;
 
     double _peak_g;
-    double _peak_bmp_altitude;
+    double _peak_emu_altitude;
     double _peak_gps_altitude;
     double _start_latitude;
     double _start_longitude;

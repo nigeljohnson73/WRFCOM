@@ -94,8 +94,8 @@ void TrLOG::loop() {
     line += comma + String(EMU.getPressure());
     line += comma + String(alt);
 
-    _peak_bmp_altitude = max(alt, _peak_bmp_altitude);
-    if (alt < (_peak_bmp_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
+    _peak_emu_altitude = max(alt, _peak_emu_altitude);
+    if (alt < (_peak_emu_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
       _chute_deployed = true;
       // TODO: trigger deployment
     }
@@ -369,7 +369,7 @@ void TrLOG::tidy() {
 void TrLOG::resetCapture() {
   _chute_deployed = false;
   _peak_g = 0;
-  _peak_bmp_altitude = -99999;
+  _peak_emu_altitude = -99999;
   _peak_gps_altitude - -99999;
   _start_latitude = 0;
   _start_longitude = 0;
@@ -546,7 +546,7 @@ void TrLOG::stopCapture() {
   }
   if (EMU.isEnabled()) {
     Serial.print("       Peak EMU Altitude: ");
-    Serial.print(_peak_bmp_altitude);
+    Serial.print(_peak_emu_altitude);
     Serial.print (" m");
     Serial.println();
   } else {
@@ -621,7 +621,7 @@ String TrLOG::getLogSummary() {
     if (EMU.isEnabled()) {
       ret += "\n";
       ret += "Peak Altitude: ";
-      ret += _peak_bmp_altitude;
+      ret += _peak_emu_altitude;
       ret += " m";
     }
     if (IMU.isEnabled()) {

@@ -40,7 +40,7 @@ BLECharacteristic* pCMagnetometer = NULL;
 BLECharacteristic* pBmsEnabled = NULL;
 BLECharacteristic* pGpsEnabled = NULL;
 BLECharacteristic* pGpsLocked = NULL;
-BLECharacteristic* pBmpEnabled = NULL;
+BLECharacteristic* pEmuEnabled = NULL;
 BLECharacteristic* pImuEnabled = NULL;
 BLECharacteristic* pSrvEnabled = NULL;
 BLECharacteristic* pRtcEnabled = NULL;
@@ -80,7 +80,7 @@ BLE2904* pBle2904_cmagnetometer = NULL;
 BLE2904* pBle2904_bms_enabled = NULL;
 BLE2904* pBle2904_gps_enabled = NULL;
 BLE2904* pBle2904_gps_locked = NULL;
-BLE2904* pBle2904_bmp_enabled = NULL;
+BLE2904* pBle2904_emu_enabled = NULL;
 BLE2904* pBle2904_imu_enabled = NULL;
 BLE2904* pBle2904_srv_enabled = NULL;
 BLE2904* pBle2904_rtc_enabled = NULL;
@@ -122,7 +122,7 @@ uint8_t cmagnetometer_value = false ? 1 : 0;
 uint8_t bms_enabled_value = true ? 1 : 0;
 uint8_t gps_enabled_value = true ? 1 : 0;
 uint8_t gps_locked_value = false ? 1 : 0;
-uint8_t bmp_enabled_value = true ? 1 : 0;
+uint8_t emu_enabled_value = true ? 1 : 0;
 uint8_t imu_enabled_value = true ? 1 : 0;
 uint8_t srv_enabled_value = true ? 1 : 0;
 uint8_t rtc_enabled_value = true ? 1 : 0;
@@ -208,7 +208,7 @@ void TrBLE::begin() {
   BLEService *pCoreService = pServer->createService(BLEUUID(WRFCOM_CORE_SERVICE_UUID), 60);
   BLEService *pCapabilityService = pServer->createService(BLEUUID(WRFCOM_CAPABILITY_SERVICE_UUID), 60);
   BLEService *pGpsService = pServer->createService(BLEUUID(WRFCOM_GPS_SERVICE_UUID), 60);
-  BLEService *pBmpService = pServer->createService(BLEUUID(WRFCOM_EMU_SERVICE_UUID), 60);
+  BLEService *pEmuService = pServer->createService(BLEUUID(WRFCOM_EMU_SERVICE_UUID), 60);
   BLEService *pImuService = pServer->createService(BLEUUID(WRFCOM_IMU_SERVICE_UUID), 60);
 
   // Create BLE Characteristics
@@ -364,16 +364,16 @@ void TrBLE::begin() {
   pBle2904_gps_locked->setUnit(0x2700); // Unitless
   pBmsEnabled->addDescriptor(pBle2904_gps_locked);
 
-  pBmpEnabled = pCapabilityService->createCharacteristic(
+  pEmuEnabled = pCapabilityService->createCharacteristic(
                   EMUENABLED_CHARACTERISTIC_UUID,
                   BLECharacteristic::PROPERTY_READ   |
                   BLECharacteristic::PROPERTY_NOTIFY |
                   BLECharacteristic::PROPERTY_INDICATE
                 );
-  pBle2904_bmp_enabled = new BLE2904();
-  pBle2904_bmp_enabled->setFormat(0x01); // Boolean
-  pBle2904_bmp_enabled->setUnit(0x2700); // Unitless
-  pBmpEnabled->addDescriptor(pBle2904_bmp_enabled);
+  pBle2904_emu_enabled = new BLE2904();
+  pBle2904_emu_enabled->setFormat(0x01); // Boolean
+  pBle2904_emu_enabled->setUnit(0x2700); // Unitless
+  pEmuEnabled->addDescriptor(pBle2904_emu_enabled);
 
   pImuEnabled = pCapabilityService->createCharacteristic(
                   IMUENABLED_CHARACTERISTIC_UUID,
@@ -468,7 +468,7 @@ void TrBLE::begin() {
 
 
   // EMU
-  pPressure = pBmpService->createCharacteristic(
+  pPressure = pEmuService->createCharacteristic(
                 PRESSURE_CHARACTERISTIC_UUID,
                 BLECharacteristic::PROPERTY_READ   |
                 BLECharacteristic::PROPERTY_NOTIFY |
@@ -480,7 +480,7 @@ void TrBLE::begin() {
   pBle2904_pressure->setExponent(-1); // Tenths of a pascal
   pPressure->addDescriptor(pBle2904_pressure);
 
-  pTemperature = pBmpService->createCharacteristic(
+  pTemperature = pEmuService->createCharacteristic(
                    TEMPERATURE_CHARACTERISTIC_UUID,
                    BLECharacteristic::PROPERTY_READ   |
                    BLECharacteristic::PROPERTY_NOTIFY |
@@ -636,7 +636,7 @@ void TrBLE::begin() {
   pCoreService->start();
   pCapabilityService->start();
   pGpsService->start();
-  pBmpService->start();
+  pEmuService->start();
   pImuService->start();
 
   // Startup the device
@@ -681,7 +681,7 @@ void TrBLE::loop() {
   if (deviceConnected) {
 
     if ((now - _refresh_last) < _refresh_millis) {
-      //too soon? Yup
+      // too soon
       return;
     }
     _refresh_last = now;
@@ -698,11 +698,12 @@ void TrBLE::loop() {
       } else if (NET.isEnabled()) {
         wifi_value = "STA";
       } else {
-        wifi_value = "X";
+        wifi_value = "NA";
       }
 #if _DEBUG_ && _XDEBUG_
-      Serial.print("Writing: WIFI: ");
+      Serial.print("Writing: WIFI: '");
       Serial.print(wifi_value);
+      Serial.print("'");
       Serial.println();
 #endif
       pWifi->setValue(wifi_value.c_str());
@@ -713,11 +714,12 @@ void TrBLE::loop() {
       if (NET.isEnabled()) {
         ipaddr_value = NET.getIpAddress();
       } else {
-        ipaddr_value = "X";
+        ipaddr_value = "";
       }
 #if _DEBUG_ && _XDEBUG_
-      Serial.print("Writing: IPAD: ");
+      Serial.print("Writing: IPAD: '");
       Serial.print(ipaddr_value);
+      Serial.print("'");
       Serial.println();
 #endif
       pIpaddr->setValue(ipaddr_value.c_str());
@@ -861,15 +863,15 @@ void TrBLE::loop() {
       pImuEnabled->notify();
     }
 
-    if (pBmpEnabled) {
-      bmp_enabled_value = EMU.isEnabled() ? 1 : 0;
+    if (pEmuEnabled) {
+      emu_enabled_value = EMU.isEnabled() ? 1 : 0;
 #if _DEBUG_ && _XDEBUG_
       Serial.print("Writing: EMU: ");
-      Serial.print(bmp_enabled_value ? "TRUE" : "FALSE");
+      Serial.print(emu_enabled_value ? "TRUE" : "FALSE");
       Serial.println();
 #endif
-      pBmpEnabled->setValue(&bmp_enabled_value, 1);
-      pBmpEnabled->notify();
+      pEmuEnabled->setValue(&emu_enabled_value, 1);
+      pEmuEnabled->notify();
     }
 
     if (pSrvEnabled) {

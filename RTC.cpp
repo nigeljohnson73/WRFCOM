@@ -8,7 +8,7 @@ TrRTC RTC;
 TrRTC::TrRTC() {};
 
 void TrRTC::begin() {
-#if !_USE_RTC
+#if !_USE_RTC_
   return;
 #endif
 

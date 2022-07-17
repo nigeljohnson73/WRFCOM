@@ -68,6 +68,11 @@
 //  LC709203F_APA_2000MAH = 0x2D,
 // LC709203F_APA_3000MAH = 0x36,
 
+// Should we use RTC
+#ifndef _USE_RTC_
+#define _USE_RTC_ true
+#endif
+
 // Should we use Bluetooth LE
 #ifndef _USE_BLE_
 #define _USE_BLE_ true

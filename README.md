@@ -7,6 +7,9 @@ logged to an SD card as fast as possible and running from a small battery. Optio
 deployment mechanism as well. Control should also be via a web page delivered through it's own Wireless Access Point 
 (maybe BTLE if I can work it out).
 
+See the '[remote controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' side of things for the Bluetooth LE remote.
+
+
 It would be nice if I could build an app that would suck off the data and display it without having to pull the SD
 card, but that is a stretch goal.
 

@@ -53,29 +53,27 @@ The following microcontrollers have been tested and in my preferred order:
 * [ESP32-S3 Feather][ESP32-S3] Dual core, BT, WiFi 4MB flash, 2MB PSRAM
 * [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BT, WiFi 8MB flash, No PSRAM
 * [ESP32-S2 Feather][ESP32-S2] No Bluetooth
-* LOLIN D1 mini (ESP8266 board) Wiring is fun, you'll need something to power the board and half a [QWIIC cable][QWIIC-CONNECTOR] soldered to the board.
-* [LIPO battery pack][LIPO-1100MAH]
 
-[ESP32-S3]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic
-[ESP32-S3-NOPSRAM]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram
-[ESP32-S2]: https://thepihut.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic
-[LIPO-1100MAH]: https://smile.amazon.co.uk/dp/B087LTZW61
-
-### Sensors
-* [PCF8523 Real Time Clock Breakout Board][PCF8523]
-* [DPS310 Barometric Pressure Sensor][DPS310]
-* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
+### Sensors and things
+* [LIPO battery pack][LIPO-1200MAH]
+* [PCF8523 Real Time Clock Breakout Board][PCF8523] (really optional)
+* [DPS310 Barometric Pressure Sensor][DPS310] (really optional)
+* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32] (kind of optional)
 * [SparkFun OpenLog][OPENLOG]
 * [Simple class 10 MicroSD card][SDCARD]
 * [SAM-M8Q GPS Breakout][SAM-M8Q]
-* 5-7 [QWIIC connector cables][QWIIC-CONNECTOR-50]
+* 5-7 [50mm QWIIC connector cables][QWIIC-CONNECTOR-50]
 
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
 * A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
 * * [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
 
-
+[ESP32-S3]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic
+[ESP32-S3-NOPSRAM]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram
+[ESP32-S2]: https://thepihut.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic
+[LIPO-1100MAH]: https://smile.amazon.co.uk/dp/B087LTZW61
+[LIPO-1200MAH]: https://shop.pimoroni.com/products/lipo-battery-pack?variant=20429082183
 [PCF8523]: https://thepihut.com/products/adafruit-pcf8523-real-time-clock-breakout-board-stemma-qt-qwiic
 [BMP390]: https://shop.pimoroni.com/products/adafruit-bmp390-precision-barometric-pressure-and-altimeter-stemma-qt-qwiic?variant=32302189346899
 [DPS310]: https://thepihut.com/products/adafruit-dps310-precision-barometric-pressure-altitude-sensor
@@ -112,7 +110,7 @@ Libraries required
 * Adafruit LSM6DS (for the LSM6DSO32 and LSMM6DOX IMU)
 * Adafruit LIS3MDL (for the LIS3MDL magnetometer)
 * Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32/oX IMU and DPS310 Barometric Pressure Sensor)
-* Adafruit LC709203F (for the LiPO monitor)
+* Adafruit LC709203F (for the onboard LiPO monitor)
 * RTCLib (for the PCF8523 RTC module)
 * SparkFun Qwiic OpenLog (for the OpenLog module)
 * SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS module)
@@ -121,11 +119,6 @@ Libraries required
 
 [ESPAsyncWebServer]: https://github.com/me-no-dev/ESPAsyncWebServer
 [AsyncTCP]: https://github.com/me-no-dev/AsyncTCP
-
-Known issues
-------------
- * Access point on the D1 minii is a bit pants, but fine on the S3 chips.
-
 
 <!--
 ### Access points

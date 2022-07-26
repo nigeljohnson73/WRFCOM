@@ -63,6 +63,7 @@ The following microcontrollers have been tested and in my preferred order:
 * [Simple class 10 MicroSD card][SDCARD]
 * [SAM-M8Q GPS Breakout][SAM-M8Q]
 * 5-7 [50mm QWIIC connector cables][QWIIC-CONNECTOR-50]
+* A lot of M2.3x5, 2 M2.3x10, 2M2x5 and 4 M2.6x5 self tapping screws
 
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]

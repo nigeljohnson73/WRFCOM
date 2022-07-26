@@ -50,9 +50,9 @@ probably cheaper). The servo bits did need a little cutting and soldering, but t
 
 The following microcontrollers have been tested and in my preferred order:
 
-* [ESP32-S3 Feather][ESP32-S3] Dual core, BT, WiFi 4MB flash, 2MB PSRAM
-* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BT, WiFi 8MB flash, No PSRAM
-* [ESP32-S2 Feather][ESP32-S2] No Bluetooth
+* [ESP32-S3 Feather][ESP32-S3] Dual core, BLE, WiFi 4MB flash, 2MB PSRAM
+* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BLE, WiFi 8MB flash, No PSRAM
+* [ESP32-S2 Feather][ESP32-S2] Single core, No BLE, WiFi
 
 ### Sensors and things
 * [LIPO battery pack][LIPO-1200MAH]

@@ -88,12 +88,14 @@ The following microcontrollers have been tested and in my preferred order:
 [QWIIC-CONNECTOR-50]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable
 [SDCARD]: https://smile.amazon.co.uk/dp/B07R59FHVG
 
-If you want to control a parachute as well, then you will need a servo, and if you want touch control, a button is useful:
+If you want to control a parachute as well, then you will need a servo, and if you want touch control, a button is useful for 
+testing but highly impractical for real use:
 
 <!-- * [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER] -->
 * [Micro servo][TOWER-PRO]
 * [Buck converter][BUCKY-5V]
-* SparkFun Qwiic Button[Green][BUTTON-GREEN] or [Red][BUTTON-RED]
+* [Servo extension cable][SERVO-EXTENSION]
+* SparkFun Qwiic Button [Green][BUTTON-GREEN] or [Red][BUTTON-RED] (probably don't get this, but fun to play with)
 
 [TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
 [BUCKY-5V]: https://thepihut.com/products/dc-dc-automatic-step-up-down-power-module-3-15v-to-5v-600ma?variant=39824836886723
@@ -101,8 +103,9 @@ If you want to control a parachute as well, then you will need a servo, and if y
 [BUTTON-GREEN]: https://thepihut.com/products/sparkfun-qwiic-button-green-led
 [BUTTON-RED]: https://thepihut.com/products/sparkfun-qwiic-button-red-led
 
-You will need to cut the extension cable and solder the female side to your microcontroller. GND, BATT for power and GPIO12 for signal. You will also need to 
-splice in the buck converter into the power line (not the signal). Preferably on the controller end so you can use any servo.
+You will need to cut the extension cable and solder the female side to your microcontroller. GND, BATT for power and GPIO12 for signal. 
+You will also need to splice in the buck converter into the power line (not the signal). Preferably on the controller end so you can 
+use any servo.
 
 Libraries required
 ------------------

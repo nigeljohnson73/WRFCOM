@@ -33,6 +33,7 @@ void TrSRV::arm(bool tf) {}
 #define MIN_VAL 700
 #define MAX_VAL 2300
 #define STOW_ANGLE 110
+#define DEPLOY_ANGLE 175
 
 
 Servo myservo;
@@ -56,8 +57,10 @@ void TrSRV::begin() {
   arm(true);
 
 #if _DEBUG_
-  Serial.print("SRV initialised: Stow angle - ");
+  Serial.print("SRV initialised: Stow/Deploy: ");
   Serial.print(STOW_ANGLE);
+  Serial.print("/");
+  Serial.print(DEPLOY_ANGLE);
   Serial.print(" degrees");
   Serial.println();
 #endif
@@ -69,7 +72,7 @@ void TrSRV::loop() {
 void TrSRV::arm(bool tf) {
   if (!isEnabled()) return;
 
-  int ang = STOW_ANGLE + (tf ? (180 - STOW_ANGLE) : 0); // Armed should be 180. Stow angle so it doesn't bind
+  int ang = STOW_ANGLE + (tf ? (DEPLOY_ANGLE - STOW_ANGLE) : 0); // Armed should be 180. Stow angle so it doesn't bind
 #if _DEBUG_ && _XDEBUG_
   Serial.print("SRV::arm(");
   Serial.print(tf ? "true" : "false");

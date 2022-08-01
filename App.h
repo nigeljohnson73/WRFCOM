@@ -11,6 +11,12 @@
 #define _USE_WIFI_ true
 #endif
 
+// Should we enable accees points and WiFi (and possibly allow OTA, NTP and AP mode)
+#ifndef _USE_NOW_
+ // Defautl to WIFI above!!
+#define _USE_NOW_ false
+#endif
+
 // Defaulting this to blank will just skip into Access Point mode
 #ifndef WIFI_SSID
 #define WIFI_SSID ""
@@ -136,6 +142,7 @@ extern String espChipId();
 #include "LED.h"
 #include "LOG.h"
 #include "NET.h"
+#include "NOW.h"
 #include "RTC.h"
 #include "SRV.h"
 #include "WEB.h"

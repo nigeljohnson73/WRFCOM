@@ -48,6 +48,7 @@ void setup() {
   LOG.begin();
 
   BLE.begin();
+  NOW.begin();
   NET.setHostname(DEVICE_NAME);
   NET.begin(WIFI_SSID, WIFI_PASS, WIFI_WAIT);
   WEB.begin();
@@ -76,5 +77,6 @@ void loop() {
     LOG.loop();
   }
   BLE.loop();
+  NOW.loop();
   WEB.loop();
 }

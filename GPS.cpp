@@ -140,6 +140,13 @@ void TrGPS::loop() {
     _siv = t;
   }
 
+  if (!_connected and _siv > 3) {
+    // changing status so update the RTC
+#if _DEBUG_
+    Serial.print("GPS::updateRtc()");
+#endif //_DEBUG_
+    RTC.setTimestamp(_timestamp);
+  }
   _connected = _siv > 3; // You need at least 3 satellites to ensure 3D accuracy
 
 #if _DEBUG_

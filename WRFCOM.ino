@@ -8,11 +8,11 @@
 
 String espChipId() {
 #ifdef ESP32
-//  int chipId = 0;
-//  for (int i = 0; i < 17; i = i + 8) {
-//
-//    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
-//  }
+  //  int chipId = 0;
+  //  for (int i = 0; i < 17; i = i + 8) {
+  //
+  //    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  //  }
   uint32_t chipId = 0;
   for (int i = 0; i < 17; i = i + 8) {
     chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
@@ -34,6 +34,15 @@ void setup() {
   Serial.begin(115200);
   delay(5000);
   Serial.println();
+#if _DEBUG_
+  Serial.print("WRFCOM ");
+  Serial.print(VERSION);
+  Serial.print(": ");
+  Serial.print(__DATE__);
+  Serial.print(" @ ");
+  Serial.print(__TIME__);
+  Serial.println();
+#endif
 
   BUT.begin(); // Switch it off early
   LED.begin();

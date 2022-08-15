@@ -39,14 +39,14 @@ void setup() {
   LED.begin();
 
   RTC.begin();
-  BMS.begin();
   EMU.begin();
   IMU.begin();
   GPS.begin();
-  SRV.begin();
 
   LOG.begin();
+  SRV.begin();
 
+  BMS.begin();
   BLE.begin();
   NOW.begin();
   NET.setHostname(DEVICE_NAME);

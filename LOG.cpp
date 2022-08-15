@@ -95,9 +95,9 @@ void TrLOG::loop() {
     line += comma + String(alt);
 
     _peak_emu_altitude = max(alt, _peak_emu_altitude);
-    if (alt < (_peak_emu_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
+    if (!_chute_deployed && alt < (_peak_emu_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
       _chute_deployed = true;
-      // TODO: trigger deployment
+      SRV.arm(false);
     }
   } else {
     line += ",,,,";
@@ -148,6 +148,10 @@ void TrLOG::loop() {
       line += comma + String(_ground_distance);
       _furthest_ground_distance = max(_ground_distance, _furthest_ground_distance);
       _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
+      if (!_chute_deployed && _furthest_ground_distance >= PARACHUTE_DEPLOY_DISTANCE_OFFSET) {
+        _chute_deployed = true;
+        SRV.arm(false);
+      }
     } else {
       line += ",,,,";
     }

@@ -104,6 +104,11 @@
 #define PARACHUTE_DEPLOY_APOGEE_OFFSET -2
 #endif
 
+// When we are this distance from the launch point, throw out the parachute
+#ifndef PARACHUTE_DEPLOY_DISTANCE_OFFSET
+#define PARACHUTE_DEPLOY_DISTANCE_OFFSET 65
+#endif
+
 // Once we have reached this far from where started, throw out the parachute
 #ifndef PARACHUTE_DEPLOY_DISTANCE
 #define PARACHUTE_DEPLOY_DISTANCE 50
@@ -128,7 +133,6 @@
 #ifndef _XDEBUG_
 #define _XDEBUG_ false
 #endif
-
 
 #include <Arduino.h> // For type inclusion - String for example
 extern String espChipId();

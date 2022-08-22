@@ -138,7 +138,7 @@
 
 // Should disabled sensors output
 #ifndef _DISABLED_DEBUG_
-#define _DISABLED_DEBUG_ true
+#define _DISABLED_DEBUG_ false
 #endif
 
 #ifndef _XDEBUG_

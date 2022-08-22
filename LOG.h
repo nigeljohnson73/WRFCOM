@@ -33,6 +33,7 @@ class TrLOG {
     bool _enabled = false;
     bool _logging = false;
 
+    String _reason;
     bool _chute_deployed;
     bool _launch_detect;
     //    String _log;
@@ -42,7 +43,7 @@ class TrLOG {
     unsigned long _last_sync;
     const unsigned long _sync_interval = 5000;
 
-	double _peak_speed;
+    double _peak_speed;
     double _peak_g;
     double _peak_emu_altitude;
     double _peak_gps_altitude;

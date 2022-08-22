@@ -68,6 +68,9 @@ void TrLOG::begin() {
 void TrLOG::loop() {
   if (!isEnabled() || !isCapturing()) return;
 
+  // kick off the launch protection
+  detectLaunch();
+
   if ((millis() - logging_started) > (1000 * MAX_LOG_DURATION_SECONDS)) {
 #if _XDEBUG_
     Serial.print("TrLOG::loop(): maximum log period exceeded");
@@ -414,8 +417,8 @@ void TrLOG::startCapture() {
   String fn = "";
   String header = "";
   if (GPS.isEnabled() && GPS.isConnected()) {
-    _start_latitude = GPS.getLatitude();
-    _start_longitude = GPS.getLongitude();
+    _start_latitude = lat; //GPS.getLatitude();
+    _start_longitude = lng; //GPS.getLongitude();
 
     fn = GPS.getTimestamp();
   } else if (RTC.isEnabled()) {
@@ -656,9 +659,9 @@ String TrLOG::getLogSummary() {
       ret += " m";
       ret += "\n";
       ret += "Peak Speed: ";
-      ret += double(floor(_peak_speed * 10))/10.0;
+      ret += double(floor(_peak_speed * 10)) / 10.0;
       ret += " m/s (";
-      ret += double(floor(_peak_speed * 2.237 * 10))/10.0;
+      ret += double(floor(_peak_speed * 2.237 * 10)) / 10.0;
       ret += " mph)";
     }
     return ret;

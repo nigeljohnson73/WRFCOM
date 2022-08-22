@@ -9,12 +9,15 @@ TrRTC::TrRTC() {};
 
 void TrRTC::begin() {
 #if !_USE_RTC_
+#if _DEBUG_ && _DISABLED_DEBUG_
+    Serial.println("RTC initialised: disabled");
+#endif
   return;
 #endif
 
   if (!rtc.begin()) {
 #if _DEBUG_
-    Serial.println("RTC disconnected");
+    Serial.println("RTC initialised: disconnected");
 #endif
     return;
   }

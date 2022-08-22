@@ -4,7 +4,11 @@ TrBMS::TrBMS() {};
 
 #if !_USE_BMS_
 
-void TrBMS::begin() {}
+void TrBMS::begin() {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println("BMS initialised: disabled");
+#endif
+}
 
 void TrBMS::loop() {}
 
@@ -40,7 +44,7 @@ void TrBMS::updateData() {
 void TrBMS::begin() {
   if (!lc.begin()) {
 #if _DEBUG_
-    Serial.println("BMS disconnected");
+    Serial.println("BMS initialised: disconnected");
 #endif
     return;
   }

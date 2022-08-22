@@ -4,7 +4,12 @@ TrNET::TrNET(): _hostname(DEVICE_NAME), _ap_pass(AP_PASSWORD) {}
 
 #if !_USE_WIFI_
 
-void TrNET::begin(String ssid, String pass, long wait_secs) {}
+void TrNET::begin(String ssid, String pass, long wait_secs) {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println(String("NET initialised: disabled");
+#endif // _DEBUG_
+}
+
 void TrNET::loop() {}
 void TrNET::setHostname(String name) {}
 String TrNET::getTimestamp() {

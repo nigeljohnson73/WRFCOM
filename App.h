@@ -13,7 +13,7 @@
 
 // Should we enable accees points and WiFi (and possibly allow OTA, NTP and AP mode)
 #ifndef _USE_NOW_
- // Defautl to WIFI above!!
+// Defautl to WIFI above!!
 #define _USE_NOW_ false
 #endif
 
@@ -50,7 +50,7 @@
 
 // If you going to be connected to a network, then this is good starter
 #ifndef _USE_NTP_
-#define _USE_NTP_ true
+#define _USE_NTP_ false
 #endif
 
 // Use ZULU/GMT/UTC
@@ -78,6 +78,17 @@
 #ifndef _USE_RTC_
 #define _USE_RTC_ true
 #endif
+
+// Sholud we use Environment Measurement Unit
+#ifndef _USE_EMU_
+#define _USE_EMU_ true
+#endif
+
+// Sholud we use Inertial Measurement Unit
+#ifndef _USE_IMU_
+#define _USE_IMU_ true
+#endif
+
 
 // Should we use Bluetooth LE
 #ifndef _USE_BLE_
@@ -109,11 +120,6 @@
 #define PARACHUTE_DEPLOY_DISTANCE_OFFSET 65
 #endif
 
-// Once we have reached this far from where started, throw out the parachute
-#ifndef PARACHUTE_DEPLOY_DISTANCE
-#define PARACHUTE_DEPLOY_DISTANCE 50
-#endif
-
 // How long should we do a log before auto shutting it off
 #ifndef MAX_LOG_DURATION_SECONDS
 #define MAX_LOG_DURATION_SECONDS (5*60)
@@ -128,6 +134,11 @@
 // Level of debugging to the serial port
 #ifndef _DEBUG_
 #define _DEBUG_ true
+#endif
+
+// Should disabled sensors output
+#ifndef _DISABLED_DEBUG_
+#define _DISABLED_DEBUG_ true
 #endif
 
 #ifndef _XDEBUG_

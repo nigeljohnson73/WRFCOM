@@ -1,17 +1,41 @@
 #include "EMU.h"
+TrEMU EMU;
+
+#if !_USE_EMU_
+
+TrEMU::TrEMU() {}
+
+void TrEMU::begin() {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println("EMU initialised: disabled");
+#endif
+}
+
+void TrEMU::loop() {}
+void TrEMU::setAltitude(double m) {}
+double TrEMU::getPressure() {
+  return 0;
+}
+double TrEMU::getTemperature() {
+  return 0;
+}
+double TrEMU::getAltitude() {
+  return 0;
+}
+
+#else // !_USE_EMU_
 
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 
 Adafruit_BMP3XX bmp390;
-TrEMU EMU;
 
 TrEMU::TrEMU() {};
 
 void TrEMU::begin() {
   if (!bmp390.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
 #if _DEBUG_
-    Serial.println("EMU disconnected");
+    Serial.println("EMU initialised: disconnected");
 #endif
     return;
   }
@@ -91,3 +115,5 @@ double TrEMU::getAltitude() {
   if (!isEnabled()) return 0.;
   return bmp390.readAltitude(sea_level_pressure);
 }
+
+#endif // !_USE_EMU_

@@ -17,7 +17,7 @@ void TrBUT::begin() {
   if (button.begin() == false) {
 
 #if _DEBUG_
-    Serial.println("BUT disconnected");
+    Serial.println("BUT initialised: disconnected");
 #endif // _DEBUG_
 
     return;

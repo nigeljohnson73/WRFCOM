@@ -37,7 +37,7 @@ void TrLOG::begin() {
   if (!myLog.begin()) {
 #if _DEBUG_
     //Serial.println("LOG disconnected (OpenLog begin() failure)");
-    Serial.println("LOG disconnected");
+    Serial.println("LOG initialised: disconnected");
 #endif
     return;
   }
@@ -45,7 +45,7 @@ void TrLOG::begin() {
   if (ver == "255.255") {
 #if _DEBUG_
     //Serial.println("LOG disconnected (OpenLog getVersion() failure)");
-    Serial.println("LOG disconnected");
+    Serial.println("LOG initialised: disconnected");
 #endif
     return;
   }

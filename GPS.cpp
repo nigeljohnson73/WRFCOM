@@ -35,7 +35,7 @@ void TrGPS::begin() {
 
   if (!myGNSS.begin()) {
 #if _DEBUG_
-    Serial.println("GPS disconnected");
+    Serial.println("GPS initialised: disconnected");
 #endif
     return;
   }

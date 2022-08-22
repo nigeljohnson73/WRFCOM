@@ -1,4 +1,50 @@
 #include "IMU.h"
+TrIMU IMU;
+
+#if !_USE_IMU_
+
+TrIMU::TrIMU() {}
+
+void TrIMU::begin() {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println("IMU initialised: disabled");
+#endif
+}
+
+void TrIMU::loop() {};
+
+double TrIMU::getTemperature() {
+  return 0.;
+}
+double TrIMU::getGyroX() {
+  return 0.;
+}
+double TrIMU::getGyroY() {
+  return 0.;
+}
+double TrIMU::getGyroZ() {
+  return 0.;
+}
+double TrIMU::getAccX() {
+  return 0.;
+}
+double TrIMU::getAccY() {
+  return 0.;
+}
+double TrIMU::getAccZ() {
+  return 0.;
+}
+double TrIMU::getMagX() {
+  return 0.;
+}
+double TrIMU::getMagY() {
+  return 0.;
+}
+double TrIMU::getMagZ() {
+  return 0.;
+}
+
+#else // _USE_IMU_
 
 #include <Adafruit_LSM6DSO32.h>
 
@@ -6,7 +52,6 @@ Adafruit_LSM6DSO32 dso32;
 sensors_event_t accel;
 sensors_event_t gyro;
 sensors_event_t temp;
-TrIMU IMU;
 
 TrIMU::TrIMU() {};
 
@@ -15,7 +60,7 @@ void TrIMU::begin() {
     // if (!dso32.begin_SPI(LSM_CS)) {
     // if (!dso32.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
 #if _DEBUG_
-    Serial.println("IMU disconnected");
+    Serial.println("IMU initialised: disconnected");
 #endif
     return;
   }
@@ -210,3 +255,5 @@ double TrIMU::getMagZ() {
   if (!isEnabled()) return 0.;
   return 0;
 }
+
+#endif // _USE_IMU_

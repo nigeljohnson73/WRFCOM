@@ -4,7 +4,12 @@ TrNOW::TrNOW() {};
 
 #if !_USE_NOW_
 
-void TrNOW::begin() {}
+void TrNOW::begin() {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println("NOW initialised: disabled");
+#endif // _DEBUG_
+}
+
 void TrNOW::loop() {}
 bool TrNOW::isConnected() {
   return false;

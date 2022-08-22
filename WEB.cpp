@@ -4,7 +4,12 @@ TrWEB::TrWEB() {};
 
 #if !_USE_WIFI_
 
-void TrWEB::begin() {}
+void TrWEB::begin() {
+#if _DEBUG_ && _DISABLED_DEBUG_
+  Serial.println(String("WEB initialised: disabled");
+#endif // _DEBUG_
+}
+
 void TrWEB::loop() {}
 
 #else // !_USE_WIFI_
@@ -335,6 +340,7 @@ void showStats() {
   String text;
   String content = "<h1>Data Snapshot</h1>";
 
+#if _USE_NTP_
   title = "NET Timestamp";
   status = "green";
   text = NET.getTimestamp();
@@ -343,7 +349,9 @@ void showStats() {
     text = "[not configured]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
+#if _USE_RTC_
   title = "RTC Timestamp";
   status = "green";
   text = RTC.getTimestamp();
@@ -355,6 +363,7 @@ void showStats() {
     text = "[not configured]";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
   title = "GPS Timestamp";
   status = "green";
@@ -368,6 +377,7 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
+#if _USE_IMU_
   title = "IMU Temperature";
   status = "green";
   text = String(IMU.getTemperature());
@@ -381,7 +391,9 @@ void showStats() {
     text += " C";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
+#if _USE_EMU_
   title = "EMU Temperature";
   status = "green";
   text = String(EMU.getTemperature());
@@ -425,6 +437,7 @@ void showStats() {
     text += " m";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
   title = "GPS Altitude";
   status = "green";
@@ -575,6 +588,7 @@ void showRoot() {
   }
   content += "<div class='status-wrapper'><div class='label'>GPS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
+#if _USE_EMU_
   status = "red";
   text = "DISABLED";
   if (EMU.isEnabled()) {
@@ -582,7 +596,9 @@ void showRoot() {
     text = "OK";
   };
   content += "<div class='status-wrapper'><div class='label'>EMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
+#if _USE_IMU_
   status = "red";
   text = "DISABLED";
   if (IMU.isEnabled()) {
@@ -590,7 +606,9 @@ void showRoot() {
     text = "OK";
   };
   content += "<div class='status-wrapper'><div class='label'>IMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
+#if _USE_RTC_
   status = "red";
   text = "DISABLED";
   if (RTC.isEnabled()) {
@@ -598,6 +616,7 @@ void showRoot() {
     text = "OK";
   };
   content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif
 
 #if _USE_SERVO_
   status = "disabled";

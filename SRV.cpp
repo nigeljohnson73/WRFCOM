@@ -14,32 +14,27 @@ void TrSRV::begin() {
 void TrSRV::loop() {}
 void TrSRV::arm(bool tf) {}
 
-#else
+#else // Using servo
 
 #if ESP32
 #ifndef SERVO_PIN
 #define SERVO_PIN 12
 #endif
+#include <ESP32Servo.h>
 
-#else
+#else // Not ESP32
 
 #ifndef SERVO_PIN
 #define SERVO_PIN D4
 #endif
-
-#endif
-
-#ifdef ESP32
-#include <ESP32Servo.h>
-#else
 #include <Servo.h>
-#endif
+
+#endif // ESP32 or not
 
 #define MIN_VAL 700
 #define MAX_VAL 2300
 #define STOW_ANGLE 110
 #define DEPLOY_ANGLE 175
-
 
 Servo myservo;
 
@@ -79,7 +74,7 @@ void TrSRV::loop() {
 void TrSRV::arm(bool tf) {
   if (!isEnabled()) return;
 
-  int ang = STOW_ANGLE + (tf ? (DEPLOY_ANGLE - STOW_ANGLE) : 0); // Armed should be 180. Stow angle so it doesn't bind
+  int ang = STOW_ANGLE + (tf ? (DEPLOY_ANGLE - STOW_ANGLE) : 0);
 #if _DEBUG_ && _XDEBUG_
   Serial.print("SRV::arm(");
   Serial.print(tf ? "true" : "false");

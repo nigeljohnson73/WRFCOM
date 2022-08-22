@@ -672,6 +672,7 @@ String TrLOG::getLogSummary() {
 
 void TrLOG::detectLaunch() {
   if (GPS.isEnabled() && GPS.isConnected()) {
+    static unsigned long last_out = 0;
     static unsigned long last_track = 0;
     static double last_lat = 0;
     static double last_lng = 0;
@@ -695,6 +696,20 @@ void TrLOG::detectLaunch() {
       last_lat = lat;
       last_lng = lng;
       last_alt = alt;
+
+      if (track - last_out > 1000) {
+        last_out = track;
+        Serial.print("Speed: ");
+        Serial.print(speed * 2.237);
+        Serial.print("mph, ");
+        Serial.print("Dist: ");
+        Serial.print(dist_delta);
+        Serial.print("m, ");
+        Serial.print("Launch detect: ");
+        Serial.print(_launch_detect ? "Yes" : "No");
+        Serial.println();
+
+      }
     }
     last_track = track;
 

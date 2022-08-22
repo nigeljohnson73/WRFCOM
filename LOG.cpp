@@ -157,14 +157,6 @@ void TrLOG::loop() {
     if (GPS.isConnected()) {
       _ground_distance = gpsDistance(lat, lng, _start_latitude, _start_longitude);
       _furthest_ground_distance = max(_ground_distance, _furthest_ground_distance);
-          if (_peak_gps_altitude == -99999) {
-      Serial.print("logCapture(): peak gps alt: ");
-      Serial.print(_peak_gps_altitude);
-      Serial.print(", now: ");
-      Serial.print(alt);
-      Serial.println();
-    }
- 
       _peak_gps_altitude = max(alt, _peak_gps_altitude);
 
       line += comma + String(lat, 7);
@@ -179,22 +171,17 @@ void TrLOG::loop() {
         Serial.println("################# PARACHUTE DEPLOY (DISTANCE) #################");
 #endif
         _chute_deployed = true;
-        SRV.arm(false);
         _reason = "GPS Distance";
+        SRV.arm(false);
       }
 
       if (PARACHUTE_DEPLOY_APOGEE_OFFSET != 0 && SRV.isArmed() && !_chute_deployed && alt < (_peak_gps_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
 #if _DEBUG_
         Serial.println("################# PARACHUTE DEPLOY (APOGEE) #################");
-        Serial.print("Peak: ");
-        Serial.print(_peak_gps_altitude);
-        Serial.print(", now: ");
-        Serial.print(alt);
-        Serial.println();
 #endif
         _chute_deployed = true;
-        SRV.arm(false);
         _reason = "GPS Apogee";
+        SRV.arm(false);
       }
     } else {
       line += ",,,,,,";
@@ -214,7 +201,9 @@ void TrLOG::loop() {
 void TrLOG::syncLog() {
 
   _last_sync = millis();
-  if (_launch_detect) {
+  // Don't snyc if we are moving fast enough to be 'in-flight'
+  // Don't use _launch_detect because that stops once the parachute is deployed
+  if (speed > LAUNCH_DETECT_SPEED) {
     Serial.print("LOG::sync() - Skipping during flight");
     return;
   }
@@ -435,16 +424,14 @@ void TrLOG::resetCapture() {
   _final_longitude = 0;
   _final_ground_distance = 0;
   _furthest_ground_distance = 0;
-  Serial.print("resetCapture(): peak gps alt: ");
-  Serial.print(_peak_gps_altitude);
-  Serial.println();
-
+  
   if (GPS.isEnabled() && GPS.isConnected()) {
     if (RTC.isEnabled()) {
-      // Set time from GPS;
+      // Set RTC time from GPS;
       RTC.setTimestamp(GPS.getTimestamp());
     }
     if (EMU.isEnabled()) {
+    	// Tell the EMU what the amtitude is, so it can calculate what it needs to
       EMU.setAltitude(GPS.getAltitude());
     }
   }
@@ -590,9 +577,10 @@ void TrLOG::stopCapture() {
   //  tidy();
 
   if (GPS.isEnabled() && GPS.isConnected()) {
-    _final_latitude = GPS.getLatitude();
-    _final_longitude = GPS.getLongitude();
-    _final_ground_distance = max(gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude), _furthest_ground_distance);
+    _final_latitude = lat;
+    _final_longitude = lng;
+    //_final_ground_distance = max(gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude), _furthest_ground_distance);
+    _final_ground_distance = gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude);
   }
 
 #if _DEBUG_
@@ -681,7 +669,7 @@ String TrLOG::getLogSummary() {
     ret += _chute_deployed ? "Yes" : "No";
     if (_chute_deployed) {
       ret += "\n";
-      ret += "deployment: ";
+      ret += "Deployment: ";
       ret += _reason;
     }
 
@@ -732,14 +720,6 @@ void TrLOG::detectLaunch() {
     lng = GPS.getLongitude();
     alt = GPS.getAltitude();
 
-    if (_peak_gps_altitude == -99999) {
-      Serial.print("launchDetect()(: peak gps alt)");
-      Serial.print(_peak_gps_altitude);
-      Serial.print(", now: ");
-      Serial.print(alt);
-      Serial.println();
-    }
- 
     if (last_track > 0) {
       double gdist_delta = gpsDistance(lat, lng, last_lat, last_lng);
       double alt_delta = alt - last_alt;

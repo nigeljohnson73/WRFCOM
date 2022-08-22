@@ -12,6 +12,13 @@ TrLOG LOG;
 #define EARTH_RADIUS 6372797.56085
 #define ONE_G 9.80665
 
+// Storeage for calcuations and launch detect so we don't calc twice
+static double speed = 0; // m/s
+static double elevation = 0; // hopefully degrees
+static double lat = 0;
+static double lng = 0;
+static double alt = 0 ;
+
 double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   double haversine;
   double temp;
@@ -140,24 +147,30 @@ void TrLOG::loop() {
   if (GPS.isEnabled()) {
     line += comma + String(GPS.getSatsInView());
     if (GPS.isConnected()) {
-      line += comma + String(GPS.getLatitude(), 7);
-      line += comma + String(GPS.getLongitude(), 7);
-      line += comma + String(GPS.getAltitude(), 4);
-      _ground_distance = gpsDistance(GPS.getLatitude(), GPS.getLongitude(), _start_latitude, _start_longitude);
+
+      line += comma + String(lat, 7);
+      line += comma + String(lng, 7);
+      line += comma + String(alt, 4);
+      line += comma + String(speed, 4);
+      line += comma + String(elevation, 4);
+
+      _ground_distance = gpsDistance(lat, lng, _start_latitude, _start_longitude);
 
       line += comma + String(_ground_distance);
       _furthest_ground_distance = max(_ground_distance, _furthest_ground_distance);
-      _peak_gps_altitude = max(GPS.getAltitude(), _peak_gps_altitude);
+      _peak_gps_altitude = max(alt, _peak_gps_altitude);
+
       if (!_chute_deployed && _furthest_ground_distance >= PARACHUTE_DEPLOY_DISTANCE_OFFSET) {
         _chute_deployed = true;
         SRV.arm(false);
       }
     } else {
-      line += ",,,,";
+      line += ",,,,,,";
     }
   } else {
-    line += ",,,,,";
+    line += ",,,,,,,";
   }
+  line += comma + (_launch_detect ? "Yes" : "No");
   line += comma + (_chute_deployed ? "Yes" : "No");
 
   //  _log += String("\n") + line;
@@ -372,15 +385,17 @@ void TrLOG::tidy() {
 
 void TrLOG::resetCapture() {
   _chute_deployed = false;
+  _launch_detect = false;
   _peak_g = 0;
   _peak_emu_altitude = -99999;
   _peak_gps_altitude - -99999;
+  _peak_speed = 0;
   _start_latitude = 0;
   _start_longitude = 0;
-  _furthest_ground_distance = 0;
   _final_latitude = 0;
   _final_longitude = 0;
   _final_ground_distance = 0;
+  _furthest_ground_distance = 0;
 
   if (GPS.isEnabled() && GPS.isConnected()) {
     if (RTC.isEnabled()) {
@@ -440,7 +455,7 @@ void TrLOG::startCapture() {
   //  Serial.print("'");
   //  Serial.println();
   //
-  header += F("millis, BAT Pcnt, BAT Volts, EMU Temp, EMU MSL hPa, EMU hPa, EMU Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, GPS Dist, Chute");
+  header += F("millis, BAT Pcnt, BAT Volts, EMU Temp, EMU MSL hPa, EMU hPa, EMU Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, Speed, Elevation, GPS Dist, Launch, Chute");
   //_log = header;
 
   //  Serial.print("LOG::startCapture() - Moving to the root directory");
@@ -639,9 +654,53 @@ String TrLOG::getLogSummary() {
       ret += "Final distance: ";
       ret += _final_ground_distance;
       ret += " m";
+      ret += "\n";
+      ret += "Peak Speed: ";
+      ret += double(floor(_peak_speed * 10))/10.0;
+      ret += " m/s (";
+      ret += double(floor(_peak_speed * 2.237 * 10))/10.0;
+      ret += " mph)";
     }
     return ret;
   }
 
   return "";
+}
+
+void TrLOG::detectLaunch() {
+  if (GPS.isEnabled() && GPS.isConnected()) {
+    static unsigned long last_track = 0;
+    static double last_lat = 0;
+    static double last_lng = 0;
+    static double last_alt = 0;
+
+    unsigned long track = millis();
+    lat = GPS.getLatitude();
+    lng = GPS.getLongitude();
+    alt = GPS.getAltitude();
+
+    if (last_track > 0) {
+      double frame_len = ((double)(last_track - track)) / 1000.;
+      double gdist_delta = gpsDistance(lat, lng, last_lat, last_lng);
+      double alt_delta = alt - last_alt;
+      double dist_delta = sqrt(pow(alt_delta, 2) + pow(gdist_delta, 2));
+
+      speed = dist_delta / frame_len;
+      _peak_speed = max(speed, _peak_speed);
+      elevation = atan2(alt_delta, gdist_delta);
+
+      last_lat = lat;
+      last_lng = lng;
+      last_alt = alt;
+    }
+    last_track = track;
+
+    if (!_launch_detect && speed > LAUNCH_DETECT_SPEED) {
+      _launch_detect = true;
+    }
+
+    if (SRV.isArmed() && !isCapturing() && _launch_detect) {
+      // startCapture();
+    }
+  }
 }

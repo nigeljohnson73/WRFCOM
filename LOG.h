@@ -11,6 +11,7 @@ class TrLOG {
     void loop();
 
     String getLogSummary();
+    void detectLaunch();
 
     void capture(bool tf); // start or stop the logging
     bool isCapturing() {
@@ -33,6 +34,7 @@ class TrLOG {
     bool _logging = false;
 
     bool _chute_deployed;
+    bool _launch_detect;
     //    String _log;
     String _log_fn;
     String _log_dir;
@@ -40,6 +42,7 @@ class TrLOG {
     unsigned long _last_sync;
     const unsigned long _sync_interval = 5000;
 
+	double _peak_speed;
     double _peak_g;
     double _peak_emu_altitude;
     double _peak_gps_altitude;

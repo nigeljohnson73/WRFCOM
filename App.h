@@ -120,6 +120,11 @@
 #define PARACHUTE_DEPLOY_DISTANCE_OFFSET 65
 #endif
 
+// If we are not logging but should be - at least to enable parachute deployment
+#ifndef LAUNCH_DETECT_SPEED
+#define LAUNCH_DETECT_SPEED 5
+#endif
+
 // How long should we do a log before auto shutting it off
 #ifndef MAX_LOG_DURATION_SECONDS
 #define MAX_LOG_DURATION_SECONDS (5*60)

@@ -19,9 +19,11 @@ You should install the latest ESP32 boards into your board manager if you haven'
 want to use). Add these to your "Additional Boards Manager URLs" section in preferences.
 
 ```
-https://dl.espressif.com/dl/package_esp32_index.json, 
-http://arduino.esp8266.com/stable/package_esp8266com_index.json
+https://arduino.esp8266.com/stable/package_esp8266com_index.json
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
 ```
+
+With that installed the board you want is the `Adafruit Feather ESP32-S3 `.
 
 <!--
 You will need to install the file system plugins for 

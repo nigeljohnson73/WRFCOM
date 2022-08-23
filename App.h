@@ -116,9 +116,9 @@
 #endif
 
 // How fast should we poll the sensors
-// The slowest is going to be the GPS at 18 Hz, but on the D1 mini, 15 will choke the IIC bus
+// The slowest is going to be the GPS at 18 Hz
 #ifndef SENSOR_HZ
-#define SENSOR_HZ 14
+#define SENSOR_HZ 18
 #endif
 
 // Level of debugging to the serial port

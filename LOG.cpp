@@ -25,7 +25,7 @@ static String emu_pressure_msl;
 static String emu_altitude;
 
 static String imu_temperature;
-static String imu_g;
+static String imu_acc;
 static String imu_acc_x;
 static String imu_acc_y;
 static String imu_acc_z;
@@ -50,7 +50,7 @@ static String _reason;
 
 static bool _launch_detected;
 static double _peak_speed;
-static double _peak_g;
+static double _peak_acc;
 static double _peak_gps_altitude;
 static double lat_raw;
 static double lng_raw;
@@ -90,7 +90,7 @@ void TrLOG::writeHeader() {
   line += comma + "emu_altitude";
 
   line += comma + "imu_temperature";
-  line += comma + "imu_g";
+  line += comma + "imu_acc";
   line += comma + "imu_acc_x";
   line += comma + "imu_acc_y";
   line += comma + "imu_acc_z";
@@ -129,7 +129,7 @@ void TrLOG::writeData() {
   line += comma + emu_altitude;
 
   line += comma + imu_temperature;
-  line += comma + imu_g;
+  line += comma + imu_acc;
   line += comma + imu_acc_x;
   line += comma + imu_acc_y;
   line += comma + imu_acc_z;
@@ -165,7 +165,7 @@ void TrLOG::resetData() {
   emu_pressure_msl = "";
   emu_altitude = "";
 
-  imu_g = "";
+  imu_acc = "";
   imu_acc_x = "";
   imu_acc_y = "";
   imu_acc_z = "";
@@ -190,7 +190,7 @@ void TrLOG::resetData() {
   _reason = "";
 
   _peak_speed = DUFF_VALUE;
-  _peak_g = DUFF_VALUE;
+  _peak_acc = DUFF_VALUE;
   _peak_gps_altitude = DUFF_VALUE;
   _start_latitude = DUFF_VALUE;
   _start_longitude = DUFF_VALUE;
@@ -226,9 +226,9 @@ void TrLOG::getData() {
       imu_acc_x = IMU.getAccX();
       imu_acc_y = IMU.getAccY();
       imu_acc_z = IMU.getAccZ();
-      double g = sqrt(pow(IMU.getAccX(), 2) + pow(IMU.getAccY(), 2) + pow(IMU.getAccZ(), 2));
-      _peak_g = max(g, _peak_g);
-      imu_g = g;
+      double acc = sqrt(pow(IMU.getAccX(), 2) + pow(IMU.getAccY(), 2) + pow(IMU.getAccZ(), 2));
+      _peak_acc = max(acc, _peak_acc);
+      imu_acc = acc;
     }
     if (IMU.hasGyro()) {
       imu_gyro_x = IMU.getGyroX();
@@ -273,7 +273,7 @@ void TrLOG::getData() {
 
       if (last_track > 0) {
         // If there is a last time
-        double dst_delta = gpsDistance(last_lat, last_lng, lat_raw, lng_raw);
+        double dst_delta = gpsDistance(lat_raw, lng_raw, last_lat, last_lng);
         double alt_delta = last_alt - alt;
         double lin_dst = sqrt(pow(dst_delta, 2) + pow(alt_delta, 2));
 
@@ -286,7 +286,29 @@ void TrLOG::getData() {
           _peak_speed = max(spd, _peak_speed);
           gps_speed = spd;
 
-          if (SRV.isArmed() && !_in_flight && spd > _launch_detect_speed) {
+//          myLog.print("## DEBUG");
+//          myLog.print(", alt_delta: ");
+//          myLog.print(alt_delta);
+//          myLog.print(", dst_delta: ");
+//          myLog.print(dst_delta);
+//          myLog.print(", lin_dst: ");
+//          myLog.print(lin_dst);
+//          myLog.print(", ele: ");
+//          myLog.print(gps_elevation);
+//
+//          myLog.print(", track/last/delta: ");
+//          myLog.print(track);
+//          myLog.print("/");
+//          myLog.print(last_track);
+//          myLog.print("/");
+//          myLog.print(t_delta);
+//
+//          myLog.print(", spd: ");
+//          myLog.print(spd);
+//
+//          myLog.println();
+
+          if (SRV.isArmed() && /*!_in_flight &&*/ spd > _launch_detect_speed) {
             _in_flight = true;
             if (!_launch_detected) {
               const char* str = "## LAUNCH DETECTED";
@@ -308,7 +330,7 @@ void TrLOG::getData() {
 #endif
           }
 
-          if (_deploy_distance_offset != 0 && SRV.isArmed() && !_chute_deployed && _furthest_ground_distance >= _deploy_distance_offset) {
+          if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && _launch_detected && !_chute_deployed && _furthest_ground_distance >= _deploy_distance_offset) {
             const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
             myLog.println(str);
 #if _DEBUG_
@@ -319,7 +341,7 @@ void TrLOG::getData() {
             SRV.arm(false);
           }
 
-          if (_deploy_apogee_offset != 0 && SRV.isArmed() && !_chute_deployed && alt < (_peak_gps_altitude + _deploy_apogee_offset)) {
+          if (_deploy_apogee_offset != 0 && SRV.isArmed() && LOG.isCapturing() && _launch_detected && !_chute_deployed && alt < (_peak_gps_altitude + _deploy_apogee_offset)) {
             const char* str = "## PARACHUTE DEPLOYED (APOGEE)";
             myLog.println(str);
 #if _DEBUG_
@@ -329,10 +351,18 @@ void TrLOG::getData() {
             _reason = "GPS Apogee";
             SRV.arm(false);
           }
+
+          // Set the last track values
           last_track = track;
+          last_lat = lat_raw;
+          last_lng = lng_raw;
+          last_alt = alt;
+          
+//          myLog.println("## MOVE COMPLETE");
         }
       } else {
         last_track = track;
+        myLog.println("## TRACKING ENABLED");
       }
     }
   }
@@ -794,7 +824,7 @@ void TrLOG::stopCapture() {
 #if _DEBUG_
   if (IMU.isEnabled()) {
     Serial.print("       Peak Acceleration: ");
-    Serial.print(_peak_g / ONE_G);
+    Serial.print(_peak_acc / ONE_G);
     Serial.print (" g");
     Serial.println();
   } else {
@@ -895,7 +925,7 @@ String TrLOG::getLogSummary() {
     if (IMU.isEnabled()) {
       ret += "\n";
       ret += "Peak Acceleration: ";
-      ret += _peak_g / ONE_G;
+      ret += _peak_acc / ONE_G;
       ret += " g";
     }
     if (GPS.isEnabled()) {

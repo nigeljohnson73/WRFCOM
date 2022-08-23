@@ -19,6 +19,7 @@ static String bms_percent;
 static String bms_voltage;
 
 static String emu_temperature;
+static String emu_local_temperature;
 static String emu_pressure;
 static String emu_pressure_msl;
 static String emu_altitude;
@@ -83,6 +84,7 @@ void TrLOG::writeHeader() {
   line += comma + "bms_voltage";
 
   line += comma + "emu_temperature";
+  line += comma + "emu_local_temperature";
   line += comma + "emu_pressure";
   line += comma + "emu_pressure_msl";
   line += comma + "emu_altitude";
@@ -121,6 +123,7 @@ void TrLOG::writeData() {
   line += comma + bms_voltage;
 
   line += comma + emu_temperature;
+  line += comma + emu_local_temperature;
   line += comma + emu_pressure;
   line += comma + emu_pressure_msl;
   line += comma + emu_altitude;
@@ -157,6 +160,7 @@ void TrLOG::resetData() {
   bms_voltage = "";
 
   emu_temperature = "";
+  emu_local_temperature = "";
   emu_pressure = "";
   emu_pressure_msl = "";
   emu_altitude = "";
@@ -206,10 +210,11 @@ void TrLOG::getData() {
     if (EMU.hasTemperature()) {
       emu_temperature = EMU.getTemperature();
     }
+    emu_local_temperature = EMU.getLocalTemperature();
     if (EMU.hasPressure()) {
       emu_pressure = EMU.getPressure();
       emu_pressure_msl = EMU.getSeaLevelPressure();
-      emu_altitude = EMU.getAltitude();;
+      emu_altitude = EMU.getAltitude();
     }
   }
 

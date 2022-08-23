@@ -84,17 +84,17 @@ void TrEMU::setAltitude(double h) {
     return;
   }
   double p = getPressure();
-  double t = getTemperature();
+  double T = _local_temperature;//getTemperature();
 
   // https://keisan.casio.com/keisan/image/Convertpressure.pdf
   double c = 0.0065 * h;
-  double p0 = p * pow(1 - (c / (t + 273.15 + c)), -5.257);
-  sea_level_pressure = p0;
+  double p0 = p * pow(1 - (c / (T + 273.15 + c)), -5.257);
+  _sea_level_pressure = p0;
 
 #if _DEBUG_
   Serial.print("BMP390::setAltitude(");
   Serial.print(h);
-  Serial.print(" m): EMU at sea-level = " );
+  Serial.print(" m): Pressure at sea-level = " );
   Serial.print(p0);
   Serial.print(" hPa");
   Serial.println();
@@ -113,7 +113,15 @@ double TrEMU::getTemperature() {
 
 double TrEMU::getAltitude() {
   if (!isEnabled()) return 0.;
-  return bmp390.readAltitude(sea_level_pressure);
+  //  return bmp390.readAltitude(sea_level_pressure);
+
+  // hypsometric formula from here: https://keisan.casio.com/has10/SpecExec.cgi?id=system/2006/1224585971
+  double p0 = _sea_level_pressure;
+  double p = getPressure();
+  double T = _local_temperature;
+  double h = ((pow(p0 / p, 1.0 / 5.257) - 1) * (T + 273.15)) / 0.0065;
+
+  return h;
 }
 
 #endif // !_USE_EMU_

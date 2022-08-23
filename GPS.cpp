@@ -132,6 +132,15 @@ void TrGPS::loop() {
 
     long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL;
     _alt = double(alt) / (1000.); // mm to metres
+
+    //    // Not supported for some reason, possibly want the HNR PVT blob
+    //    //    long speed = myGNSS.packetUBXNAVPVT->callbackData->speed; // mm/s
+    //    //    _speed = double(speed) / (1000.); // mm to metres
+    //
+    //    long g_speed = myGNSS.packetUBXNAVPVT->callbackData->gSpeed; // mm/s
+    //    _g_speed = double(g_speed) / (1000.); // mm to metres
+
+    // Accelerations and stuff - Line 905: https://github.com/sparkfun/SparkFun_Ublox_Arduino_Library/blob/master/src/SparkFun_Ublox_Arduino_Library.h
   }
 
   int t = myGNSS.getSIV();
@@ -199,6 +208,16 @@ double TrGPS::getAltitude() {
   if (!isEnabled() || !isConnected()) return 0.;
   return _alt;
 }
+
+//double TrGPS::getLinearSpeed() {
+//  if (!isEnabled() || !isConnected()) return 0.;
+//  return _speed;
+//}
+//
+//double TrGPS::getGroundSpeed() {
+//  if (!isEnabled() || !isConnected()) return 0.;
+//  return _g_speed;
+//}
 
 int TrGPS::getSatsInView() {
   if (!isEnabled() || !isConnected()) return 0;

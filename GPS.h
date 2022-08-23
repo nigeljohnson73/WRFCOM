@@ -13,6 +13,9 @@ class TrGPS {
     double getLatitude(); // Degrees Noth
     double getLongitude(); // Degrees East
     double getAltitude(); // meters above MSL
+    //    double getLinearSpeed(); // metres per second
+    //    double getGroundSpeed(); // metres per second
+
     int getSatsInView();
 
     int getRefreshRate() {
@@ -36,6 +39,8 @@ class TrGPS {
     double _lat = 0;
     double _lng = 0;
     double _alt = 0;
+    //    double _speed = 0;
+    //    double _g_speed = 0;
     int _siv; // Sats in view
     String _timestamp = "";
     int _refresh_hz;

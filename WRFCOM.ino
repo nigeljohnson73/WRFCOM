@@ -29,7 +29,8 @@ String espChipId() {
 
 void setup() {
   Wire.begin(); // Initialise the IIC bus
-  Wire.setClock(400000); //Go super fast
+//  Wire.setClock(400000); //Go super fast
+  Wire.setClock(100000); //Go less fast for GPS stability
 
   Serial.begin(115200);
   delay(5000);

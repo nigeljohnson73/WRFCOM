@@ -21,6 +21,14 @@ class TrLOG {
       return _enabled;
     };
 
+    double getParachuteDeployApogeeOffset() {return _deploy_apogee_offset;};
+    double getParachuteDeployDistanceOffset() {return _deploy_distance_offset;};
+    double getLaunchDetectSpeed() {return _launch_detect_speed;};
+
+    void setParachuteDeployApogeeOffset(double m) {_deploy_apogee_offset = m;};
+    void setParachuteDeployDistanceOffset(double m) {_deploy_distance_offset = m;};
+    void setLaunchDetectSpeed(double mps) {_launch_detect_speed = mps;};
+
   protected:
     void resetData();
     void getData();
@@ -44,6 +52,10 @@ class TrLOG {
     String _log_ts;
     unsigned long _last_sync;
     const unsigned long _sync_interval = 0;// 5000;
+
+	double _deploy_apogee_offset = -2.0;
+	double _deploy_distance_offset = 65.0;
+	double _launch_detect_speed = 5;
 
     //    String _reason;
     //    bool _chute_deployed;

@@ -110,21 +110,6 @@
 #define _USE_SERVO_ true
 #endif
 
-// Once the peak height has been reached, then at this point, throw out the parachute. Set tp zero to disable.
-#ifndef PARACHUTE_DEPLOY_APOGEE_OFFSET
-#define PARACHUTE_DEPLOY_APOGEE_OFFSET -2
-#endif
-
-// When we are this distance from the launch point, throw out the parachute. Set tp zero to disable.
-#ifndef PARACHUTE_DEPLOY_DISTANCE_OFFSET
-#define PARACHUTE_DEPLOY_DISTANCE_OFFSET 65
-#endif
-
-// If we are not logging but should be - at least to enable parachute deployment if we forget. Set tp zero to disable.
-#ifndef LAUNCH_DETECT_SPEED
-#define LAUNCH_DETECT_SPEED 5
-#endif
-
 // How long should we do a log before auto shutting it off
 #ifndef MAX_LOG_DURATION_SECONDS
 #define MAX_LOG_DURATION_SECONDS (5*60)

@@ -286,7 +286,7 @@ void TrLOG::getData() {
           _peak_speed = max(spd, _peak_speed);
           gps_speed = spd;
 
-          if (SRV.isArmed() && !_in_flight && spd > LAUNCH_DETECT_SPEED) {
+          if (SRV.isArmed() && !_in_flight && spd > _launch_detect_speed) {
             _in_flight = true;
             if (!_launch_detected) {
               const char* str = "## LAUNCH DETECTED";
@@ -308,7 +308,7 @@ void TrLOG::getData() {
 #endif
           }
 
-          if (PARACHUTE_DEPLOY_DISTANCE_OFFSET != 0 && SRV.isArmed() && !_chute_deployed && _furthest_ground_distance >= PARACHUTE_DEPLOY_DISTANCE_OFFSET) {
+          if (_deploy_distance_offset != 0 && SRV.isArmed() && !_chute_deployed && _furthest_ground_distance >= _deploy_distance_offset) {
             const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
             myLog.println(str);
 #if _DEBUG_
@@ -319,7 +319,7 @@ void TrLOG::getData() {
             SRV.arm(false);
           }
 
-          if (PARACHUTE_DEPLOY_APOGEE_OFFSET != 0 && SRV.isArmed() && !_chute_deployed && alt < (_peak_gps_altitude + PARACHUTE_DEPLOY_APOGEE_OFFSET)) {
+          if (_deploy_apogee_offset != 0 && SRV.isArmed() && !_chute_deployed && alt < (_peak_gps_altitude + _deploy_apogee_offset)) {
             const char* str = "## PARACHUTE DEPLOYED (APOGEE)";
             myLog.println(str);
 #if _DEBUG_
@@ -397,7 +397,7 @@ void TrLOG::syncLog() {
   // Don't snyc if we are moving fast enough to be 'in-flight'
   // Don't use _in_flight because that stops once the parachute is deployed
   // HANDLED ELSEWHERE FOR NOW!!!!
-  //  if (speed > LAUNCH_DETECT_SPEED) {
+  //  if (speed > _launch_detect_speed) {
   //    Serial.print("LOG::sync() - Skipping during flight");
   //    return;
   //  }
@@ -958,7 +958,7 @@ String TrLOG::getLogSummary() {
 //    }
 //    last_track = track;
 //
-//    if (SRV.isArmed() && !_in_flight && speed > LAUNCH_DETECT_SPEED) {
+//    if (SRV.isArmed() && !_in_flight && speed > _launch_detect_speed) {
 //      _in_flight = true;
 //    } else {
 //      _in_flight = false;

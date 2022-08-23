@@ -1,3 +1,16 @@
+/***************
+ * TODO: 
+ * Add handler to set the following parameters
+ *     LOG.setParachuteDeployApogeeOffset(double m);
+ *     LOG.setParachuteDeployDistanceOffset(double m);
+ *     LOG.setLaunchDetectSpeed(double mps);
+
+ *     EMU.setLocalSeaLevelPressure(double hpa);
+ *     EMU.setLocalTemperature(double c);
+
+
+ */
+
 #include "WEB.h"
 TrWEB WEB;
 TrWEB::TrWEB() {};

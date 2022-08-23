@@ -11,7 +11,7 @@ class TrLOG {
     void loop();
 
     String getLogSummary();
-    void detectLaunch();
+    //    void detectLaunch();
 
     void capture(bool tf); // start or stop the logging
     bool isCapturing() {
@@ -22,7 +22,12 @@ class TrLOG {
     };
 
   protected:
-    void resetCapture();
+    void resetData();
+    void getData();
+    void writeHeader();
+    void writeData();
+
+    //    void resetCapture();
     void startCapture();
     void stopCapture();
     void syncLog();
@@ -33,27 +38,27 @@ class TrLOG {
     bool _enabled = false;
     bool _logging = false;
 
-    String _reason;
-    bool _chute_deployed;
-    bool _launch_detect;
     //    String _log;
     String _log_fn;
     String _log_dir;
     String _log_ts;
     unsigned long _last_sync;
-    const unsigned long _sync_interval = 5000;
+    const unsigned long _sync_interval = 0;// 5000;
 
-    double _peak_speed;
-    double _peak_g;
-    double _peak_emu_altitude;
-    double _peak_gps_altitude;
-    double _start_latitude;
-    double _start_longitude;
-    double _ground_distance;
-    double _furthest_ground_distance;
-    double _final_latitude;
-    double _final_longitude;
-    double _final_ground_distance;
+    //    String _reason;
+    //    bool _chute_deployed;
+    //    bool _in_flight;
+    //    double _peak_speed;
+    //    double _peak_g;
+    //    double _peak_emu_altitude;
+    //    double _peak_gps_altitude;
+    //    double _start_latitude;
+    //    double _start_longitude;
+    //    double _ground_distance;
+    //    double _furthest_ground_distance;
+    //    double _final_latitude;
+    //    double _final_longitude;
+    //    double _final_ground_distance;
 };
 
 extern TrLOG LOG;

@@ -50,13 +50,18 @@ static bool _chute_deployed;
 static String _reason;
 
 static bool _launch_detected;
+static bool _landing_detected;
 static double _peak_speed;
 static double _peak_acc;
 static double _peak_gps_altitude;
+static double _launch_altitude;
+static double _launch_latitude;
+static double _launch_longitude;
+static double _max_height;
 static double lat_raw;
 static double lng_raw;
-static double _start_latitude;
-static double _start_longitude;
+//static double _start_latitude;
+//static double _start_longitude;
 static double _final_latitude;
 static double _final_longitude;
 static double _final_ground_distance;
@@ -245,14 +250,19 @@ void TrLOG::resetData() {
 
   _in_flight = false;
   _launch_detected = false;
+  _landing_detected = false;
   _chute_deployed = false;
   _reason = "";
 
   _peak_speed = DUFF_VALUE;
   _peak_acc = DUFF_VALUE;
   _peak_gps_altitude = DUFF_VALUE;
-  _start_latitude = DUFF_VALUE;
-  _start_longitude = DUFF_VALUE;
+  //  _start_latitude = DUFF_VALUE;
+  //  _start_longitude = DUFF_VALUE;
+  _launch_latitude = DUFF_VALUE;
+  _launch_longitude = DUFF_VALUE;
+  _launch_altitude = DUFF_VALUE;
+  _max_height = DUFF_VALUE;
   _final_latitude = DUFF_VALUE;
   _final_longitude = DUFF_VALUE;
   _final_ground_distance = DUFF_VALUE;
@@ -317,6 +327,7 @@ void TrLOG::getData() {
     gps_longitude = "";
     gps_altitude = "";
     gps_speed = "";
+    gps_bearing = "";
     gps_elevation = "";
     gps_distance = "";
 
@@ -330,16 +341,13 @@ void TrLOG::getData() {
       lat_raw = GPS.getLatitude();
       lng_raw = GPS.getLongitude();
       double alt = GPS.getAltitude();
-      double dst = gpsDistance(_start_latitude, _start_longitude, lat_raw, lng_raw);
-      _furthest_ground_distance = max(dst, _furthest_ground_distance);
-      _peak_gps_altitude = max(alt, _peak_gps_altitude);
-
-
       gps_latitude = String(lat_raw, 7);
       gps_longitude = String(lng_raw, 7);
       gps_altitude = alt;
-      gps_distance = dst;
 
+      double spd = DUFF_VALUE;
+
+      // Calculate all the detlas from the last cycle
       if (last_track > 0) {
         // If there is a last time
         double dst_delta = gpsDistance(last_lat, last_lng, lat_raw, lng_raw);
@@ -349,11 +357,10 @@ void TrLOG::getData() {
         if (lin_dst > 0.001) {
           // We have moved since the last recorded value
           gps_elevation = atan2(alt_delta, dst_delta) * (180 / PI); // radians from atan2()
-
           gps_bearing = gpsBearing(last_lat, last_lng, lat_raw, lng_raw);
 
           double t_delta = ((double)(track - last_track)) / 1000.0;
-          double spd = lin_dst / t_delta; // m/s
+          spd = lin_dst / t_delta; // m/s
           _peak_speed = max(spd, _peak_speed);
           gps_speed = spd;
 
@@ -377,17 +384,7 @@ void TrLOG::getData() {
 #if _DEBUG_
             Serial.println(str);
 #endif
-          }
-
-          if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && _launch_detected && !_chute_deployed && _furthest_ground_distance >= _deploy_distance_offset) {
-            const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
-            myLog.println(str);
-#if _DEBUG_
-            Serial.println(str);
-#endif
-            _chute_deployed = true;
-            _reason = "GPS Distance";
-            SRV.arm(false);
+            startCapture();
           }
 
           if (_deploy_apogee_offset != 0 && SRV.isArmed() && LOG.isCapturing() && _launch_detected && !_chute_deployed && alt < (_peak_gps_altitude + _deploy_apogee_offset)) {
@@ -413,6 +410,42 @@ void TrLOG::getData() {
         last_track = track;
         myLog.println("## TRACKING ENABLED");
       }
+
+      // If we havn't taken off yet, keep updating these until we do
+      if (!_launch_detected) {
+        _launch_latitude = lat_raw;
+        _launch_longitude = lng_raw;
+        _launch_altitude = alt;
+      } else {
+        _max_height = max(alt - _launch_altitude, _max_height);
+        // If we haven't landed yet, update the distance
+        // TODO: determine whether we have landed
+        if (_launch_detected && !_landing_detected && spd > DUFF_VALUE && spd < 0.5) {
+          const char* str = "## POSSIBLE LANDIND DETECTED";
+          myLog.println(str);
+#if _DEBUG_
+          Serial.println(str);
+#endif
+          _landing_detected = true;
+        }
+//        if (_launch_detected && !_landing_detected) {
+        if (_launch_detected) {
+          double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
+          _furthest_ground_distance = max(dst, _furthest_ground_distance);
+          gps_distance = dst;
+          if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && dst >= _deploy_distance_offset) {
+            const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
+            myLog.println(str);
+#if _DEBUG_
+            Serial.println(str);
+#endif
+            _chute_deployed = true;
+            _reason = "GPS Distance";
+            SRV.arm(false);
+          }
+        }
+      }
+
     }
   }
 }
@@ -574,9 +607,9 @@ void TrLOG::startCapture() {
   String fn = "";
   String header = "";
   if (GPS.isEnabled() && GPS.isConnected()) {
-    _start_latitude = lat_raw; //GPS.getLatitude();
-    _start_longitude = lng_raw; //GPS.getLongitude();
-
+    //    _start_latitude = lat_raw; //GPS.getLatitude();
+    //    _start_longitude = lng_raw; //GPS.getLongitude();
+    //
     fn = GPS.getTimestamp();
   } else if (RTC.isEnabled()) {
     fn = RTC.getTimestamp();
@@ -698,8 +731,9 @@ void TrLOG::stopCapture() {
   if (GPS.isEnabled() && GPS.isConnected()) {
     _final_latitude = lat_raw; //GPS.getLatitude();
     _final_longitude = lng_raw; //GPS.getLongitude();
+    // TODO: start broadcasting this
     //_final_ground_distance = max(gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude), _furthest_ground_distance);
-    _final_ground_distance = gpsDistance(_start_latitude, _start_longitude, _final_latitude, _final_longitude);
+    //    _final_ground_distance = gpsDistance(_start_latitude, _start_longitude, _final_latitude, _final_longitude);
   }
 
 #if _DEBUG_
@@ -829,19 +863,31 @@ String TrLOG::getLogSummary() {
       ret += _peak_acc / ONE_G;
       ret += " g";
     }
+    if (_max_height > DUFF_VALUE) {
+      ret += "\n";
+      ret += "Apogee: ";
+      ret += _max_height;
+      ret += " m";
+    }
+    if (gps_distance != "") {
+      ret += "\n";
+      ret += "Flight distance: ";
+      ret += gps_distance;
+      ret += " m";
+    }
     if (GPS.isEnabled()) {
-      if (_peak_gps_altitude > DUFF_VALUE) {
-        ret += "\n";
-        ret += "Peak Altitude: ";
-        ret += _peak_gps_altitude;
-        ret += " m";
-      }
-      if (_final_ground_distance > DUFF_VALUE) {
-        ret += "\n";
-        ret += "Final distance: ";
-        ret += _final_ground_distance;
-        ret += " m";
-      }
+      //      if (_peak_gps_altitude > DUFF_VALUE) {
+      //        ret += "\n";
+      //        ret += "Peak Altitude: ";
+      //        ret += _peak_gps_altitude;
+      //        ret += " m";
+      //      }
+      //      if (_final_ground_distance > DUFF_VALUE) {
+      //        ret += "\n";
+      //        ret += "Final distance: ";
+      //        ret += _final_ground_distance;
+      //        ret += " m";
+      //      }
       if (_peak_speed > DUFF_VALUE) {
         ret += "\n";
         ret += "Peak Speed: ";
@@ -949,85 +995,85 @@ TrLOG::TrLOG() {};
 //  }
 //}
 //void TrLOG::tidy() {
-  //  //myLog.searchDirectory("*"); //Give me everything
-  //  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
-  //  //myLog.searchDirectory("*/"); //Get just directories
-  //  //myLog.searchDirectory("*.*"); //Get just files
-  //  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
-  //  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
-  //
-  //  Serial.print("LOG::tidy() - Scanning root folder for empty files");
-  //  Serial.println();
-  //  myLog.changeDirectory("..");
-  //
-  //  String dir = "";
-  //  myLog.searchDirectory("*.*");
-  //  String fileName = myLog.getNextDirectoryItem();
-  //  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
-  //  {
-  //    //Get size of file
-  ////    long sizeOfFile = myLog.size(fileName);
-  //
-  //
-  //      Serial.print("LOG::tidy() - file '");
-  //      Serial.print(dir);
-  //      Serial.print("/");
-  //      Serial.print(fileName);
-  //      Serial.print("'");
-  //      Serial.println();
-  //
-  //
-  ////    if (sizeOfFile == -1) {
-  ////      Serial.print("LOG::tidy() - file '");
-  ////      Serial.print(dir);
-  ////      Serial.print("/");
-  ////      Serial.print(fileName);
-  ////      Serial.print("' cannot be found???");
-  ////      Serial.println();
-  ////    } else {
-  ////      Serial.print("LOG::tidy() - file '");
-  ////      Serial.print(dir);
-  ////      Serial.print("/");
-  ////      Serial.print(fileName);
-  ////      Serial.print("' is ");
-  ////      Serial.print(double(sizeOfFile) / (1024.), 3);
-  ////      Serial.print (" KB");
-  ////      if (sizeOfFile == 0) {
-  ////        Serial.print (" - deleting");
-  ////
-  ////      }
-  ////      Serial.println();
-  ////    }
-  //
-  ////    fileName = myLog.getNextDirectoryItem();
-  ////    Serial.print("LOG::tidy() - next file is '");
-  ////    Serial.print(fileName);
-  ////    Serial.print ("'");
-  ////    Serial.println();
-  //
-  //
-  //
-  //
-  //    Serial.println(fileName);
-  //    fileName = myLog.getNextDirectoryItem();
-  //  }
-  //
-  ////  deleteEmptyFiles("");
-  //
-  //  //  myLog.searchDirectory("*.TXT");
-  //  //  deleteEmpty("");
-  //
-  ////  if (_log_dir.length() > 0) {
-  ////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
-  ////    Serial.println();
-  ////    myLog.changeDirectory("..");
-  ////    myLog.changeDirectory(_log_dir);
-  ////
-  ////    myLog.searchDirectory("*.*");
-  ////    deleteEmptyFiles(String("/") + _log_dir);
-  ////
-  ////    //    myLog.searchDirectory("*.csv");
-  ////    //    deleteEmpty(String("/") + _log_dir);
-  ////  }
-  //  Serial.print("LOG::tidy() - process complete");
+//  //myLog.searchDirectory("*"); //Give me everything
+//  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
+//  //myLog.searchDirectory("*/"); //Get just directories
+//  //myLog.searchDirectory("*.*"); //Get just files
+//  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
+//  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
+//
+//  Serial.print("LOG::tidy() - Scanning root folder for empty files");
+//  Serial.println();
+//  myLog.changeDirectory("..");
+//
+//  String dir = "";
+//  myLog.searchDirectory("*.*");
+//  String fileName = myLog.getNextDirectoryItem();
+//  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  {
+//    //Get size of file
+////    long sizeOfFile = myLog.size(fileName);
+//
+//
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("'");
+//      Serial.println();
+//
+//
+////    if (sizeOfFile == -1) {
+////      Serial.print("LOG::tidy() - file '");
+////      Serial.print(dir);
+////      Serial.print("/");
+////      Serial.print(fileName);
+////      Serial.print("' cannot be found???");
+////      Serial.println();
+////    } else {
+////      Serial.print("LOG::tidy() - file '");
+////      Serial.print(dir);
+////      Serial.print("/");
+////      Serial.print(fileName);
+////      Serial.print("' is ");
+////      Serial.print(double(sizeOfFile) / (1024.), 3);
+////      Serial.print (" KB");
+////      if (sizeOfFile == 0) {
+////        Serial.print (" - deleting");
+////
+////      }
+////      Serial.println();
+////    }
+//
+////    fileName = myLog.getNextDirectoryItem();
+////    Serial.print("LOG::tidy() - next file is '");
+////    Serial.print(fileName);
+////    Serial.print ("'");
+////    Serial.println();
+//
+//
+//
+//
+//    Serial.println(fileName);
+//    fileName = myLog.getNextDirectoryItem();
+//  }
+//
+////  deleteEmptyFiles("");
+//
+//  //  myLog.searchDirectory("*.TXT");
+//  //  deleteEmpty("");
+//
+////  if (_log_dir.length() > 0) {
+////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
+////    Serial.println();
+////    myLog.changeDirectory("..");
+////    myLog.changeDirectory(_log_dir);
+////
+////    myLog.searchDirectory("*.*");
+////    deleteEmptyFiles(String("/") + _log_dir);
+////
+////    //    myLog.searchDirectory("*.csv");
+////    //    deleteEmpty(String("/") + _log_dir);
+////  }
+//  Serial.print("LOG::tidy() - process complete");
 //}

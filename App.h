@@ -1,3 +1,6 @@
+// Figlet: https://www.askapache.com/online-tools/figlet-ascii/
+// font: nancyj
+
 #ifndef _APP_h
 #define _APP_h
 

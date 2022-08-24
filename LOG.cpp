@@ -61,6 +61,17 @@ static double _final_longitude;
 static double _final_ground_distance;
 static double _furthest_ground_distance;
 
+/************************************************************************************************************************************************************
+                             888888ba  oo            dP
+                             88    `8b               88
+  .d8888b. 88d888b. .d8888b. 88     88 dP .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b.
+  88'  `88 88'  `88 Y8ooooo. 88     88 88 Y8ooooo.   88   88'  `88 88'  `88 88'  `"" 88ooood8
+  88.  .88 88.  .88       88 88    .8P 88       88   88   88.  .88 88    88 88.  ... 88.  ...
+  `8888P88 88Y888P' `88888P' 8888888P  dP `88888P'   dP   `88888P8 dP    dP `88888P' `88888P'
+       .88 88
+   d8888P  dP
+
+*/
 double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   double haversine;
   double temp;
@@ -78,6 +89,15 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   return dist;
 }
 
+/************************************************************************************************************************************************************
+                      oo   dP            dP     dP                          dP
+                           88            88     88                          88
+  dP  dP  dP 88d888b. dP d8888P .d8888b. 88aaaaa88a .d8888b. .d8888b. .d888b88 .d8888b. 88d888b.
+  88  88  88 88'  `88 88   88   88ooood8 88     88  88ooood8 88'  `88 88'  `88 88ooood8 88'  `88
+  88.88b.88' 88       88   88   88.  ... 88     88  88.  ... 88.  .88 88.  .88 88.  ... 88
+  8888P Y8P  dP       dP   dP   `88888P' dP     dP  `88888P' `88888P8 `88888P8 `88888P' dP
+
+*/
 void TrLOG::writeHeader() {
   String line = GPS.getTimestamp() + "\nmillis";
   line += comma + "bms_percent";
@@ -115,6 +135,14 @@ void TrLOG::writeHeader() {
   myLog.println(line);
 }
 
+/************************************************************************************************************************************************************
+                      oo   dP            888888ba             dP
+                           88            88    `8b            88
+  dP  dP  dP 88d888b. dP d8888P .d8888b. 88     88 .d8888b. d8888P .d8888b.
+  88  88  88 88'  `88 88   88   88ooood8 88     88 88'  `88   88   88'  `88
+  88.88b.88' 88       88   88   88.  ... 88    .8P 88.  .88   88   88.  .88
+  8888P Y8P  dP       dP   dP   `88888P' 8888888P  `88888P8   dP   `88888P8
+*/
 void TrLOG::writeData() {
   String line = "";
   line += String(millis() - logging_started);
@@ -155,6 +183,14 @@ void TrLOG::writeData() {
   myLog.println(line);
 }
 
+/************************************************************************************************************************************************************
+                                        dP   888888ba             dP
+                                        88   88    `8b            88
+  88d888b. .d8888b. .d8888b. .d8888b. d8888P 88     88 .d8888b. d8888P .d8888b.
+  88'  `88 88ooood8 Y8ooooo. 88ooood8   88   88     88 88'  `88   88   88'  `88
+  88       88.  ...       88 88.  ...   88   88    .8P 88.  .88   88   88.  .88
+  dP       `88888P' `88888P' `88888P'   dP   8888888P  `88888P8   dP   `88888P8
+*/
 void TrLOG::resetData() {
   bms_percent = "";
   bms_voltage = "";
@@ -200,6 +236,16 @@ void TrLOG::resetData() {
   _furthest_ground_distance = DUFF_VALUE;
 }
 
+/************************************************************************************************************************************************************
+                      dP   888888ba             dP
+                      88   88    `8b            88
+  .d8888b. .d8888b. d8888P 88     88 .d8888b. d8888P .d8888b.
+  88'  `88 88ooood8   88   88     88 88'  `88   88   88'  `88
+  88.  .88 88.  ...   88   88    .8P 88.  .88   88   88.  .88
+  `8888P88 `88888P'   dP   8888888P  `88888P8   dP   `88888P8
+      .88
+   d8888P
+*/
 void TrLOG::getData() {
   if (BMS.isEnabled()) {
     bms_percent = BMS.getCapacityPercent();
@@ -286,28 +332,6 @@ void TrLOG::getData() {
           _peak_speed = max(spd, _peak_speed);
           gps_speed = spd;
 
-//          myLog.print("## DEBUG");
-//          myLog.print(", alt_delta: ");
-//          myLog.print(alt_delta);
-//          myLog.print(", dst_delta: ");
-//          myLog.print(dst_delta);
-//          myLog.print(", lin_dst: ");
-//          myLog.print(lin_dst);
-//          myLog.print(", ele: ");
-//          myLog.print(gps_elevation);
-//
-//          myLog.print(", track/last/delta: ");
-//          myLog.print(track);
-//          myLog.print("/");
-//          myLog.print(last_track);
-//          myLog.print("/");
-//          myLog.print(t_delta);
-//
-//          myLog.print(", spd: ");
-//          myLog.print(spd);
-//
-//          myLog.println();
-
           if (SRV.isArmed() && /*!_in_flight &&*/ spd > _launch_detect_speed) {
             _in_flight = true;
             if (!_launch_detected) {
@@ -357,8 +381,8 @@ void TrLOG::getData() {
           last_lat = lat_raw;
           last_lng = lng_raw;
           last_alt = alt;
-          
-//          myLog.println("## MOVE COMPLETE");
+
+          //          myLog.println("## MOVE COMPLETE");
         }
       } else {
         last_track = track;
@@ -368,59 +392,9 @@ void TrLOG::getData() {
   }
 }
 
+/************************************************************************************************************************************************************
 
-TrLOG::TrLOG() {};
-
-void TrLOG::begin() {
-
-  //  Wire.begin();
-  if (!myLog.begin()) {
-#if _DEBUG_
-    //Serial.println("LOG disconnected (OpenLog begin() failure)");
-    Serial.println("LOG initialised: disconnected");
-#endif
-    return;
-  }
-  String ver = myLog.getVersion();
-  if (ver == "255.255") {
-#if _DEBUG_
-    //Serial.println("LOG disconnected (OpenLog getVersion() failure)");
-    Serial.println("LOG initialised: disconnected");
-#endif
-    return;
-  }
-
-#if _DEBUG_
-  Serial.print("LOG initialised: version ");
-  Serial.print(myLog.getVersion());
-  Serial.println();
-#endif
-  _enabled = true;
-}
-
-void TrLOG::loop() {
-  if (!isEnabled()) return;
-  getData();
-
-  if (!isCapturing()) return;
-
-  if ((millis() - logging_started) > (1000 * MAX_LOG_DURATION_SECONDS)) {
-#if _XDEBUG_
-    Serial.print("TrLOG::loop(): maximum log period exceeded");
-    Serial.println();
-#endif
-    capture(false);
-    return;
-  }
-
-  if ((_sync_interval) > 0 && ((millis() - _last_sync) >= _sync_interval)) {
-    syncLog();
-  }
-
-  writeData();
-
-}
-
+*/
 void TrLOG::syncLog() {
 
   _last_sync = millis();
@@ -513,6 +487,78 @@ void TrLOG::syncLog() {
 //
 //    fileName = myLog.getNextDirectoryItem();
 //  }
+
+/************************************************************************************************************************************************************
+  dP                         oo
+  88
+  88d888b. .d8888b. .d8888b. dP 88d888b.
+  88'  `88 88ooood8 88'  `88 88 88'  `88
+  88.  .88 88.  ... 88.  .88 88 88    88
+  88Y8888' `88888P' `8888P88 dP dP    dP
+                         .88
+                     d8888P
+
+*/
+void TrLOG::begin() {
+
+  //  Wire.begin();
+  if (!myLog.begin()) {
+#if _DEBUG_
+    //Serial.println("LOG disconnected (OpenLog begin() failure)");
+    Serial.println("LOG initialised: disconnected");
+#endif
+    return;
+  }
+  String ver = myLog.getVersion();
+  if (ver == "255.255") {
+#if _DEBUG_
+    //Serial.println("LOG disconnected (OpenLog getVersion() failure)");
+    Serial.println("LOG initialised: disconnected");
+#endif
+    return;
+  }
+
+#if _DEBUG_
+  Serial.print("LOG initialised: version ");
+  Serial.print(myLog.getVersion());
+  Serial.println();
+#endif
+  _enabled = true;
+}
+
+/************************************************************************************************************************************************************
+  dP
+  88
+  88 .d8888b. .d8888b. 88d888b.
+  88 88'  `88 88'  `88 88'  `88
+  88 88.  .88 88.  .88 88.  .88
+  dP `88888P' `88888P' 88Y888P'
+                       88
+                       dP
+*/
+void TrLOG::loop() {
+  if (!isEnabled()) return;
+
+  getData();
+
+  if (!isCapturing()) return;
+
+  if ((millis() - logging_started) > (1000 * MAX_LOG_DURATION_SECONDS)) {
+#if _XDEBUG_
+    Serial.print("TrLOG::loop(): maximum log period exceeded");
+    Serial.println();
+#endif
+    capture(false);
+    return;
+  }
+
+  if ((_sync_interval) > 0 && ((millis() - _last_sync) >= _sync_interval)) {
+    syncLog();
+  }
+  writeData();
+}
+
+
 //}
 //
 //void deleteEmptyFiles(String dir) {
@@ -634,33 +680,16 @@ void TrLOG::tidy() {
   //  Serial.print("LOG::tidy() - process complete");
 }
 
-//void TrLOG::resetCapture() {
-//  _reason = "";
-//  _chute_deployed = false;
-//  _in_flight = false;
-//  _peak_g = 0;
-//  _peak_emu_altitude = -99999;
-//  _peak_gps_altitude = -99999;
-//  _peak_speed = 0;
-//  _start_latitude = 0;
-//  _start_longitude = 0;
-//  _final_latitude = 0;
-//  _final_longitude = 0;
-//  _final_ground_distance = 0;
-//  _furthest_ground_distance = 0;
-//
-//  if (GPS.isEnabled() && GPS.isConnected()) {
-//    if (RTC.isEnabled()) {
-//      // Set RTC time from GPS;
-//      RTC.setTimestamp(GPS.getTimestamp());
-//    }
-//    if (EMU.isEnabled()) {
-//      // Tell the EMU what the amtitude is, so it can calculate what it needs to
-//      EMU.setAltitude(GPS.getAltitude());
-//    }
-//  }
-//}
-
+/************************************************************************************************************************************************************
+             dP                       dP    a88888b.                     dP
+             88                       88   d8'   `88                     88
+  .d8888b. d8888P .d8888b. 88d888b. d8888P 88        .d8888b. 88d888b. d8888P dP    dP 88d888b. .d8888b.
+  Y8ooooo.   88   88'  `88 88'  `88   88   88        88'  `88 88'  `88   88   88    88 88'  `88 88ooood8
+        88   88   88.  .88 88         88   Y8.   .88 88.  .88 88.  .88   88   88.  .88 88       88.  ...
+  `88888P'   dP   `88888P8 dP         dP    Y88888P' `88888P8 88Y888P'   dP   `88888P' dP       `88888P'
+                                                              88
+                                                              dP
+*/
 void TrLOG::startCapture() {
   if (GPS.isEnabled() && GPS.isConnected()) {
     if (RTC.isEnabled()) {
@@ -673,7 +702,6 @@ void TrLOG::startCapture() {
     }
   }
   resetData();
-  //  resetCapture();
 
   // get GPS, RTC time or network time in that order
   String fn = "";
@@ -712,19 +740,6 @@ void TrLOG::startCapture() {
   fn += ".csv";
   _log_fn = fn;
 
-  //  Serial.print("LOG::startCapture() - calculated file name: '");
-  //  Serial.print((_log_dir.length() > 0) ? "/" : "");
-  //  Serial.print(_log_dir);
-  //  Serial.print("/");
-  //  Serial.print(_log_fn);
-  //  Serial.print("'");
-  //  Serial.println();
-  //
-  //  header += F("millis, BAT Pcnt, BAT Volts, EMU Temp, EMU MSL hPa, EMU hPa, EMU Altitude, IMU Temp, IMU AccX, IMU AccY, IMU AccZ, IMU gMag, IMU GyroX, IMU GyroY, IMU GyroZ, IMU MagX, IMU MagY, IMU MagZ, GPS Sats, GPS Lat, GPS Lng, GPS Alt, Speed, Elevation, GPS Dist, Launch, Chute, Reason");
-  //_log = header;
-
-  //  Serial.print("LOG::startCapture() - Moving to the root directory");
-  //  Serial.println();
   myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails, cuz we are in the root in that case)
   myLog.makeDirectory(_log_dir);
   myLog.changeDirectory(_log_dir);
@@ -750,17 +765,6 @@ void TrLOG::startCapture() {
 
   _last_sync = millis();
   writeHeader();
-  //  if (!myLog.println(header)) {
-  //#if _DEBUG_
-  //    Serial.print("LOG::startCapture() failed to write header line");
-  //    Serial.println();
-  //#if _XDEBUG_
-  //  } else {
-  //    Serial.print("LOG::startCapture() - header line written");
-  //    Serial.println();
-  //#endif
-  //#endif
-  //  }
 
   logging_started = millis();
 #if _DEBUG && _XDEBUG_
@@ -773,6 +777,16 @@ void TrLOG::startCapture() {
   _logging = true;
 }
 
+/************************************************************************************************************************************************************
+             dP                      a88888b.                     dP
+             88                     d8'   `88                     88
+  .d8888b. d8888P .d8888b. 88d888b. 88        .d8888b. 88d888b. d8888P dP    dP 88d888b. .d8888b.
+  Y8ooooo.   88   88'  `88 88'  `88 88        88'  `88 88'  `88   88   88    88 88'  `88 88ooood8
+        88   88   88.  .88 88.  .88 Y8.   .88 88.  .88 88.  .88   88   88.  .88 88       88.  ...
+  `88888P'   dP   `88888P' 88Y888P'  Y88888P' `88888P8 88Y888P'   dP   `88888P' dP       `88888P'
+                           88                          88
+                           dP                          dP
+*/
 void TrLOG::stopCapture() {
   _logging = false;
   myLog.println("## END OF LOG");
@@ -869,6 +883,16 @@ void TrLOG::stopCapture() {
 #endif
 }
 
+/************************************************************************************************************************************************************
+                               dP
+                               88
+  .d8888b. .d8888b. 88d888b. d8888P dP    dP 88d888b. .d8888b.
+  88'  `"" 88'  `88 88'  `88   88   88    88 88'  `88 88ooood8
+  88.  ... 88.  .88 88.  .88   88   88.  .88 88       88.  ...
+  `88888P' `88888P8 88Y888P'   dP   `88888P' dP       `88888P'
+                    88
+                    dP
+*/
 void TrLOG::capture(bool tf) {
   if (!isEnabled()) return;
 
@@ -896,6 +920,16 @@ void TrLOG::capture(bool tf) {
   }
 }
 
+/************************************************************************************************************************************************************
+                      dP   dP                          .d88888b
+                      88   88                          88.    "'
+  .d8888b. .d8888b. d8888P 88        .d8888b. .d8888b. `Y88888b. dP    dP 88d8b.d8b. 88d8b.d8b. .d8888b. 88d888b. dP    dP
+  88'  `88 88ooood8   88   88        88'  `88 88'  `88       `8b 88    88 88'`88'`88 88'`88'`88 88'  `88 88'  `88 88    88
+  88.  .88 88.  ...   88   88        88.  .88 88.  .88 d8'   .8P 88.  .88 88  88  88 88  88  88 88.  .88 88       88.  .88
+  `8888P88 `88888P'   dP   88888888P `88888P' `8888P88  Y88888P  `88888P' dP  dP  dP dP  dP  dP `88888P8 dP       `8888P88
+       .88                                         .88                                                                 .88
+    d8888P                                      d8888P                                                              d8888P
+*/
 String TrLOG::getLogSummary() {
   if (!isCapturing() && logging_started > 0) {
     String ret = "";
@@ -956,65 +990,12 @@ String TrLOG::getLogSummary() {
   return "";
 }
 
-//void TrLOG::detectLaunch() {
-//  if (GPS.isEnabled() && GPS.isConnected()) {
-//    static unsigned long last_out = 0;
-//    static double dist_delta = 0;
-//    static unsigned long last_track = 0;
-//
-//    unsigned long track = millis();
-//    double frame_len = ((double)(track - last_track)) / 1000.;
-//
-//    static double last_lat = 0;
-//    static double last_lng = 0;
-//    static double last_alt = 0;
-//
-//    lat = GPS.getLatitude();
-//    lng = GPS.getLongitude();
-//    alt = GPS.getAltitude();
-//
-//    if (last_track > 0) {
-//      double gdist_delta = gpsDistance(lat, lng, last_lat, last_lng);
-//      double alt_delta = alt - last_alt;
-//      dist_delta = sqrt(pow(alt_delta, 2) + pow(gdist_delta, 2));
-//
-//      speed = dist_delta / frame_len;
-//      _peak_speed = max(speed, _peak_speed);
-//      elevation = atan2(alt_delta, gdist_delta);
-//
-//      last_lat = lat;
-//      last_lng = lng;
-//      last_alt = alt;
-//    }
-//    last_track = track;
-//
-//    if (SRV.isArmed() && !_in_flight && speed > _launch_detect_speed) {
-//      _in_flight = true;
-//    } else {
-//      _in_flight = false;
-//    }
-//
-//    if (SRV.isArmed() && !isCapturing() && _in_flight) {
-//      Serial.println("------------------------ LOG NOT STARTED ------------------------");
-//      startCapture();
-//
-//    }
-//
-//    if ((track - last_out) > 1000) {
-//      last_out = track;
-//      Serial.print("LOG::launchDetect(): ");
-//      Serial.print("Frame: ");
-//      Serial.print(frame_len);
-//      Serial.print("s, ");
-//      Serial.print("Speed: ");
-//      Serial.print(speed * 2.237);
-//      Serial.print("mph, ");
-//      Serial.print("Dist: ");
-//      Serial.print(dist_delta);
-//      Serial.print("m, ");
-//      Serial.print("Launch detect: ");
-//      Serial.print(_in_flight ? "Yes" : "No");
-//      Serial.println();
-//    }
-//  }
-//}
+/************************************************************************************************************************************************************
+                                        dP                                dP
+                                        88                                88
+  .d8888b. .d8888b. 88d888b. .d8888b. d8888P 88d888b. dP    dP .d8888b. d8888P
+  88'  `"" 88'  `88 88'  `88 Y8ooooo.   88   88'  `88 88    88 88'  `""   88
+  88.  ... 88.  .88 88    88       88   88   88       88.  .88 88.  ...   88
+  `88888P' `88888P' dP    dP `88888P'   dP   dP       `88888P' `88888P'   dP
+*/
+TrLOG::TrLOG() {};

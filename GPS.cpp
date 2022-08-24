@@ -5,6 +5,14 @@
 SFE_UBLOX_GNSS myGNSS;
 TrGPS GPS;
 
+#define smooth_max 3
+double lat_buff[smooth_max];
+double lng_buff[smooth_max];
+double alt_buff[smooth_max];
+int smooth_count = 0;
+int smooth_points = 0;
+
+
 void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
   //  Serial.println(F("Hey! The NAV PVT callback has been called!"));
 }
@@ -125,13 +133,60 @@ void TrGPS::loop() {
 #endif
 
     long lat = myGNSS.packetUBXNAVPVT->callbackData->lat;
-    _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
+    //    _lat = double(lat) / (10000000.); // degrees *10^7 to degrees
+    lat_buff[smooth_count] = double(lat) / (10000000.); // degrees *10^7 to degrees
 
     long lng = myGNSS.packetUBXNAVPVT->callbackData->lon;
-    _lng = double(lng) / (10000000.); // degrees *10^7 to degrees
+    //    _lng = double(lng) / (10000000.); // degrees *10^7 to degrees
+    lng_buff[smooth_count] = double(lng) / (10000000.); // degrees *10^7 to degrees
 
     long alt = myGNSS.packetUBXNAVPVT->callbackData->hMSL;
-    _alt = double(alt) / (1000.); // mm to metres
+    //    _alt = double(alt) / (1000.); // mm to metres
+    alt_buff[smooth_count] = double(alt) / (1000.); // mm to metres
+
+    smooth_points = min(smooth_max, smooth_points + 1);
+    smooth_count += 1;
+    if (smooth_count == smooth_max) {
+      smooth_count = 0;
+    }
+
+    //Serial.print("--------------------------");
+    //Serial.println();
+    //Serial.print("smooth_points: ");
+    //Serial.print(smooth_points);
+    //Serial.print(", read lat: ");
+    //Serial.print(lat_buff[smooth_count],7);
+    //Serial.println();
+
+    double c = 0.;
+
+    c = 0.;
+    for (int i = 0; i < smooth_points; i++) {
+      c += lat_buff[i];
+      //		Serial.print("i: ");
+      //		Serial.print(i);
+      //		Serial.print(", lat[]: ");
+      //		Serial.print(lat_buff[i],7);
+      //		Serial.print(", c: ");
+      //		Serial.print(c, 7);
+      //		Serial.println();
+    }
+    _lat = c / double(smooth_points);
+    //		Serial.print("Smoothed _lat: ");
+    //		Serial.print(_lat, 7);
+    //		Serial.println();
+
+    c = 0.;
+    for (int i = 0; i < smooth_points; i++) {
+      c += lng_buff[i];
+    }
+    _lng = c / double(smooth_points);
+
+    c = 0.;
+    for (int i = 0; i < smooth_points; i++) {
+      c += alt_buff[i];
+    }
+    _alt = c / double(smooth_points);
 
     //    // Not supported for some reason, possibly want the HNR PVT blob
     //    //    long speed = myGNSS.packetUBXNAVPVT->callbackData->speed; // mm/s

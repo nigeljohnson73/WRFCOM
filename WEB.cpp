@@ -346,7 +346,7 @@ void showStats() {
 #endif // ESP32
 
 #if _DEBUG_
-  Serial.println("WebServer::showRoot(): called");
+  Serial.println("WebServer::showStats(): called");
 #endif // _DEBUG_
   String title;
   String status;
@@ -430,10 +430,10 @@ void showStats() {
   } else if (text.length() == 0) {
     status = "red";
     text = "[not configured]";
-  } else {
-    text += " hPa (";
-    text += EMU.getSeaLevelPressure();
-    text += " MSL)";
+//  } else {
+//    text += " hPa (";
+//    text += EMU.getSeaLevelPressure();
+//    text += " MSL)";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -463,6 +463,7 @@ void showStats() {
     text = "[not locked]";
   } else {
     text = String(GPS.getAltitude());
+    text += " m";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
@@ -498,13 +499,13 @@ void showStats() {
 
 
 #if _DEBUG_ &&  _XDEBUG_
-  Serial.println("WebServer::showRoot(): responding");
+  Serial.println("WebServer::showStats(): responding");
 #endif // _DEBUG_ && _XDEBUG_
 
   serverResponse(200, "text/html", htmlPage(String(DEVICE_NAME) + " - Stats", content));
 
 #if _DEBUG_ &&  _XDEBUG_
-  Serial.println("WebServer::showRoot(): complete");
+  Serial.println("WebServer::showStats(): complete");
 #endif // _DEBUG_ && _XDEBUG_
 }
 

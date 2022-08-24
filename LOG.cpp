@@ -42,6 +42,7 @@ static String gps_longitude;
 static String gps_altitude;
 static String gps_distance;
 static String gps_speed;
+static String gps_bearing;
 static String gps_elevation;
 
 static bool _in_flight;
@@ -62,6 +63,27 @@ static double _final_ground_distance;
 static double _furthest_ground_distance;
 
 /************************************************************************************************************************************************************
+                              888888ba                             oo
+                              88    `8b
+  .d8888b. 88d888b. .d8888b. a88aaaa8P' .d8888b. .d8888b. 88d888b. dP 88d888b. .d8888b.
+  88'  `88 88'  `88 Y8ooooo.  88   `8b. 88ooood8 88'  `88 88'  `88 88 88'  `88 88'  `88
+  88.  .88 88.  .88       88  88    .88 88.  ... 88.  .88 88       88 88    88 88.  .88
+  `8888P88 88Y888P' `88888P'  88888888P `88888P' `88888P8 dP       dP dP    dP `8888P88
+       .88 88                                                                       .88
+   d8888P  dP                                                                   d8888P
+
+*/
+double gpsBearing(double lat1, double lng1, double lat2, double lng2) {
+  // https://towardsdatascience.com/calculating-the-bearing-between-two-geospatial-coordinates-66203f57e4b4
+  double dL = lng2 - lng1;
+  double X = cos(lat2) * sin(dL);
+  double Y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dL);
+  double bearing = fmod(atan2(X, Y) * (180 / PI), 360);
+
+  return bearing;
+}
+
+/************************************************************************************************************************************************************
                              888888ba  oo            dP
                              88    `8b               88
   .d8888b. 88d888b. .d8888b. 88     88 dP .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b.
@@ -70,7 +92,6 @@ static double _furthest_ground_distance;
   `8888P88 88Y888P' `88888P' 8888888P  dP `88888P'   dP   `88888P8 dP    dP `88888P' `88888P'
        .88 88
    d8888P  dP
-
 */
 double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   double haversine;
@@ -96,7 +117,6 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   88  88  88 88'  `88 88   88   88ooood8 88     88  88ooood8 88'  `88 88'  `88 88ooood8 88'  `88
   88.88b.88' 88       88   88   88.  ... 88     88  88.  ... 88.  .88 88.  .88 88.  ... 88
   8888P Y8P  dP       dP   dP   `88888P' dP     dP  `88888P' `88888P8 `88888P8 `88888P' dP
-
 */
 void TrLOG::writeHeader() {
   String line = GPS.getTimestamp() + "\nmillis";
@@ -127,6 +147,7 @@ void TrLOG::writeHeader() {
   line += comma + "gps_altitude";
   line += comma + "gps_distance";
   line += comma + "gps_speed";
+  line += comma + "gps_bearing";
   line += comma + "gps_elevation";
 
   line += comma + "_in_flight";
@@ -174,6 +195,7 @@ void TrLOG::writeData() {
   line += comma + gps_altitude;
   line += comma + gps_distance;
   line += comma + gps_speed;
+  line += comma + gps_bearing;
   line += comma + gps_elevation;
 
   line += comma + (_in_flight ? "Yes" : "No");
@@ -218,6 +240,7 @@ void TrLOG::resetData() {
   gps_altitude = "";
   gps_distance = "";
   gps_speed = "";
+  gps_bearing = "";
   gps_elevation = "";
 
   _in_flight = false;
@@ -307,7 +330,7 @@ void TrLOG::getData() {
       lat_raw = GPS.getLatitude();
       lng_raw = GPS.getLongitude();
       double alt = GPS.getAltitude();
-      double dst = gpsDistance(lat_raw, lng_raw, _start_latitude, _start_longitude);
+      double dst = gpsDistance(_start_latitude, _start_longitude, lat_raw, lng_raw);
       _furthest_ground_distance = max(dst, _furthest_ground_distance);
       _peak_gps_altitude = max(alt, _peak_gps_altitude);
 
@@ -319,13 +342,15 @@ void TrLOG::getData() {
 
       if (last_track > 0) {
         // If there is a last time
-        double dst_delta = gpsDistance(lat_raw, lng_raw, last_lat, last_lng);
+        double dst_delta = gpsDistance(last_lat, last_lng, lat_raw, lng_raw);
         double alt_delta = last_alt - alt;
         double lin_dst = sqrt(pow(dst_delta, 2) + pow(alt_delta, 2));
 
         if (lin_dst > 0.001) {
           // We have moved since the last recorded value
-          gps_elevation = atan2(alt_delta, dst_delta) * 57.2957795; // radians from atan2()
+          gps_elevation = atan2(alt_delta, dst_delta) * (180 / PI); // radians from atan2()
+
+          gps_bearing = gpsBearing(last_lat, last_lng, lat_raw, lng_raw);
 
           double t_delta = ((double)(track - last_track)) / 1000.0;
           double spd = lin_dst / t_delta; // m/s
@@ -393,6 +418,14 @@ void TrLOG::getData() {
 }
 
 /************************************************************************************************************************************************************
+                                      dP
+                                      88
+  .d8888b. dP    dP 88d888b. .d8888b. 88        .d8888b. .d8888b.
+  Y8ooooo. 88    88 88'  `88 88'  `"" 88        88'  `88 88'  `88
+        88 88.  .88 88    88 88.  ... 88        88.  .88 88.  .88
+  `88888P' `8888P88 dP    dP `88888P' 88888888P `88888P' `8888P88
+                .88                                           .88
+            d8888P                                        d8888P
 
 */
 void TrLOG::syncLog() {
@@ -445,49 +478,6 @@ void TrLOG::syncLog() {
   Serial.println();
 }
 
-//void deleteEmpty(String dir) {
-//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
-//  while (fileName != "") {
-//    //Get size of file
-//    long sizeOfFile = myLog.size(fileName);
-//
-//    if (sizeOfFile == -1) {
-//      Serial.print("LOG::tidy() - file '");
-//      Serial.print(dir);
-//      Serial.print("/");
-//      Serial.print(fileName);
-//      Serial.print("' cannot be found???");
-//      Serial.println();
-//    } else if (sizeOfFile == 0) {
-//      if (myLog.removeFile(fileName) == 1) {
-//        Serial.print("LOG::tidy() - deleted empty file '");
-//        Serial.print(dir);
-//        Serial.print("/");
-//        Serial.print(fileName);
-//        Serial.print("'");
-//        Serial.println();
-//      } else {
-//        Serial.print("LOG::tidy() - failed to delete empty file '");
-//        Serial.print(dir);
-//        Serial.print("/");
-//        Serial.print(fileName);
-//        Serial.print("'");
-//        Serial.println();
-//      }
-//    } else {
-//      Serial.print("LOG::tidy() - file '");
-//      Serial.print(dir);
-//      Serial.print("/");
-//      Serial.print(fileName);
-//      Serial.print("' is ");
-//      Serial.print(double(sizeOfFile) / (1024.), 3);
-//      Serial.print (" KB");
-//      Serial.println();
-//    }
-//
-//    fileName = myLog.getNextDirectoryItem();
-//  }
-
 /************************************************************************************************************************************************************
   dP                         oo
   88
@@ -497,7 +487,6 @@ void TrLOG::syncLog() {
   88Y8888' `88888P' `8888P88 dP dP    dP
                          .88
                      d8888P
-
 */
 void TrLOG::begin() {
 
@@ -556,128 +545,6 @@ void TrLOG::loop() {
     syncLog();
   }
   writeData();
-}
-
-
-//}
-//
-//void deleteEmptyFiles(String dir) {
-//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
-//  while (fileName != "") {
-//    //Get size of file
-//    long sizeOfFile = myLog.size(fileName);
-//
-//    if (sizeOfFile == -1) {
-//      Serial.print("LOG::tidy() - file '");
-//      Serial.print(dir);
-//      Serial.print("/");
-//      Serial.print(fileName);
-//      Serial.print("' cannot be found???");
-//      Serial.println();
-//    } else {
-//      Serial.print("LOG::tidy() - file '");
-//      Serial.print(dir);
-//      Serial.print("/");
-//      Serial.print(fileName);
-//      Serial.print("' is ");
-//      Serial.print(double(sizeOfFile) / (1024.), 3);
-//      Serial.print (" KB");
-//      if (sizeOfFile == 0) {
-//        Serial.print (" - deleting");
-//
-//      }
-//      Serial.println();
-//    }
-//
-//    fileName = myLog.getNextDirectoryItem();
-//    Serial.print("LOG::tidy() - next file is '");
-//    Serial.print(fileName);
-//    Serial.print ("'");
-//    Serial.println();
-//  }
-//}
-void TrLOG::tidy() {
-  //  //myLog.searchDirectory("*"); //Give me everything
-  //  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
-  //  //myLog.searchDirectory("*/"); //Get just directories
-  //  //myLog.searchDirectory("*.*"); //Get just files
-  //  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
-  //  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
-  //
-  //  Serial.print("LOG::tidy() - Scanning root folder for empty files");
-  //  Serial.println();
-  //  myLog.changeDirectory("..");
-  //
-  //  String dir = "";
-  //  myLog.searchDirectory("*.*");
-  //  String fileName = myLog.getNextDirectoryItem();
-  //  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
-  //  {
-  //    //Get size of file
-  ////    long sizeOfFile = myLog.size(fileName);
-  //
-  //
-  //      Serial.print("LOG::tidy() - file '");
-  //      Serial.print(dir);
-  //      Serial.print("/");
-  //      Serial.print(fileName);
-  //      Serial.print("'");
-  //      Serial.println();
-  //
-  //
-  ////    if (sizeOfFile == -1) {
-  ////      Serial.print("LOG::tidy() - file '");
-  ////      Serial.print(dir);
-  ////      Serial.print("/");
-  ////      Serial.print(fileName);
-  ////      Serial.print("' cannot be found???");
-  ////      Serial.println();
-  ////    } else {
-  ////      Serial.print("LOG::tidy() - file '");
-  ////      Serial.print(dir);
-  ////      Serial.print("/");
-  ////      Serial.print(fileName);
-  ////      Serial.print("' is ");
-  ////      Serial.print(double(sizeOfFile) / (1024.), 3);
-  ////      Serial.print (" KB");
-  ////      if (sizeOfFile == 0) {
-  ////        Serial.print (" - deleting");
-  ////
-  ////      }
-  ////      Serial.println();
-  ////    }
-  //
-  ////    fileName = myLog.getNextDirectoryItem();
-  ////    Serial.print("LOG::tidy() - next file is '");
-  ////    Serial.print(fileName);
-  ////    Serial.print ("'");
-  ////    Serial.println();
-  //
-  //
-  //
-  //
-  //    Serial.println(fileName);
-  //    fileName = myLog.getNextDirectoryItem();
-  //  }
-  //
-  ////  deleteEmptyFiles("");
-  //
-  //  //  myLog.searchDirectory("*.TXT");
-  //  //  deleteEmpty("");
-  //
-  ////  if (_log_dir.length() > 0) {
-  ////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
-  ////    Serial.println();
-  ////    myLog.changeDirectory("..");
-  ////    myLog.changeDirectory(_log_dir);
-  ////
-  ////    myLog.searchDirectory("*.*");
-  ////    deleteEmptyFiles(String("/") + _log_dir);
-  ////
-  ////    //    myLog.searchDirectory("*.csv");
-  ////    //    deleteEmpty(String("/") + _log_dir);
-  ////  }
-  //  Serial.print("LOG::tidy() - process complete");
 }
 
 /************************************************************************************************************************************************************
@@ -832,7 +699,7 @@ void TrLOG::stopCapture() {
     _final_latitude = lat_raw; //GPS.getLatitude();
     _final_longitude = lng_raw; //GPS.getLongitude();
     //_final_ground_distance = max(gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude), _furthest_ground_distance);
-    _final_ground_distance = gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude);
+    _final_ground_distance = gpsDistance(_start_latitude, _start_longitude, _final_latitude, _final_longitude);
   }
 
 #if _DEBUG_
@@ -999,3 +866,168 @@ String TrLOG::getLogSummary() {
   `88888P' `88888P' dP    dP `88888P'   dP   dP       `88888P' `88888P'   dP
 */
 TrLOG::TrLOG() {};
+
+
+
+
+//void deleteEmpty(String dir) {
+//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  while (fileName != "") {
+//    //Get size of file
+//    long sizeOfFile = myLog.size(fileName);
+//
+//    if (sizeOfFile == -1) {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' cannot be found???");
+//      Serial.println();
+//    } else if (sizeOfFile == 0) {
+//      if (myLog.removeFile(fileName) == 1) {
+//        Serial.print("LOG::tidy() - deleted empty file '");
+//        Serial.print(dir);
+//        Serial.print("/");
+//        Serial.print(fileName);
+//        Serial.print("'");
+//        Serial.println();
+//      } else {
+//        Serial.print("LOG::tidy() - failed to delete empty file '");
+//        Serial.print(dir);
+//        Serial.print("/");
+//        Serial.print(fileName);
+//        Serial.print("'");
+//        Serial.println();
+//      }
+//    } else {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' is ");
+//      Serial.print(double(sizeOfFile) / (1024.), 3);
+//      Serial.print (" KB");
+//      Serial.println();
+//    }
+//
+//    fileName = myLog.getNextDirectoryItem();
+//  }
+//
+//void deleteEmptyFiles(String dir) {
+//  String fileName = myLog.getNextDirectoryItem(); //getNextDirectoryItem() will return "" when we've hit the end of the directory
+//  while (fileName != "") {
+//    //Get size of file
+//    long sizeOfFile = myLog.size(fileName);
+//
+//    if (sizeOfFile == -1) {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' cannot be found???");
+//      Serial.println();
+//    } else {
+//      Serial.print("LOG::tidy() - file '");
+//      Serial.print(dir);
+//      Serial.print("/");
+//      Serial.print(fileName);
+//      Serial.print("' is ");
+//      Serial.print(double(sizeOfFile) / (1024.), 3);
+//      Serial.print (" KB");
+//      if (sizeOfFile == 0) {
+//        Serial.print (" - deleting");
+//
+//      }
+//      Serial.println();
+//    }
+//
+//    fileName = myLog.getNextDirectoryItem();
+//    Serial.print("LOG::tidy() - next file is '");
+//    Serial.print(fileName);
+//    Serial.print ("'");
+//    Serial.println();
+//  }
+//}
+//void TrLOG::tidy() {
+  //  //myLog.searchDirectory("*"); //Give me everything
+  //  //myLog.searchDirectory("*.txt"); //Give me all the txt files in the directory
+  //  //myLog.searchDirectory("*/"); //Get just directories
+  //  //myLog.searchDirectory("*.*"); //Get just files
+  //  //myLog.searchDirectory("LOG*.TXT"); //Give me a list of just the logs
+  //  //myLog.searchDirectory("LOG000*.TXT"); //Get just the logs LOG00000 to LOG00099 if they exist.
+  //
+  //  Serial.print("LOG::tidy() - Scanning root folder for empty files");
+  //  Serial.println();
+  //  myLog.changeDirectory("..");
+  //
+  //  String dir = "";
+  //  myLog.searchDirectory("*.*");
+  //  String fileName = myLog.getNextDirectoryItem();
+  //  while (fileName != "") //getNextDirectoryItem() will return "" when we've hit the end of the directory
+  //  {
+  //    //Get size of file
+  ////    long sizeOfFile = myLog.size(fileName);
+  //
+  //
+  //      Serial.print("LOG::tidy() - file '");
+  //      Serial.print(dir);
+  //      Serial.print("/");
+  //      Serial.print(fileName);
+  //      Serial.print("'");
+  //      Serial.println();
+  //
+  //
+  ////    if (sizeOfFile == -1) {
+  ////      Serial.print("LOG::tidy() - file '");
+  ////      Serial.print(dir);
+  ////      Serial.print("/");
+  ////      Serial.print(fileName);
+  ////      Serial.print("' cannot be found???");
+  ////      Serial.println();
+  ////    } else {
+  ////      Serial.print("LOG::tidy() - file '");
+  ////      Serial.print(dir);
+  ////      Serial.print("/");
+  ////      Serial.print(fileName);
+  ////      Serial.print("' is ");
+  ////      Serial.print(double(sizeOfFile) / (1024.), 3);
+  ////      Serial.print (" KB");
+  ////      if (sizeOfFile == 0) {
+  ////        Serial.print (" - deleting");
+  ////
+  ////      }
+  ////      Serial.println();
+  ////    }
+  //
+  ////    fileName = myLog.getNextDirectoryItem();
+  ////    Serial.print("LOG::tidy() - next file is '");
+  ////    Serial.print(fileName);
+  ////    Serial.print ("'");
+  ////    Serial.println();
+  //
+  //
+  //
+  //
+  //    Serial.println(fileName);
+  //    fileName = myLog.getNextDirectoryItem();
+  //  }
+  //
+  ////  deleteEmptyFiles("");
+  //
+  //  //  myLog.searchDirectory("*.TXT");
+  //  //  deleteEmpty("");
+  //
+  ////  if (_log_dir.length() > 0) {
+  ////    Serial.print("LOG::tidy() - Scanning log folder for empty files");
+  ////    Serial.println();
+  ////    myLog.changeDirectory("..");
+  ////    myLog.changeDirectory(_log_dir);
+  ////
+  ////    myLog.searchDirectory("*.*");
+  ////    deleteEmptyFiles(String("/") + _log_dir);
+  ////
+  ////    //    myLog.searchDirectory("*.csv");
+  ////    //    deleteEmpty(String("/") + _log_dir);
+  ////  }
+  //  Serial.print("LOG::tidy() - process complete");
+//}

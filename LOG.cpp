@@ -83,7 +83,7 @@ double gpsBearing(double lat1, double lng1, double lat2, double lng2) {
   double dL = lng2 - lng1;
   double X = cos(lat2) * sin(dL);
   double Y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dL);
-  double bearing = fmod(atan2(X, Y) * (180 / PI), 360);
+  double bearing = fmod((atan2(X, Y) * (180 / PI)) + 360, 360);
 
   return bearing;
 }
@@ -323,6 +323,7 @@ void TrLOG::getData() {
 
   if (GPS.isEnabled()) {
     gps_siv = GPS.getSatsInView();
+    // Blank the values so they are lot logged - we specifically have to calulate them this frame
     gps_latitude = "";
     gps_longitude = "";
     gps_altitude = "";
@@ -345,6 +346,7 @@ void TrLOG::getData() {
       gps_longitude = String(lng_raw, 7);
       gps_altitude = alt;
 
+      // Speed is needed outside of the loop where it's calculated, so define it here
       double spd = DUFF_VALUE;
 
       // Calculate all the detlas from the last cycle
@@ -428,7 +430,7 @@ void TrLOG::getData() {
 #endif
           _landing_detected = true;
         }
-//        if (_launch_detected && !_landing_detected) {
+        //        if (_launch_detected && !_landing_detected) {
         if (_launch_detected) {
           double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
           _furthest_ground_distance = max(dst, _furthest_ground_distance);

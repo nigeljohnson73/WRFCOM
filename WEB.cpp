@@ -1,15 +1,15 @@
 /***************
- * TODO: 
- * Add handler to set the following parameters
- *     LOG.setParachuteDeployApogeeOffset(double m);
- *     LOG.setParachuteDeployDistanceOffset(double m);
- *     LOG.setLaunchDetectSpeed(double mps);
+   TODO:
+   Add handler to set the following parameters
+       LOG.setParachuteDeployApogeeOffset(double m);
+       LOG.setParachuteDeployDistanceOffset(double m);
+       LOG.setLaunchDetectSpeed(double mps);
 
- *     EMU.setLocalSeaLevelPressure(double hpa);
- *     EMU.setLocalTemperature(double c);
+       EMU.setLocalSeaLevelPressure(double hpa);
+       EMU.setLocalTemperature(double c);
 
 
- */
+*/
 
 #include "WEB.h"
 TrWEB WEB;
@@ -430,10 +430,11 @@ void showStats() {
   } else if (text.length() == 0) {
     status = "red";
     text = "[not configured]";
-//  } else {
-//    text += " hPa (";
-//    text += EMU.getSeaLevelPressure();
-//    text += " MSL)";
+  } else {
+    text += " hPa";
+    //    text += " (";
+    //    text += EMU.getSeaLevelPressure();
+    //    text += " MSL)";
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 

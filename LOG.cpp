@@ -5,13 +5,9 @@ OpenLog myLog;
 
 TrLOG LOG;
 
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif
-
-#define EARTH_RADIUS 6372797.56085
-#define ONE_G 9.80665
-#define DUFF_VALUE -999999
+//#ifndef PI
+//#define PI 3.14159265358979323846
+//#endif
 
 static String comma = ",";
 
@@ -67,53 +63,9 @@ static double _final_longitude;
 static double _final_ground_distance;
 static double _furthest_ground_distance;
 
-/************************************************************************************************************************************************************
-                              888888ba                             oo
-                              88    `8b
-  .d8888b. 88d888b. .d8888b. a88aaaa8P' .d8888b. .d8888b. 88d888b. dP 88d888b. .d8888b.
-  88'  `88 88'  `88 Y8ooooo.  88   `8b. 88ooood8 88'  `88 88'  `88 88 88'  `88 88'  `88
-  88.  .88 88.  .88       88  88    .88 88.  ... 88.  .88 88       88 88    88 88.  .88
-  `8888P88 88Y888P' `88888P'  88888888P `88888P' `88888P8 dP       dP dP    dP `8888P88
-       .88 88                                                                       .88
-   d8888P  dP                                                                   d8888P
+extern double gpsBearing(double lat1, double lng1, double lat2, double lng2);
+extern double gpsDistance(double lat1, double lng1, double lat2, double lng2);
 
-*/
-double gpsBearing(double lat1, double lng1, double lat2, double lng2) {
-  // https://towardsdatascience.com/calculating-the-bearing-between-two-geospatial-coordinates-66203f57e4b4
-  double dL = lng2 - lng1;
-  double X = cos(lat2) * sin(dL);
-  double Y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dL);
-  double bearing = fmod((atan2(X, Y) * (180 / PI)) + 360, 360);
-
-  return bearing;
-}
-
-/************************************************************************************************************************************************************
-                             888888ba  oo            dP
-                             88    `8b               88
-  .d8888b. 88d888b. .d8888b. 88     88 dP .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b.
-  88'  `88 88'  `88 Y8ooooo. 88     88 88 Y8ooooo.   88   88'  `88 88'  `88 88'  `"" 88ooood8
-  88.  .88 88.  .88       88 88    .8P 88       88   88   88.  .88 88    88 88.  ... 88.  ...
-  `8888P88 88Y888P' `88888P' 8888888P  dP `88888P'   dP   `88888P8 dP    dP `88888P' `88888P'
-       .88 88
-   d8888P  dP
-*/
-double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
-  double haversine;
-  double temp;
-  double dist;
-
-  lat1 = lat1  * (PI / 180.);
-  lng1 = lng1 * (PI / 180.);
-  lat2 = lat2  * (PI / 180.);
-  lng2 = lng2 * (PI / 180.);
-
-  haversine = (pow(sin((1.0 / 2) * (lat2 - lat1)), 2)) + ((cos(lat1)) * (cos(lat2)) * (pow(sin((1.0 / 2) * (lng2 - lng1)), 2)));
-  temp = 2 * asin(min(1.0, sqrt(haversine)));
-  dist = EARTH_RADIUS * temp;
-
-  return dist;
-}
 
 /************************************************************************************************************************************************************
                       oo   dP            dP     dP                          dP

@@ -6,18 +6,22 @@ SFE_UBLOX_GNSS myGNSS;
 TrGPS GPS;
 
 #define smooth_max 3
-double lat_buff[smooth_max];
-double lng_buff[smooth_max];
-double alt_buff[smooth_max];
-int smooth_count = 0;
-int smooth_points = 0;
+static double lat_buff[smooth_max];
+static double lng_buff[smooth_max];
+static double alt_buff[smooth_max];
+static int smooth_count = 0;
+static int smooth_points = 0;
 
+static double last_lat = DUFF_VALUE;
+static double last_lng = DUFF_VALUE;
+static double last_alt = DUFF_VALUE;
+static unsigned long last_track = 0;
 
 void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
   //  Serial.println(F("Hey! The NAV PVT callback has been called!"));
 }
 
-// This might be better judt to query the module directly
+// This might be better just to query the module directly
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example3_GetPosition/Example3_GetPosition.ino
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example13_PVT/Example1_AutoPVT/Example1_AutoPVT.ino
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example5_SpeedHeadingPrecision/Example5_SpeedHeadingPrecision.ino
@@ -32,6 +36,93 @@ void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
 // Some how calibrate the sensor ofr IMU and dead reckoning... dont' think I got it on the ZOE-M8Q
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Dead_Reckoning/Example1_calibrateSensor/Example1_calibrateSensor.ino
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Dead_Reckoning/Example4_vehicleDynamics/Example4_vehicleDynamics.ino
+
+
+/************************************************************************************************************************************************************
+                              888888ba                             oo
+                              88    `8b
+  .d8888b. 88d888b. .d8888b. a88aaaa8P' .d8888b. .d8888b. 88d888b. dP 88d888b. .d8888b.
+  88'  `88 88'  `88 Y8ooooo.  88   `8b. 88ooood8 88'  `88 88'  `88 88 88'  `88 88'  `88
+  88.  .88 88.  .88       88  88    .88 88.  ... 88.  .88 88       88 88    88 88.  .88
+  `8888P88 88Y888P' `88888P'  88888888P `88888P' `88888P8 dP       dP dP    dP `8888P88
+       .88 88                                                                       .88
+   d8888P  dP                                                                   d8888P
+
+*/
+double gpsBearing(double lat1, double lng1, double lat2, double lng2) {
+  // https://towardsdatascience.com/calculating-the-bearing-between-two-geospatial-coordinates-66203f57e4b4
+  double dL = lng2 - lng1;
+  double X = cos(lat2) * sin(dL);
+  double Y = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dL);
+  double bearing = fmod((atan2(X, Y) * (180 / PI)) + 360, 360);
+
+  return bearing;
+}
+
+/************************************************************************************************************************************************************
+                             888888ba  oo            dP
+                             88    `8b               88
+  .d8888b. 88d888b. .d8888b. 88     88 dP .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b.
+  88'  `88 88'  `88 Y8ooooo. 88     88 88 Y8ooooo.   88   88'  `88 88'  `88 88'  `"" 88ooood8
+  88.  .88 88.  .88       88 88    .8P 88       88   88   88.  .88 88    88 88.  ... 88.  ...
+  `8888P88 88Y888P' `88888P' 8888888P  dP `88888P'   dP   `88888P8 dP    dP `88888P' `88888P'
+       .88 88
+   d8888P  dP
+*/
+double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
+  double haversine;
+  double temp;
+  double dist;
+
+  lat1 = lat1  * (PI / 180.);
+  lng1 = lng1 * (PI / 180.);
+  lat2 = lat2  * (PI / 180.);
+  lng2 = lng2 * (PI / 180.);
+
+  haversine = (pow(sin((1.0 / 2) * (lat2 - lat1)), 2)) + ((cos(lat1)) * (cos(lat2)) * (pow(sin((1.0 / 2) * (lng2 - lng1)), 2)));
+  temp = 2 * asin(min(1.0, sqrt(haversine)));
+  dist = EARTH_RADIUS * temp;
+
+  return dist;
+}
+
+void TrGPS::processData() {
+  if (isEnabled() && isConnected()) {
+    unsigned long track = millis();
+
+    if (last_track > 0) {
+      // If there was a last time, we can do deltas
+
+      double fall = _alt - last_alt;
+      double crawl = gpsDistance(last_lat, last_lng, _lat, _lng);
+      double linear_distance = sqrt(pow(fall, 2) + pow(crawl, 2));
+
+      if (linear_distance > 0.001) {
+        // But only do deltas if we have actually moved
+
+        double t_delta = double(track - last_track) / 1000.0;
+
+        _travel_bearing = gpsBearing(last_lat, last_lng, _lat, _lng);
+        _travel_speed = crawl / t_delta; // meters / second
+        _travel_elevation = atan2(fall, crawl) * (180 / PI);
+
+        last_track = track;
+        _moved = true;
+      } else {
+      	_moved = false;
+      }
+    }
+
+    last_lat = _lat;
+    last_lng = _lng;
+    last_alt = _alt;
+    
+    if (last_track == 0 && _lat != 0 && _lng != 0  && _alt != 0) {
+    	// If we have 
+      last_track = track;
+    }
+  }
+}
 
 
 TrGPS::TrGPS() {};
@@ -187,6 +278,7 @@ void TrGPS::loop() {
       c += alt_buff[i];
     }
     _alt = c / double(smooth_points);
+    processData();
 
     //    // Not supported for some reason, possibly want the HNR PVT blob
     //    //    long speed = myGNSS.packetUBXNAVPVT->callbackData->speed; // mm/s
@@ -262,6 +354,21 @@ double TrGPS::getLongitude() {
 double TrGPS::getAltitude() {
   if (!isEnabled() || !isConnected()) return 0.;
   return _alt;
+}
+
+double TrGPS::getTravelSpeed() {
+  if (!isEnabled() || !isConnected()) return 0.;
+  return _travel_speed;
+}
+
+double TrGPS::getTravelBearing() {
+  if (!isEnabled() || !isConnected()) return 0.;
+  return _travel_bearing;
+}
+
+double TrGPS::getTravelElevation() {
+  if (!isEnabled() || !isConnected()) return 0.;
+  return _travel_elevation;
 }
 
 //double TrGPS::getLinearSpeed() {

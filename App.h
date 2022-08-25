@@ -125,6 +125,19 @@
 #define SENSOR_HZ 18
 #endif
 
+// Define the int/double value that means 'bollocks'
+#ifndef DUFF_VALUE
+#define DUFF_VALUE -999999
+#endif
+
+#ifndef EARTH_RADIUS
+#define EARTH_RADIUS 6372797.56085
+#endif
+
+#ifndef ONE_G
+#define ONE_G 9.80665
+#endif
+
 // Level of debugging to the serial port
 #ifndef _DEBUG_
 #define _DEBUG_ true

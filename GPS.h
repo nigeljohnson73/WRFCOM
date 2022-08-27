@@ -58,7 +58,7 @@ class TrGPS {
     String _timestamp = "";
     int _refresh_hz;
     unsigned long _lock_millis = 0;
-    unsigned long _confirmed_lock_millis = 1000;
+    unsigned long _confirmed_lock_millis = 500;
 };
 
 extern TrGPS GPS;

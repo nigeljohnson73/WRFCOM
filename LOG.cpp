@@ -5,10 +5,6 @@ OpenLog myLog;
 
 TrLOG LOG;
 
-//#ifndef PI
-//#define PI 3.14159265358979323846
-//#endif
-
 static String comma = ",";
 
 static String bms_percent;
@@ -40,32 +36,32 @@ static String gps_distance;
 static String gps_speed;
 static String gps_bearing;
 static String gps_elevation;
-
+static bool _launch_detected;
 static bool _in_flight;
 static bool _chute_deployed;
 static String _reason;
-
-static bool _launch_detected;
 static bool _landing_detected;
-static double _peak_speed;
-static double _peak_acc;
-static double _peak_gps_altitude;
+
+static bool _unprepared_launch;
+static unsigned long _launch_millis;
 static double _launch_altitude;
 static double _launch_latitude;
 static double _launch_longitude;
+static double _max_speed;
+static double _max_acceleration;
 static double _max_height;
+static double _flight_time;
+static double _flight_distance;
+
 static double lat_raw;
 static double lng_raw;
-//static double _start_latitude;
-//static double _start_longitude;
+static double alt_raw;
+static double spd_raw;
+static double ele_raw;
+static double brg_raw;
 static double _final_latitude;
 static double _final_longitude;
-static double _final_ground_distance;
-static double _furthest_ground_distance;
-
-extern double gpsBearing(double lat1, double lng1, double lat2, double lng2);
-extern double gpsDistance(double lat1, double lng1, double lat2, double lng2);
-
+static double _peak_gps_altitude; // Used for Apogee detect
 
 /************************************************************************************************************************************************************
                       oo   dP            dP     dP                          dP
@@ -76,7 +72,12 @@ extern double gpsDistance(double lat1, double lng1, double lat2, double lng2);
   8888P Y8P  dP       dP   dP   `88888P' dP     dP  `88888P' `88888P8 `88888P8 `88888P' dP
 */
 void TrLOG::writeHeader() {
-  String line = GPS.getTimestamp() + "\nmillis";
+  String line = GPS.getTimestamp() + "\n";
+  if (_unprepared_launch) {
+    line += "## UNPREPARED LAUNCH";
+    line += "\n";
+  }
+  line += "millis";
   line += comma + "bms_percent";
   line += comma + "bms_voltage";
 
@@ -107,9 +108,11 @@ void TrLOG::writeHeader() {
   line += comma + "gps_bearing";
   line += comma + "gps_elevation";
 
+  line += comma + "_launch_detected";
   line += comma + "_in_flight";
   line += comma + "_chute_deployed";
   line += comma + "_reason";
+  line += comma + "_landing_detected";
   myLog.println(line);
 }
 
@@ -155,9 +158,11 @@ void TrLOG::writeData() {
   line += comma + gps_bearing;
   line += comma + gps_elevation;
 
+  line += comma + (_launch_detected ? "Yes" : "No");
   line += comma + (_in_flight ? "Yes" : "No");
   line += comma + (_chute_deployed ? "Yes" : "No");
   line += comma + _reason;
+  line += comma + (_landing_detected ? "Yes" : "No");
 
   myLog.println(line);
 }
@@ -200,25 +205,25 @@ void TrLOG::resetData() {
   gps_bearing = "";
   gps_elevation = "";
 
-  _in_flight = false;
   _launch_detected = false;
-  _landing_detected = false;
+  _in_flight = false;
   _chute_deployed = false;
   _reason = "";
+  _landing_detected = false;
 
-  _peak_speed = DUFF_VALUE;
-  _peak_acc = DUFF_VALUE;
-  _peak_gps_altitude = DUFF_VALUE;
-  //  _start_latitude = DUFF_VALUE;
-  //  _start_longitude = DUFF_VALUE;
+  _unprepared_launch = false;
+  _flight_time = DUFF_VALUE;
+  _flight_distance = DUFF_VALUE;
+  _max_speed = DUFF_VALUE;
+  _max_acceleration = DUFF_VALUE;
+  _launch_millis = 0;
   _launch_latitude = DUFF_VALUE;
   _launch_longitude = DUFF_VALUE;
   _launch_altitude = DUFF_VALUE;
   _max_height = DUFF_VALUE;
   _final_latitude = DUFF_VALUE;
   _final_longitude = DUFF_VALUE;
-  _final_ground_distance = DUFF_VALUE;
-  _furthest_ground_distance = DUFF_VALUE;
+  _peak_gps_altitude = DUFF_VALUE;
 }
 
 /************************************************************************************************************************************************************
@@ -258,7 +263,7 @@ void TrLOG::getData() {
       imu_acc_y = IMU.getAccY();
       imu_acc_z = IMU.getAccZ();
       double acc = sqrt(pow(IMU.getAccX(), 2) + pow(IMU.getAccY(), 2) + pow(IMU.getAccZ(), 2));
-      _peak_acc = max(acc, _peak_acc);
+      _max_acceleration = max(acc, _max_acceleration);
       imu_acc = acc;
     }
     if (IMU.hasGyro()) {
@@ -275,132 +280,164 @@ void TrLOG::getData() {
 
   if (GPS.isEnabled()) {
     gps_siv = GPS.getSatsInView();
-    // Blank the values so they are lot logged - we specifically have to calulate them this frame
-    gps_latitude = "";
-    gps_longitude = "";
-    gps_altitude = "";
-    gps_speed = "";
-    gps_bearing = "";
-    gps_elevation = "";
-    gps_distance = "";
 
     if (GPS.isConnected()) {
-      static unsigned long last_track;
-      static double last_lat;
-      static double last_lng;
-      static double last_alt;
-
-      unsigned long track = millis();
       lat_raw = GPS.getLatitude();
       lng_raw = GPS.getLongitude();
-      double alt = GPS.getAltitude();
-      gps_latitude = String(lat_raw, 7);
-      gps_longitude = String(lng_raw, 7);
-      gps_altitude = alt;
-
-      // Speed is needed outside of the loop where it's calculated, so define it here
-      double spd = DUFF_VALUE;
-
-      // Calculate all the detlas from the last cycle
-      if (last_track > 0) {
-        // If there is a last time
-        double dst_delta = gpsDistance(last_lat, last_lng, lat_raw, lng_raw);
-        double alt_delta = last_alt - alt;
-        double lin_dst = sqrt(pow(dst_delta, 2) + pow(alt_delta, 2));
-
-        if (lin_dst > 0.001) {
-          // We have moved since the last recorded value
-          gps_elevation = atan2(alt_delta, dst_delta) * (180 / PI); // radians from atan2()
-          gps_bearing = gpsBearing(last_lat, last_lng, lat_raw, lng_raw);
-
-          double t_delta = ((double)(track - last_track)) / 1000.0;
-          spd = lin_dst / t_delta; // m/s
-          _peak_speed = max(spd, _peak_speed);
-          gps_speed = spd;
-
-          if (SRV.isArmed() && /*!_in_flight &&*/ spd > _launch_detect_speed) {
-            _in_flight = true;
-            if (!_launch_detected) {
-              const char* str = "## LAUNCH DETECTED";
-              myLog.println(str);
-#if _DEBUG_
-              Serial.println(str);
-#endif
-            }
-            _launch_detected = true;
-          } else {
-            _in_flight = false;
-          }
-
-          if (SRV.isArmed() && !LOG.isCapturing() && _in_flight) {
-            const char* str = "## LAUNCH DETECT CAPTURE STARTED";
-            myLog.println(str);
-#if _DEBUG_
-            Serial.println(str);
-#endif
-            startCapture();
-          }
-
-          if (_deploy_apogee_offset != 0 && SRV.isArmed() && LOG.isCapturing() && _launch_detected && !_chute_deployed && alt < (_peak_gps_altitude + _deploy_apogee_offset)) {
-            const char* str = "## PARACHUTE DEPLOYED (APOGEE)";
-            myLog.println(str);
-#if _DEBUG_
-            Serial.println(str);
-#endif
-            _chute_deployed = true;
-            _reason = "GPS Apogee";
-            SRV.arm(false);
-          }
-
-          // Set the last track values
-          last_track = track;
-          last_lat = lat_raw;
-          last_lng = lng_raw;
-          last_alt = alt;
-
-          //          myLog.println("## MOVE COMPLETE");
-        }
-      } else {
-        last_track = track;
-        myLog.println("## TRACKING ENABLED");
-      }
-
-      // If we havn't taken off yet, keep updating these until we do
-      if (!_launch_detected) {
-        _launch_latitude = lat_raw;
-        _launch_longitude = lng_raw;
-        _launch_altitude = alt;
-      } else {
-        _max_height = max(alt - _launch_altitude, _max_height);
-        // If we haven't landed yet, update the distance
-        // TODO: determine whether we have landed
-        if (_launch_detected && !_landing_detected && spd > DUFF_VALUE && spd < 0.5) {
-          const char* str = "## POSSIBLE LANDIND DETECTED";
-          myLog.println(str);
-#if _DEBUG_
-          Serial.println(str);
-#endif
-          _landing_detected = true;
-        }
-        //        if (_launch_detected && !_landing_detected) {
-        if (_launch_detected) {
-          double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
-          _furthest_ground_distance = max(dst, _furthest_ground_distance);
-          gps_distance = dst;
-          if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && dst >= _deploy_distance_offset) {
-            const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
-            myLog.println(str);
-#if _DEBUG_
-            Serial.println(str);
-#endif
-            _chute_deployed = true;
-            _reason = "GPS Distance";
-            SRV.arm(false);
-          }
-        }
-      }
-
+      alt_raw = GPS.getAltitude();
+      spd_raw = GPS.getTravelSpeed();
+      brg_raw = GPS.getTravelBearing();
+      ele_raw = GPS.getTravelElevation();
     }
+
+
+  }
+}
+
+/************************************************************************************************************************************************************
+                                                                 888888ba             dP
+                                                                 88    `8b            88
+  88d888b. 88d888b. .d8888b. .d8888b. .d8888b. .d8888b. .d8888b. 88     88 .d8888b. d8888P .d8888b.
+  88'  `88 88'  `88 88'  `88 88'  `"" 88ooood8 Y8ooooo. Y8ooooo. 88     88 88'  `88   88   88'  `88
+  88.  .88 88       88.  .88 88.  ... 88.  ...       88       88 88    .8P 88.  .88   88   88.  .88
+  88Y888P' dP       `88888P' `88888P' `88888P' `88888P' `88888P' 8888888P  `88888P8   dP   `88888P8
+  88
+  dP
+*/
+void TrLOG::processData() {
+  static unsigned long last_track;
+  static double last_lat = DUFF_VALUE;
+  static double last_lng = DUFF_VALUE;
+  static double last_alt = DUFF_VALUE;
+
+  // Blank the values so they are lot logged - we specifically have to calulate them this frame
+  gps_latitude = "";
+  gps_longitude = "";
+  gps_altitude = "";
+  gps_speed = "";
+  gps_bearing = "";
+  gps_elevation = "";
+  gps_distance = "";
+
+  if (GPS.isEnabled() && GPS.isConnected()) {
+
+    unsigned long track = millis();
+    // First ever GPS reading after it connected... Skip any further processing
+    if (last_track == 0) {
+      last_track = track;
+      return;
+    }
+
+    // Only the second ever GPS reading, capture it to set up the GPS deltas in the next frame, but do no comparison now
+    if (last_alt <= DUFF_VALUE) {
+      last_track = track;
+      last_lat = lat_raw;
+      last_lng = lng_raw;
+      last_alt = alt_raw;
+      return;
+    }
+
+    gps_latitude = String(lat_raw, 7);
+    gps_longitude = String(lng_raw, 7);
+    gps_altitude = alt_raw;
+    if (_launch_detected) {
+      _peak_gps_altitude = max(alt_raw, _peak_gps_altitude);
+    } else {
+      _peak_gps_altitude = alt_raw;
+    }
+
+    // Calculate all the detlas from the last cycle
+    if (GPS.hasMoved()) {
+      // We have moved since the last recorded value
+      gps_elevation = ele_raw;
+      gps_bearing = brg_raw;
+      gps_speed = spd_raw;
+      _max_speed = max(spd_raw, _max_speed);
+
+      // If we are ready and expecting a launch, and we have enough speped to be launching... start that process
+      if (SRV.isArmed() && LOG.isCapturing() && !_launch_detected && spd_raw > _launch_detect_speed) {
+        const char* str = "## LAUNCH DETECTED";
+        myLog.println(str);
+#if _DEBUG_
+        Serial.println(str);
+#endif
+        _launch_detected = true;
+      }
+
+      // If we have a lot of speed, have the parachute primed, but aren't in launch ready... assume the idiot forgot to press the button and cover their butt.
+      if (SRV.isArmed() && !LOG.isCapturing() && spd_raw > _emergency_launch_detect_speed) {
+        startCapture();
+        const char* str = "## EMERGENCY CAPTURE FORCE START";
+        myLog.println(str);
+#if _DEBUG_
+        Serial.println(str);
+#endif
+        _launch_detected = true;
+      }
+
+      // Being inflight is the bit between launching and landing
+      _in_flight = (_launch_detected && ! _landing_detected);
+
+      // Set the last track values
+      last_track = track;
+      last_lat = lat_raw;
+      last_lng = lng_raw;
+      last_alt = alt_raw;
+    }
+
+    if (_launch_detected) {
+      // First check to see if we have landed
+      if (!_landing_detected && spd_raw < _landing_detect_speed) {
+        const char* str = "## LANDIND DETECTED";
+        myLog.println(str);
+#if _DEBUG_
+        Serial.println(str);
+#endif
+        _landing_detected = true;
+      }
+
+      // Calulate the current distance from the launch position, and if we are still flying update the log strings
+      double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
+      gps_distance = dst;
+      if (!_landing_detected) {
+        _flight_distance = max(dst, _flight_distance);
+        _flight_time = track - _launch_millis;
+        _max_height = max(alt_raw - _launch_altitude, _max_height);
+      }
+
+      if (_deploy_apogee_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && alt_raw <= (_peak_gps_altitude - _deploy_apogee_offset)) {
+        const char* str = "## PARACHUTE DEPLOYED (APOGEE)";
+        myLog.println(str);
+#if _DEBUG_
+        Serial.println(str);
+#endif
+        _chute_deployed = true;
+        _reason = "GPS Apogee";
+        SRV.arm(false);
+      }
+
+      if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && dst >= _deploy_distance_offset) {
+        const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
+        myLog.println(str);
+#if _DEBUG_
+        Serial.println(str);
+#endif
+        _chute_deployed = true;
+        _reason = "GPS Distance";
+        SRV.arm(false);
+      }
+    } else {
+      //Not yet launched - keep up updating until we do
+      _launch_latitude = lat_raw;
+      _launch_longitude = lng_raw;
+      _launch_altitude = alt_raw;
+    }
+  } else {
+    // GPS is not connected
+    last_track = 0;
+    last_lat = DUFF_VALUE;
+    last_lng = DUFF_VALUE;
+    last_alt = DUFF_VALUE;
   }
 }
 
@@ -413,7 +450,6 @@ void TrLOG::getData() {
   `88888P' `8888P88 dP    dP `88888P' 88888888P `88888P' `8888P88
                 .88                                           .88
             d8888P                                        d8888P
-
 */
 void TrLOG::syncLog() {
 
@@ -421,7 +457,7 @@ void TrLOG::syncLog() {
   // Don't snyc if we are moving fast enough to be 'in-flight'
   // Don't use _in_flight because that stops once the parachute is deployed
   // HANDLED ELSEWHERE FOR NOW!!!!
-  //  if (speed > _launch_detect_speed) {
+  //  if (speed > _emergency_launch_detect_speed) {
   //    Serial.print("LOG::sync() - Skipping during flight");
   //    return;
   //  }
@@ -516,6 +552,7 @@ void TrLOG::loop() {
   if (!isEnabled()) return;
 
   getData();
+  processData();
 
   if (!isCapturing()) return;
 
@@ -545,6 +582,7 @@ void TrLOG::loop() {
                                                               dP
 */
 void TrLOG::startCapture() {
+  // Synchronise the hardware from the GPS device
   if (GPS.isEnabled() && GPS.isConnected()) {
     if (RTC.isEnabled()) {
       // Set RTC time from GPS;
@@ -555,22 +593,11 @@ void TrLOG::startCapture() {
       EMU.setAltitude(GPS.getAltitude());
     }
   }
+
+  // Reset all the internal values
   resetData();
 
-  // get GPS, RTC time or network time in that order
-  String fn = "";
-  String header = "";
-  if (GPS.isEnabled() && GPS.isConnected()) {
-    //    _start_latitude = lat_raw; //GPS.getLatitude();
-    //    _start_longitude = lng_raw; //GPS.getLongitude();
-    //
-    fn = GPS.getTimestamp();
-  } else if (RTC.isEnabled()) {
-    fn = RTC.getTimestamp();
-  } else {
-    fn = NET.getTimestamp();
-  }
-
+  String fn = getTimestamp();
   // Fall back to millis, but should not be here operationally
   if (fn.length() == 0) {
     fn = millis();
@@ -579,16 +606,13 @@ void TrLOG::startCapture() {
     // Store the  for processing later
     _log_ts = fn;
 
-    // Remove all the crap so that the date and timeis only 8 and 6 chars long respectively
+    // Remove all the crap so that the date and time is only 8 and 6 chars long respectively
     fn.replace("-", "");
     fn.replace(":", "");
     fn.replace("Z", "");
 
     _log_dir = fn.substring(0, 8);
     fn = fn.substring(9);
-
-    // Store the timestamp so we can track it in the file
-    header = _log_ts + "\n";
   }
 
   fn += ".csv";
@@ -597,30 +621,12 @@ void TrLOG::startCapture() {
   myLog.changeDirectory(".."); // Make sure we are in the root (Don't care if this fails, cuz we are in the root in that case)
   myLog.makeDirectory(_log_dir);
   myLog.changeDirectory(_log_dir);
+  myLog.append(_log_fn);
+  logging_started = millis();
+  _last_sync = logging_started;
 
-  // Now create our log file where we are.
-  if (!myLog.append(_log_fn)) {
-    Serial.print("LOG: Failed to file '");
-    Serial.print((_log_dir.length() > 0) ? "/" : "");
-    Serial.print(_log_dir);
-    Serial.print("/");
-    Serial.print(_log_fn);
-    Serial.print("' to append to");
-    Serial.println();
-  } else {
-    Serial.print("LOG: appending to log file '");
-    Serial.print((_log_dir.length() > 0) ? "/" : "");
-    Serial.print(_log_dir);
-    Serial.print("/");
-    Serial.print(_log_fn);
-    Serial.print("'");
-    Serial.println();
-  }
-
-  _last_sync = millis();
   writeHeader();
 
-  logging_started = millis();
 #if _DEBUG && _XDEBUG_
   Serial.print(GPS.getTimestamp());
   Serial.print(": ");
@@ -629,6 +635,31 @@ void TrLOG::startCapture() {
 #endif
 
   _logging = true;
+}
+
+/************************************************************************************************************************************************************
+                      dP   d888888P oo                                dP
+                      88      88                                      88
+  .d8888b. .d8888b. d8888P    88    dP 88d8b.d8b. .d8888b. .d8888b. d8888P .d8888b. 88d8b.d8b. 88d888b.
+  88'  `88 88ooood8   88      88    88 88'`88'`88 88ooood8 Y8ooooo.   88   88'  `88 88'`88'`88 88'  `88
+  88.  .88 88.  ...   88      88    88 88  88  88 88.  ...       88   88   88.  .88 88  88  88 88.  .88
+  `8888P88 `88888P'   dP      dP    dP dP  dP  dP `88888P' `88888P'   dP   `88888P8 dP  dP  dP 88Y888P'
+       .88                                                                                     88
+   d8888P                                                                                      dP
+*/
+String TrLOG::getTimestamp() {
+  String ts = "";
+
+  // get GPS, RTC time or network time in that order to generate a file name
+  if (GPS.isEnabled() && GPS.isConnected()) {
+    ts = GPS.getTimestamp();
+  } else if (RTC.isEnabled()) {
+    ts = RTC.getTimestamp();
+  } else {
+    ts = NET.getTimestamp();
+  }
+
+  return ts;
 }
 
 /************************************************************************************************************************************************************
@@ -643,23 +674,13 @@ void TrLOG::startCapture() {
 */
 void TrLOG::stopCapture() {
   _logging = false;
+  myLog.flush();
   myLog.println("## END OF LOG");
-
-  if (!myLog.syncFile()) {
-#if _DEBUG_
-    Serial.print("LOG: Failed to sync file");
-    Serial.println();
-#if _XDEBUG_
-  } else {
-    Serial.print("LOG: file sync complete");
-    Serial.println();
-#endif
-#endif
-  }
+  myLog.syncFile();
 
   long log_size = myLog.size(_log_fn);
 #if _DEBUG_
-  Serial.print(RTC.getTimestamp());
+  Serial.print(GPS.getTimestamp());
   Serial.print(": ");
   Serial.print("LOG::stopCapture() - file '");
   Serial.print((_log_dir.length()) ? "/" : "");
@@ -683,58 +704,58 @@ void TrLOG::stopCapture() {
   //  tidy();
 
   if (GPS.isEnabled() && GPS.isConnected()) {
-    _final_latitude = lat_raw; //GPS.getLatitude();
-    _final_longitude = lng_raw; //GPS.getLongitude();
+    _final_latitude = lat_raw;
+    _final_longitude = lng_raw;
     // TODO: start broadcasting this
-    //_final_ground_distance = max(gpsDistance(_final_latitude, _final_longitude, _start_latitude, _start_longitude), _furthest_ground_distance);
-    //    _final_ground_distance = gpsDistance(_start_latitude, _start_longitude, _final_latitude, _final_longitude);
   }
 
 #if _DEBUG_
+  Serial.print("    Max Acceleration: ");
   if (IMU.isEnabled()) {
-    Serial.print("       Peak Acceleration: ");
-    Serial.print(_peak_acc / ONE_G);
+    Serial.print(_max_acceleration / ONE_G);
     Serial.print (" g");
-    Serial.println();
   } else {
-    Serial.print("                  Peak G: ");
     Serial.print("[not calculated]");
-    Serial.println();
   }
-  //  if (EMU.isEnabled()) {
-  //    Serial.print("       Peak EMU Altitude: ");
-  //    Serial.print(_peak_emu_altitude);
-  //    Serial.print (" m");
-  //    Serial.println();
-  //  } else {
-  //    Serial.print("       Peak EMU Altitude: ");
-  //    Serial.print("[not calculated]");
-  //    Serial.println();
-  //  }
-  if (GPS.isEnabled() && GPS.isConnected()) {
-    Serial.print("       Peak GPS Altitude: ");
-    Serial.print(_peak_gps_altitude);
-    Serial.print (" m");
-    Serial.println();
-    Serial.print("Furthest ground distance: ");
-    Serial.print(_furthest_ground_distance);
-    Serial.print (" m");
-    Serial.println();
-    Serial.print("   Final ground distance: ");
-    Serial.print(_final_ground_distance);
-    Serial.print (" m");
-    Serial.println();
+  Serial.println();
+
+  Serial.print("           Max Speed: ");
+  if (IMU.isEnabled()) {
+    Serial.print(_max_speed);
+    Serial.print (" m/s (");
+    Serial.print(_max_speed * 2.237);
+    Serial.print (" mph)");
   } else {
-    Serial.print("       Peak GPS Altitude: ");
     Serial.print("[not calculated]");
-    Serial.println();
-    Serial.print("Furthest ground distance: ");
-    Serial.print("[not calculated]");
-    Serial.println();
-    Serial.print("   Final ground distance: ");
-    Serial.print("[not calculated]");
-    Serial.println();
   }
+  Serial.println();
+
+  Serial.print("          Max Height: ");
+  if (_max_height > DUFF_VALUE) {
+    Serial.print(_max_height);
+    Serial.print (" m");
+  } else {
+    Serial.print("[not calculated]");
+  }
+  Serial.println();
+
+  Serial.print("         Flight Time: ");
+  if (_flight_time > DUFF_VALUE) {
+    Serial.print(_flight_time);
+    Serial.print (" s");
+  } else {
+    Serial.print("[not calculated]");
+  }
+  Serial.println();
+
+  Serial.print("     Flight Distance: ");
+  if (_flight_distance > DUFF_VALUE) {
+    Serial.print(_flight_distance);
+    Serial.print (" s");
+  } else {
+    Serial.print("[not calculated]");
+  }
+  Serial.println();
 #endif
 }
 
@@ -790,65 +811,66 @@ String TrLOG::getLogSummary() {
     String ret = "";
     ret += "Timestamp: ";
     ret += _log_ts;
-
     ret += "\n";
+
+    ret += "Location: ";
+    ret += String(_final_latitude, 7);
+    ret += ", ";
+    ret += String(_final_longitude, 7);
+    ret += "\n";
+
     ret += "Launch detected: ";
     ret += _launch_detected ? "Yes" : "No";
-
     ret += "\n";
+
     ret += "Parachute deployed: ";
     ret += _chute_deployed ? "Yes" : "No";
+    ret += "\n";
 
     if (_chute_deployed) {
-      ret += "\n";
       ret += "Deployment: ";
       ret += _reason;
+      ret += "\n";
     }
 
-    //    if (EMU.isEnabled()) {
-    //      ret += "\n";
-    //      ret += "Peak Altitude: ";
-    //      ret += _peak_emu_altitude;
-    //      ret += " m";
-    //    }
-    if (IMU.isEnabled()) {
-      ret += "\n";
-      ret += "Peak Acceleration: ";
-      ret += _peak_acc / ONE_G;
-      ret += " g";
+    ret += "Landing detected: ";
+    ret += _landing_detected ? "Yes" : "No";
+    ret += "\n";
+
+    if (_landing_detected) {
+      if (_flight_time > DUFF_VALUE) {
+        ret += "Flight time: ";
+        ret += double(floor(_flight_time / 100.0)) / 10.0; // tenths of a second
+        ret += " s";
+        ret += "\n";
+      }
+      if (_flight_distance > DUFF_VALUE) {
+        ret += "Flight distance: ";
+        ret += _flight_distance;
+        ret += " m";
+        ret += "\n";
+      }
     }
     if (_max_height > DUFF_VALUE) {
-      ret += "\n";
       ret += "Apogee: ";
       ret += _max_height;
       ret += " m";
-    }
-    if (gps_distance != "") {
       ret += "\n";
-      ret += "Flight distance: ";
-      ret += gps_distance;
-      ret += " m";
+    }
+    if (IMU.isEnabled()) {
+      ret += "Peak Acceleration: ";
+      ret += _max_acceleration / ONE_G;
+      ret += " g";
+      ret += "\n";
     }
     if (GPS.isEnabled()) {
-      //      if (_peak_gps_altitude > DUFF_VALUE) {
-      //        ret += "\n";
-      //        ret += "Peak Altitude: ";
-      //        ret += _peak_gps_altitude;
-      //        ret += " m";
-      //      }
-      //      if (_final_ground_distance > DUFF_VALUE) {
-      //        ret += "\n";
-      //        ret += "Final distance: ";
-      //        ret += _final_ground_distance;
-      //        ret += " m";
-      //      }
-      if (_peak_speed > DUFF_VALUE) {
-        ret += "\n";
+      if (_max_speed > DUFF_VALUE) {
         ret += "Peak Speed: ";
-        ret += double(floor(_peak_speed * 10)) / 10.0;
+        ret += double(floor(_max_speed * 10)) / 10.0;  // tenths of a meter/second
         ret += " m/s (";
-        ret += double(floor(_peak_speed * 2.237 * 10)) / 10.0;
+        ret += double(floor(_max_speed * 2.237 * 10)) / 10.0; // tenths of a mile per hour
         ret += " mph)";
+        ret += "\n";
       }
     }
     return ret;

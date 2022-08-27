@@ -9,9 +9,8 @@ class TrLOG {
 
     void begin();
     void loop();
-
+    String getTimestamp();
     String getLogSummary();
-    //    void detectLaunch();
 
     void capture(bool tf); // start or stop the logging
     bool isCapturing() {
@@ -45,9 +44,18 @@ class TrLOG {
       _launch_detect_speed = mps;
     };
 
+    double getLandingDetectSpeed() {
+      return _landing_detect_speed;
+    };
+
+    void setLandingDetectSpeed(double mps) {
+      _landing_detect_speed = mps;
+    };
+
   protected:
     void resetData();
     void getData();
+    void processData();
     void writeHeader();
     void writeData();
 
@@ -68,9 +76,11 @@ class TrLOG {
     unsigned long _last_sync;
     const unsigned long _sync_interval = 0;// 5000;
 
-    double _deploy_apogee_offset = -2.0;
+    double _deploy_apogee_offset = 2.0;
     double _deploy_distance_offset = 65.0;
-    double _launch_detect_speed = 5;
+    double _launch_detect_speed = 2.5; // ZOE and SAM are only accurate to 2m... and the drift can be 0.15m between capture frames... 
+    double _landing_detect_speed = 0.5; // we really need to make sure we are down
+    double _emergency_launch_detect_speed = 5; // Once a lock in in place, drift has never been recorded over 4m so 5m/s is a safe mishandling value
 
 };
 

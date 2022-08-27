@@ -5,7 +5,7 @@
 #ifndef _APP_h
 #define _APP_h
 
-#define VERSION "v0.3a"
+#define VERSION "v0.3b"
 
 // Preload our config to override any of the following parameters
 #include "myConfig.h"

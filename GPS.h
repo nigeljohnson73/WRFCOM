@@ -13,12 +13,11 @@ class TrGPS {
     double getLatitude(); // Degrees Noth
     double getLongitude(); // Degrees East
     double getAltitude(); // meters above MSL
+    double getGroundSpeed(); // metres per second
     double getTravelSpeed(); // meters per second
     double getTravelBearing(); // degrees from latitudeal north 0-359.9999999
     double getTravelElevation(); // degrees from upright in the plane of travel (bearing) - the x-axis. positive it top away, negative is top toward you
 
-    //    double getLinearSpeed(); // metres per second
-    //    double getGroundSpeed(); // metres per second
 
     int getSatsInView();
 
@@ -51,13 +50,15 @@ class TrGPS {
     double _lng = 0;
     double _alt = 0;
     bool _moved = false;
+    double _ground_speed = 0;
     double _travel_speed = 0;
     double _travel_bearing = 0;
     double _travel_elevation = 0;
-    //    double _g_speed = 0;
     int _siv; // Sats in view
     String _timestamp = "";
     int _refresh_hz;
+    unsigned long _lock_millis = 0;
+    unsigned long _confirmed_lock_millis = 1000;
 };
 
 extern TrGPS GPS;

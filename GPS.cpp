@@ -16,6 +16,7 @@ static double last_lat = DUFF_VALUE;
 static double last_lng = DUFF_VALUE;
 static double last_alt = DUFF_VALUE;
 static unsigned long last_track = 0;
+static unsigned long _connection_at = 0;
 
 void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
   //  Serial.println(F("Hey! The NAV PVT callback has been called!"));
@@ -33,7 +34,7 @@ void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
 // Speeding up polling rates:
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example25_MeasurementAndNavigationRate/Example25_MeasurementAndNavigationRate.ino
 
-// Some how calibrate the sensor ofr IMU and dead reckoning... dont' think I got it on the ZOE-M8Q
+// Some how calibrate the sensor ofr IMU and dead reckoning... dont' think I got it on the ZOE-M8Q or the SAM-M8Q
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Dead_Reckoning/Example1_calibrateSensor/Example1_calibrateSensor.ino
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Dead_Reckoning/Example4_vehicleDynamics/Example4_vehicleDynamics.ino
 
@@ -86,6 +87,17 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   return dist;
 }
 
+/************************************************************************************************************************************************************
+                                                                 888888ba             dP
+                                                                 88    `8b            88
+  88d888b. 88d888b. .d8888b. .d8888b. .d8888b. .d8888b. .d8888b. 88     88 .d8888b. d8888P .d8888b.
+  88'  `88 88'  `88 88'  `88 88'  `"" 88ooood8 Y8ooooo. Y8ooooo. 88     88 88'  `88   88   88'  `88
+  88.  .88 88       88.  .88 88.  ... 88.  ...       88       88 88    .8P 88.  .88   88   88.  .88
+  88Y888P' dP       `88888P' `88888P' `88888P' `88888P' `88888P' 8888888P  `88888P8   dP   `88888P8
+  88
+  dP
+
+*/
 void TrGPS::processData() {
   if (isEnabled() && isConnected()) {
     unsigned long track = millis();
@@ -97,38 +109,47 @@ void TrGPS::processData() {
       double crawl = gpsDistance(last_lat, last_lng, _lat, _lng);
       double linear_distance = sqrt(pow(fall, 2) + pow(crawl, 2));
 
-      if (linear_distance > 0.001) {
-        // But only do deltas if we have actually moved
+      if (linear_distance >= 0.01) {
+        // But only do deltas if we have actually moved more than a centimeter
 
         double t_delta = double(track - last_track) / 1000.0;
-
+        _ground_speed = crawl / t_delta;
+        _travel_speed = linear_distance / t_delta;
         _travel_bearing = gpsBearing(last_lat, last_lng, _lat, _lng);
-        _travel_speed = crawl / t_delta; // meters / second
         _travel_elevation = atan2(fall, crawl) * (180 / PI);
 
-        last_track = track;
         _moved = true;
       } else {
-      	_moved = false;
-      }
-    }
+        _moved = false;
+        _travel_speed = 0;
+      } // linear distance check
+    } // last track > 0
 
     last_lat = _lat;
     last_lng = _lng;
     last_alt = _alt;
-    
-    if (last_track == 0 && _lat != 0 && _lng != 0  && _alt != 0) {
-    	// If we have 
-      last_track = track;
-    }
-  }
+    last_track = track;
+  } else {
+    _moved = false;
+    _travel_speed = 0;
+    _travel_bearing = 0;
+    _travel_elevation = 0;
+    last_track = 0;
+  }// Connected
 }
 
 
-TrGPS::TrGPS() {};
-
+/************************************************************************************************************************************************************
+  dP                         oo
+  88
+  88d888b. .d8888b. .d8888b. dP 88d888b.
+  88'  `88 88ooood8 88'  `88 88 88'  `88
+  88.  .88 88.  ... 88.  .88 88 88    88
+  88Y8888' `88888P' `8888P88 dP dP    dP
+                         .88
+                     d8888P
+*/
 void TrGPS::begin() {
-  //  Wire.begin();
 
   //myGNSS.enableDebugging(); // Uncomment this line to enable helpful debug messages on Serial
 
@@ -171,9 +192,20 @@ void TrGPS::begin() {
   _enabled = true;
 }
 
+/************************************************************************************************************************************************************
+  dP
+  88
+  88 .d8888b. .d8888b. 88d888b.
+  88 88'  `88 88'  `88 88'  `88
+  88 88.  .88 88.  .88 88.  .88
+  dP `88888P' `88888P' 88Y888P'
+                       88
+                       dP
+*/
 void TrGPS::loop() {
   if (!isEnabled()) return;
   bool dirty = false;
+  unsigned long now = millis();
 
   myGNSS.checkUblox(); // Check for the arrival of new data and process it.
 
@@ -278,6 +310,7 @@ void TrGPS::loop() {
       c += alt_buff[i];
     }
     _alt = c / double(smooth_points);
+
     processData();
 
     //    // Not supported for some reason, possibly want the HNR PVT blob
@@ -285,7 +318,7 @@ void TrGPS::loop() {
     //    //    _speed = double(speed) / (1000.); // mm to metres
     //
     //    long g_speed = myGNSS.packetUBXNAVPVT->callbackData->gSpeed; // mm/s
-    //    _g_speed = double(g_speed) / (1000.); // mm to metres
+    //    _ground_speed = double(g_speed) / (1000.); // mm to metres
 
     // Accelerations and stuff - Line 905: https://github.com/sparkfun/SparkFun_Ublox_Arduino_Library/blob/master/src/SparkFun_Ublox_Arduino_Library.h
   }
@@ -296,14 +329,24 @@ void TrGPS::loop() {
     _siv = t;
   }
 
-  if (!_connected and _siv > 3) {
-    // changing status so update the RTC
+  if (_siv > 3) {
+    if (!_connection_at == 0 ) {
+      _connection_at = now;
+      if (RTC.isEnabled()) {
 #if _DEBUG_
-    Serial.println("GPS::updateRtc()");
+        Serial.println("GPS::updateRtcTimestamp()");
 #endif //_DEBUG_
-    RTC.setTimestamp(_timestamp);
+        RTC.setTimestamp(_timestamp);
+      }
+      if (EMU.isEnabled()) {
+        Serial.println("GPS::updateEmuAltitude()");
+      EMU.setAltitude(getAltitude());
+      }
+    }
+  } else {
+    _connection_at = 0;
   }
-  _connected = _siv > 3; // You need at least 3 satellites to ensure 3D accuracy
+  _connected = ((_connection_at - now) >= _confirmed_lock_millis) && (_siv > 3); // You need at least 3 satellites to ensure 3D accuracy, so wait for 4, and ensure the connection is stable
 
 #if _DEBUG_
   if (false && dirty) {
@@ -336,6 +379,14 @@ void TrGPS::loop() {
 }
 
 
+/************************************************************************************************************************************************************
+  .d8888b. .d8888b. 88d888b. .d8888b.
+  88'  `"" 88'  `88 88'  `88 88ooood8
+  88.  ... 88.  .88 88       88.  ...
+  `88888P' `88888P' dP       `88888P'
+*/
+TrGPS::TrGPS() {};
+
 String TrGPS::getTimestamp() {
   if (!isEnabled() || !isConnected()) return "";
   return _timestamp;
@@ -356,6 +407,11 @@ double TrGPS::getAltitude() {
   return _alt;
 }
 
+double TrGPS::getGroundSpeed() {
+  if (!isEnabled() || !isConnected()) return 0.;
+  return _ground_speed;
+}
+
 double TrGPS::getTravelSpeed() {
   if (!isEnabled() || !isConnected()) return 0.;
   return _travel_speed;
@@ -370,16 +426,6 @@ double TrGPS::getTravelElevation() {
   if (!isEnabled() || !isConnected()) return 0.;
   return _travel_elevation;
 }
-
-//double TrGPS::getLinearSpeed() {
-//  if (!isEnabled() || !isConnected()) return 0.;
-//  return _speed;
-//}
-//
-//double TrGPS::getGroundSpeed() {
-//  if (!isEnabled() || !isConnected()) return 0.;
-//  return _g_speed;
-//}
 
 int TrGPS::getSatsInView() {
   if (!isEnabled() || !isConnected()) return 0;

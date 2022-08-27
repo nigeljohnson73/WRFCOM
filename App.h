@@ -5,7 +5,7 @@
 #ifndef _APP_h
 #define _APP_h
 
-#define VERSION "v0.2a"
+#define VERSION "v0.3a"
 
 // Preload our config to override any of the following parameters
 #include "myConfig.h"
@@ -143,17 +143,20 @@
 #define _DEBUG_ true
 #endif
 
-// Should disabled sensors output
+// Should disabled sensors output their initialsiation text (so you know they are there)
 #ifndef _DISABLED_DEBUG_
 #define _DISABLED_DEBUG_ false
 #endif
 
+// Really really flood the crap out of the serial port. Probably should reduce the sensor Hz if you're wanting this.
 #ifndef _XDEBUG_
 #define _XDEBUG_ false
 #endif
 
 #include <Arduino.h> // For type inclusion - String for example
 extern String espChipId();
+extern double gpsDistance(double lat1, double lng1, double lat2, double lng2);
+extern double gpsBearing(double lat1, double lng1, double lat2, double lng2);
 
 #include "BLE.h"
 #include "EMU.h"

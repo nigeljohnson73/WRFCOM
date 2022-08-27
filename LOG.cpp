@@ -280,7 +280,6 @@ void TrLOG::getData() {
 
   if (GPS.isEnabled()) {
     gps_siv = GPS.getSatsInView();
-
     if (GPS.isConnected()) {
       lat_raw = GPS.getLatitude();
       lng_raw = GPS.getLongitude();
@@ -289,8 +288,6 @@ void TrLOG::getData() {
       brg_raw = GPS.getTravelBearing();
       ele_raw = GPS.getTravelElevation();
     }
-
-
   }
 }
 
@@ -329,7 +326,7 @@ void TrLOG::processData() {
     }
 
     // Only the second ever GPS reading, capture it to set up the GPS deltas in the next frame, but do no comparison now
-    if (last_alt <= DUFF_VALUE) {
+    if (spd_raw < 0 || spd_raw > 500) {
       last_track = track;
       last_lat = lat_raw;
       last_lng = lng_raw;
@@ -340,11 +337,6 @@ void TrLOG::processData() {
     gps_latitude = String(lat_raw, 7);
     gps_longitude = String(lng_raw, 7);
     gps_altitude = alt_raw;
-    if (_launch_detected) {
-      _peak_gps_altitude = max(alt_raw, _peak_gps_altitude);
-    } else {
-      _peak_gps_altitude = alt_raw;
-    }
 
     // Calculate all the detlas from the last cycle
     if (GPS.hasMoved()) {
@@ -373,10 +365,13 @@ void TrLOG::processData() {
         Serial.println(str);
 #endif
         _launch_detected = true;
+        _unprepared_launch = true;
+        // Cuz we are emergencying, the launch parameters will never have been updated, so anything depending on them will be crap
+        _launch_latitude = lat_raw;
+        _launch_longitude = lng_raw;
+        _launch_altitude = alt_raw;
+        _peak_gps_altitude = alt_raw;
       }
-
-      // Being inflight is the bit between launching and landing
-      _in_flight = (_launch_detected && ! _landing_detected);
 
       // Set the last track values
       last_track = track;
@@ -386,6 +381,8 @@ void TrLOG::processData() {
     }
 
     if (_launch_detected) {
+      _peak_gps_altitude = max(alt_raw, _peak_gps_altitude);
+
       // First check to see if we have landed
       if (!_landing_detected && spd_raw < _landing_detect_speed) {
         const char* str = "## LANDIND DETECTED";
@@ -431,13 +428,18 @@ void TrLOG::processData() {
       _launch_latitude = lat_raw;
       _launch_longitude = lng_raw;
       _launch_altitude = alt_raw;
+      _peak_gps_altitude = alt_raw;
     }
+
+    // Being inflight is the bit between launching and landing
+    _in_flight = ! _landing_detected;
+
   } else {
     // GPS is not connected
     last_track = 0;
-    last_lat = DUFF_VALUE;
-    last_lng = DUFF_VALUE;
-    last_alt = DUFF_VALUE;
+    //    last_lat = DUFF_VALUE;
+    //    last_lng = DUFF_VALUE;
+    //    last_alt = DUFF_VALUE;
   }
 }
 
@@ -821,6 +823,9 @@ String TrLOG::getLogSummary() {
 
     ret += "Launch detected: ";
     ret += _launch_detected ? "Yes" : "No";
+    if (_unprepared_launch) {
+      ret += " (unexpected)";
+    }
     ret += "\n";
 
     if (_launch_detected) {

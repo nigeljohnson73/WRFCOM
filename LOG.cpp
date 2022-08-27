@@ -212,15 +212,15 @@ void TrLOG::resetData() {
   _landing_detected = false;
 
   _unprepared_launch = false;
-  _flight_time = DUFF_VALUE;
-  _flight_distance = DUFF_VALUE;
-  _max_speed = DUFF_VALUE;
-  _max_acceleration = DUFF_VALUE;
   _launch_millis = 0;
   _launch_latitude = DUFF_VALUE;
   _launch_longitude = DUFF_VALUE;
   _launch_altitude = DUFF_VALUE;
+  _flight_time = DUFF_VALUE;
+  _flight_distance = DUFF_VALUE;
+  _max_speed = DUFF_VALUE;
   _max_height = DUFF_VALUE;
+  _max_acceleration = DUFF_VALUE;
   _final_latitude = DUFF_VALUE;
   _final_longitude = DUFF_VALUE;
   _peak_gps_altitude = DUFF_VALUE;
@@ -355,7 +355,7 @@ void TrLOG::processData() {
       _max_speed = max(spd_raw, _max_speed);
 
       // If we are ready and expecting a launch, and we have enough speped to be launching... start that process
-      if (SRV.isArmed() && LOG.isCapturing() && !_launch_detected && spd_raw > _launch_detect_speed) {
+      if (SRV.isArmed() && LOG.isCapturing() && !_launch_detected && spd_raw >= _launch_detect_speed) {
         const char* str = "## LAUNCH DETECTED";
         myLog.println(str);
 #if _DEBUG_
@@ -365,7 +365,7 @@ void TrLOG::processData() {
       }
 
       // If we have a lot of speed, have the parachute primed, but aren't in launch ready... assume the idiot forgot to press the button and cover their butt.
-      if (SRV.isArmed() && !LOG.isCapturing() && spd_raw > _emergency_launch_detect_speed) {
+      if (SRV.isArmed() && !LOG.isCapturing() && spd_raw >= _emergency_launch_detect_speed) {
         startCapture();
         const char* str = "## EMERGENCY CAPTURE FORCE START";
         myLog.println(str);
@@ -823,19 +823,21 @@ String TrLOG::getLogSummary() {
     ret += _launch_detected ? "Yes" : "No";
     ret += "\n";
 
-    ret += "Parachute deployed: ";
-    ret += _chute_deployed ? "Yes" : "No";
-    ret += "\n";
+    if (_launch_detected) {
+      ret += "Parachute deployed: ";
+      ret += _chute_deployed ? "Yes" : "No";
+      ret += "\n";
 
-    if (_chute_deployed) {
-      ret += "Deployment: ";
-      ret += _reason;
+      if (_chute_deployed) {
+        ret += "Deployment: ";
+        ret += _reason;
+        ret += "\n";
+      }
+
+      ret += "Landing detected: ";
+      ret += _landing_detected ? "Yes" : "No";
       ret += "\n";
     }
-
-    ret += "Landing detected: ";
-    ret += _landing_detected ? "Yes" : "No";
-    ret += "\n";
 
     if (_landing_detected) {
       if (_flight_time > DUFF_VALUE) {

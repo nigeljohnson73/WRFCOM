@@ -711,54 +711,60 @@ void TrLOG::stopCapture() {
     // TODO: start broadcasting this
   }
 
+  //#if _DEBUG_
+  //  Serial.print("    Max Acceleration: ");
+  //  if (IMU.isEnabled()) {
+  //    Serial.print(_max_acceleration / ONE_G);
+  //    Serial.print (" g");
+  //  } else {
+  //    Serial.print("[not calculated]");
+  //  }
+  //  Serial.println();
+  //
+  //  Serial.print("           Max Speed: ");
+  //  if (IMU.isEnabled()) {
+  //    Serial.print(_max_speed);
+  //    Serial.print (" m/s (");
+  //    Serial.print(_max_speed * 2.237);
+  //    Serial.print (" mph)");
+  //  } else {
+  //    Serial.print("[not calculated]");
+  //  }
+  //  Serial.println();
+  //
+  //  Serial.print("          Max Height: ");
+  //  if (_max_height > DUFF_VALUE) {
+  //    Serial.print(_max_height);
+  //    Serial.print (" m");
+  //  } else {
+  //    Serial.print("[not calculated]");
+  //  }
+  //  Serial.println();
+  //
+  //  Serial.print("         Flight Time: ");
+  //  if (_flight_time > DUFF_VALUE) {
+  //    Serial.print(_flight_time);
+  //    Serial.print (" s");
+  //  } else {
+  //    Serial.print("[not calculated]");
+  //  }
+  //  Serial.println();
+  //
+  //  Serial.print("     Flight Distance: ");
+  //  if (_flight_distance > DUFF_VALUE) {
+  //    Serial.print(_flight_distance);
+  //    Serial.print (" s");
+  //  } else {
+  //    Serial.print("[not calculated]");
+  //  }
+  //  Serial.println();
+  //#endif
+
 #if _DEBUG_
-  Serial.print("    Max Acceleration: ");
-  if (IMU.isEnabled()) {
-    Serial.print(_max_acceleration / ONE_G);
-    Serial.print (" g");
-  } else {
-    Serial.print("[not calculated]");
-  }
-  Serial.println();
-
-  Serial.print("           Max Speed: ");
-  if (IMU.isEnabled()) {
-    Serial.print(_max_speed);
-    Serial.print (" m/s (");
-    Serial.print(_max_speed * 2.237);
-    Serial.print (" mph)");
-  } else {
-    Serial.print("[not calculated]");
-  }
-  Serial.println();
-
-  Serial.print("          Max Height: ");
-  if (_max_height > DUFF_VALUE) {
-    Serial.print(_max_height);
-    Serial.print (" m");
-  } else {
-    Serial.print("[not calculated]");
-  }
-  Serial.println();
-
-  Serial.print("         Flight Time: ");
-  if (_flight_time > DUFF_VALUE) {
-    Serial.print(_flight_time);
-    Serial.print (" s");
-  } else {
-    Serial.print("[not calculated]");
-  }
-  Serial.println();
-
-  Serial.print("     Flight Distance: ");
-  if (_flight_distance > DUFF_VALUE) {
-    Serial.print(_flight_distance);
-    Serial.print (" s");
-  } else {
-    Serial.print("[not calculated]");
-  }
+  Serial.print(getLogSummary());
   Serial.println();
 #endif
+
 }
 
 /************************************************************************************************************************************************************
@@ -815,11 +821,13 @@ String TrLOG::getLogSummary() {
     ret += _log_ts;
     ret += "\n";
 
-    ret += "Location: ";
-    ret += String(_final_latitude, 7);
-    ret += ", ";
-    ret += String(_final_longitude, 7);
-    ret += "\n";
+    if (_final_latitude > DUFF_VALUE) {
+      ret += "Location: ";
+      ret += String(_final_latitude, 7);
+      ret += ", ";
+      ret += String(_final_longitude, 7);
+      ret += "\n";
+    }
 
     ret += "Launch detected: ";
     ret += _launch_detected ? "Yes" : "No";

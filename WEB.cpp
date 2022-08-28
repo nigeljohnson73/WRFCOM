@@ -581,32 +581,7 @@ void showRoot() {
   String status = "";
   String text = "";
 
-  status = "red";
-  text = "DISABLED";
-  if (LOG.isEnabled()) {
-    if (LOG.isCapturing()) {
-      status = "green";
-      text = "LOGGING";
-    } else {
-      status = "amber";
-      text = "IDLE";
-    }
-  };
-  content += "<div class='status-wrapper'><div class='label'>LOG</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-
-  status = "red";
-  text = "DISABLED";
-  if (GPS.isEnabled()) {
-    status = "amber";
-    text = "NOT LOCKED";
-    if (GPS.isConnected()) {
-      status = "green";
-      text = "LOCKED";
-    };
-  }
-  content += "<div class='status-wrapper'><div class='label'>GPS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-
-#if _USE_EMU_
+#if EMU_TYPE != EMU_NONE
   status = "red";
   text = "DISABLED";
   if (EMU.isEnabled()) {
@@ -616,7 +591,7 @@ void showRoot() {
   content += "<div class='status-wrapper'><div class='label'>EMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
-#if _USE_IMU_
+#if IMU_TYPE != IMU_NONE
   status = "red";
   text = "DISABLED";
   if (IMU.isEnabled()) {
@@ -626,30 +601,15 @@ void showRoot() {
   content += "<div class='status-wrapper'><div class='label'>IMU</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
-#if _USE_RTC_
-  status = "red";
-  text = "DISABLED";
-  if (RTC.isEnabled()) {
-    status = "green";
-    text = "OK";
-  };
-  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-#endif
-
-#if _USE_SERVO_
-  status = "disabled";
-  text = "DISABLED";
-  if (SRV.isEnabled()) {
-    if (SRV.isArmed()) {
-      status = "green";
-      text = "ARMED";
-    } else {
-      status = "amber";
-      text = "DISARMED";
-    }
-  };
-  content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
-#endif // _USE_SERVO_
+//#if _USE_RTC_
+//  status = "red";
+//  text = "DISABLED";
+//  if (RTC.isEnabled()) {
+//    status = "green";
+//    text = "OK";
+//  };
+//  content += "<div class='status-wrapper'><div class='label'>RTC</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+//#endif
 
 #if _USE_BMS_
   status = "disabled";
@@ -668,6 +628,46 @@ void showRoot() {
   };
   content += "<div class='status-wrapper'><div class='label'>BMS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif // _USE_BMS_
+
+#if _USE_SERVO_
+  status = "disabled";
+  text = "DISABLED";
+  if (SRV.isEnabled()) {
+    if (SRV.isArmed()) {
+      status = "green";
+      text = "ARMED";
+    } else {
+      status = "amber";
+      text = "DISARMED";
+    }
+  };
+  content += "<div class='status-wrapper'><div class='label'>SRV</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+#endif // _USE_SERVO_
+
+  status = "red";
+  text = "DISABLED";
+  if (GPS.isEnabled()) {
+    status = "amber";
+    text = "NOT LOCKED";
+    if (GPS.isConnected()) {
+      status = "green";
+      text = "LOCKED";
+    };
+  }
+  content += "<div class='status-wrapper'><div class='label'>GPS</div><div class='status value status-" + status + "'>" + text + "</div></div>";
+
+  status = "red";
+  text = "DISABLED";
+  if (LOG.isEnabled()) {
+    if (LOG.isCapturing()) {
+      status = "green";
+      text = "LOGGING";
+    } else {
+      status = "amber";
+      text = "IDLE";
+    }
+  };
+  content += "<div class='status-wrapper'><div class='label'>LOG</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
   content += "<div style='clear:both'></div>";
   content += "<div id='actions'>";

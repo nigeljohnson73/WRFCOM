@@ -48,7 +48,6 @@ void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
   `8888P88 88Y888P' `88888P'  88888888P `88888P' `88888P8 dP       dP dP    dP `8888P88
        .88 88                                                                       .88
    d8888P  dP                                                                   d8888P
-
 */
 double gpsBearing(double lat1, double lng1, double lat2, double lng2) {
   // https://towardsdatascience.com/calculating-the-bearing-between-two-geospatial-coordinates-66203f57e4b4
@@ -96,7 +95,6 @@ double gpsDistance(double lat1, double lng1, double lat2, double lng2) {
   88Y888P' dP       `88888P' `88888P' `88888P' `88888P' `88888P' 8888888P  `88888P8   dP   `88888P8
   88
   dP
-
 */
 void TrGPS::processData() {
   if (isEnabled() && isConnected()) {

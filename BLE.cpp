@@ -8,7 +8,7 @@ TrBLE::TrBLE() {};
 
 void TrBLE::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("BLE initialised: disabled");
+  Serial.println("BLE init: disabled");
 #endif
 }
 
@@ -201,7 +201,7 @@ void TrBLE::begin() {
 
   BLEDevice::init(DEVICE_NAME.c_str());
   if (false) {
-    Serial.println("BLE initialised: disconnected");
+    Serial.println("BLE init: disconnected");
     return;
   }
 
@@ -648,7 +648,7 @@ void TrBLE::begin() {
   BLEDevice::startAdvertising();
 
 #if _DEBUG_
-  Serial.print("BLE initialised: ");
+  Serial.print("BLE init: ");
   Serial.print(DEVICE_NAME);
   Serial.println();
 #endif

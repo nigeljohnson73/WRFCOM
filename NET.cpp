@@ -6,7 +6,7 @@ TrNET::TrNET(): _hostname(DEVICE_NAME), _ap_pass(AP_PASSWORD) {}
 
 void TrNET::begin(String ssid, String pass, long wait_secs) {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println(String("NET initialised: disabled");
+  Serial.println(String("NET init: disabled");
 #endif // _DEBUG_
 }
 
@@ -165,7 +165,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
     ArduinoOTA.begin();
 
 #if _DEBUG_
-    Serial.println("OTA initialised: OK");
+    Serial.println("OTA init: OK");
 #endif // __DEBUG_
 
 #endif // _USE_OTA_
@@ -180,7 +180,7 @@ void TrNET::begin(String ssid, String pass, long wait) {
       timeClient.forceUpdate();
     }
 #if _DEBUG_
-    Serial.println(String("NTP initialised: ") + getTimestamp());
+    Serial.println(String("NTP init: ") + getTimestamp());
 #endif // _DEBUG_
 
 #endif // _USE_NTP_

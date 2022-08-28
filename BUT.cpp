@@ -17,7 +17,7 @@ void TrBUT::begin() {
   if (button.begin() == false) {
 
 #if _DEBUG_
-    Serial.println("BUT initialised: disconnected");
+    Serial.println("BUT init: disconnected");
 #endif // _DEBUG_
 
     return;
@@ -25,7 +25,7 @@ void TrBUT::begin() {
   button.LEDoff();  //start with the LED off
 
 #if _DEBUG_
-  Serial.print("BUT initialised: 0x");
+  Serial.print("BUT init: 0x");
   Serial.print(button.getI2Caddress(), HEX);
   Serial.println();
 #endif // _DEBUG_

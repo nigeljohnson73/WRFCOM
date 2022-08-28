@@ -19,7 +19,7 @@ TrWEB::TrWEB() {};
 
 void TrWEB::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println(String("WEB initialised: disabled");
+  Serial.println(String("WEB init: disabled");
 #endif // _DEBUG_
 }
 
@@ -868,7 +868,7 @@ void TrWEB::begin() {
 
 #if _DEBUG_
   //  Serial.println(String("     Web server: http://") + NET.getIpAddress() + "/");
-  Serial.println(String("WEB initialised: http://") + NET.getIpAddress() + "/");
+  Serial.println(String("WEB init: http://") + NET.getIpAddress() + "/");
   if (!NET.isApMode()) {
     Serial.println(String("                 http://") + NET.getHostname() + ".local/");
     //  Serial.println(String("                 http://") + NET.getHostname() + "/");

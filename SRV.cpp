@@ -7,7 +7,7 @@ TrSRV::TrSRV() {};
 
 void TrSRV::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("SRV initialised: disabled");
+  Serial.println("SRV init: disabled");
 #endif
 }
 
@@ -51,7 +51,7 @@ void TrSRV::begin() {
 
   if (!myservo.attach(SERVO_PIN, MIN_VAL, MAX_VAL)) {
 #if _DEBUG_
-    Serial.println("SRV initialised: disconnected");
+    Serial.println("SRV init: disconnected");
 #endif
   }
 
@@ -59,7 +59,7 @@ void TrSRV::begin() {
   arm(false); // park it to start with
 
 #if _DEBUG_
-  Serial.print("SRV initialised: Stow/Deploy: ");
+  Serial.print("SRV init: Stow/Deploy: ");
   Serial.print(STOW_ANGLE);
   Serial.print("/");
   Serial.print(DEPLOY_ANGLE);

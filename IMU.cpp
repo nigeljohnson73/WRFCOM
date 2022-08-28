@@ -14,7 +14,7 @@ TrIMU::TrIMU() {}
 
 void TrIMU::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("IMU initialised: disabled");
+  Serial.println("IMU init: disabled");
 #endif
 }
 
@@ -75,7 +75,7 @@ void TrIMU::begin() {
     // if (!dso32.begin_SPI(LSM_CS)) {
     // if (!dso32.begin_SPI(LSM_CS, LSM_SCK, LSM_MISO, LSM_MOSI)) {
 #if _DEBUG_
-    Serial.println("IMU initialised: disconnected");
+    Serial.println("IMU init: disconnected");
 #endif
     return;
   }
@@ -92,7 +92,7 @@ void TrIMU::begin() {
 
 #if _DEBUG_
   //Serial.println("LSM6DSO32 Found!");
-  Serial.print("IMU initialised: LSM6DSO32, ");
+  Serial.print("IMU init: LSM6DSO32, ");
 
   dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_4_G);
   //Serial.print("Accelerometer: ");

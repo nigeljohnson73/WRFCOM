@@ -15,7 +15,7 @@ TrEMU::TrEMU() {}
 
 void TrEMU::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("EMU initialised: disabled");
+  Serial.println("EMU init: disabled");
 #endif
 }
 
@@ -49,7 +49,7 @@ TrEMU::TrEMU() {};
 void TrEMU::begin() {
   if (!bmp390.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
 #if _DEBUG_
-    Serial.println("EMU initialised: disconnected");
+    Serial.println("EMU init: disconnected");
 #endif
     return;
   }
@@ -73,7 +73,7 @@ void TrEMU::begin() {
   }
 
 #if _DEBUG_
-  Serial.print("EMU initialised: BMP390, ");
+  Serial.print("EMU init: BMP390, ");
   Serial.print(getPressure());
   Serial.print(" hPa");
   Serial.println();

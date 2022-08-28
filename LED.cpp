@@ -46,7 +46,7 @@ void TrLED::begin() {
   NEO.clear();
 
 #if _DEBUG_
-  Serial.print("LED initialised: OK");
+  Serial.print("LED init: OK");
   Serial.println();
 #endif
   _enabled = true;

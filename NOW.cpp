@@ -6,7 +6,7 @@ TrNOW::TrNOW() {};
 
 void TrNOW::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("NOW initialised: disabled");
+  Serial.println("NOW init: disabled");
 #endif // _DEBUG_
 }
 
@@ -29,7 +29,7 @@ bool TrNOW::isConnected() {
 };
 
 void TrNOW::begin() {
-  Serial.print("NOW initialised: ");
+  Serial.print("NOW init: ");
   Serial.print(sizeof(status_packet));
   Serial.print(" byte status packets, ");
   Serial.print(sizeof(command_packet));

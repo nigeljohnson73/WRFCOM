@@ -6,7 +6,7 @@ TrBMS::TrBMS() {};
 
 void TrBMS::begin() {
 #if _DEBUG_ && _DISABLED_DEBUG_
-  Serial.println("BMS initialised: disabled");
+  Serial.println("BMS init: disabled");
 #endif
 }
 
@@ -44,7 +44,7 @@ void TrBMS::updateData() {
 void TrBMS::begin() {
   if (!lc.begin()) {
 #if _DEBUG_
-    Serial.println("BMS initialised: disconnected");
+    Serial.println("BMS init: disconnected");
 #endif
     return;
   }
@@ -55,7 +55,7 @@ void TrBMS::begin() {
   lc.setAlarmRSOC(0);
 
 #if _DEBUG_
-  Serial.print("BMS initialised: ");
+  Serial.print("BMS init: ");
   switch (LIPO_SIZE) {
     //  LC709203F_APA_100MAH = 0x08,
     //  LC709203F_APA_200MAH = 0x0B,

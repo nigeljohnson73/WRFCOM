@@ -153,7 +153,7 @@ void TrGPS::begin() {
 
   if (!myGNSS.begin()) {
 #if _DEBUG_
-    Serial.println("GPS initialised: disconnected");
+    Serial.println("GPS init: disconnected");
 #endif
     return;
   }
@@ -172,7 +172,7 @@ void TrGPS::begin() {
 #endif
   } else {
 #if _DEBUG_
-    Serial.print("GPS initialised: ");
+    Serial.print("GPS init: ");
     Serial.print("failed to set ");
     Serial.print(SENSOR_HZ);
     Serial.print(" Hz refresh");
@@ -184,7 +184,7 @@ void TrGPS::begin() {
   myGNSS.setAutoPVTcallbackPtr(&callbackPVT); // Enable automatic NAV PVT messages with callback to callbackPVT
 
 #if _DEBUG_
-  Serial.print("GPS initialised: ");
+  Serial.print("GPS init: ");
   Serial.print(_refresh_hz);
   Serial.print(" Hz");
   Serial.println();

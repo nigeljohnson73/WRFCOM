@@ -33,6 +33,7 @@ static String gps_latitude;
 static String gps_longitude;
 static String gps_altitude;
 static String tvl_distance;
+static String tvl_height;
 static String tvl_speed;
 static String gps_bearing;
 static String gps_elevation;
@@ -107,6 +108,7 @@ void TrLOG::writeHeader() {
   line += comma + "gps_elevation";
   line += comma + "tvl_speed";
   line += comma + "tvl_distance";
+  line += comma + "tvl_height";
 
   line += comma + "_launch_detected";
   line += comma + "_in_flight";
@@ -157,6 +159,7 @@ void TrLOG::writeData() {
   line += comma + gps_elevation;
   line += comma + tvl_speed;
   line += comma + tvl_distance;
+  line += comma + tvl_height;
 
   line += comma + (_launch_detected ? "Yes" : "No");
   line += comma + (_in_flight ? "Yes" : "No");
@@ -201,6 +204,7 @@ void TrLOG::resetData() {
   gps_longitude = "";
   gps_altitude = "";
   tvl_distance = "";
+  tvl_height = "";
   tvl_speed = "";
   gps_bearing = "";
   gps_elevation = "";
@@ -315,7 +319,7 @@ void TrLOG::processData() {
   gps_bearing = "";
   gps_elevation = "";
   tvl_distance = "";
-  _in_flight = false;
+  tvl_height = "";
 
   if (GPS.isEnabled() && GPS.isConnected()) {
 
@@ -355,6 +359,7 @@ void TrLOG::processData() {
         Serial.println(str);
 #endif
         _launch_detected = true;
+        _in_flight = true;
       }
 
       // If we have a lot of speed, have the parachute primed, but aren't in launch ready... assume the idiot forgot to press the button and cover their butt.
@@ -365,8 +370,9 @@ void TrLOG::processData() {
 #if _DEBUG_
         Serial.println(str);
 #endif
-        _launch_detected = true;
         _unprepared_launch = true;
+        _launch_detected = true;
+        _in_flight = true;
         // Cuz we are emergencying, the launch parameters will never have been updated, so anything depending on them will be crap
         _launch_latitude = lat_raw;
         _launch_longitude = lng_raw;
@@ -382,8 +388,6 @@ void TrLOG::processData() {
     }
 
     if (_launch_detected) {
-      _peak_gps_altitude = max(alt_raw, _peak_gps_altitude);
-
       // First check to see if we have landed
       if (!_landing_detected && spd_raw < _landing_detect_speed) {
         const char* str = "## LANDIND DETECTED";
@@ -392,17 +396,11 @@ void TrLOG::processData() {
         Serial.println(str);
 #endif
         _landing_detected = true;
+        _in_flight = false;
       }
 
-      // Calulate the current distance from the launch position, and if we are still flying update the log strings
-      double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
-      tvl_distance = dst;
-      if (!_landing_detected) {
-        _flight_distance = max(dst, _flight_distance);
-        _flight_time = track - _launch_millis;
-        _max_height = max(alt_raw - _launch_altitude, _max_height);
-      }
-
+      // Check if we we are below apogee and should relelase the parachute
+      _peak_gps_altitude = max(alt_raw, _peak_gps_altitude);
       if (_deploy_apogee_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && alt_raw <= (_peak_gps_altitude - _deploy_apogee_offset)) {
         const char* str = "## PARACHUTE DEPLOYED (APOGEE)";
         myLog.println(str);
@@ -414,6 +412,17 @@ void TrLOG::processData() {
         SRV.arm(false);
       }
 
+      // Calulate the current distance from the launch position, and if we are still flying update the log strings
+      double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
+      if (!_landing_detected) {
+        tvl_distance = dst;
+        _flight_distance = max(dst, _flight_distance);
+        _flight_time = track - _launch_millis;
+        _max_height = max(alt_raw - _launch_altitude, _max_height);
+        tvl_height = alt_raw - _launch_altitude;
+      }
+
+	// Check if we are far enough away to deply the chute
       if (_deploy_distance_offset != 0 && SRV.isArmed() && LOG.isCapturing() && !_chute_deployed && dst >= _deploy_distance_offset) {
         const char* str = "## PARACHUTE DEPLOYED (DISTANCE)";
         myLog.println(str);
@@ -429,12 +438,8 @@ void TrLOG::processData() {
       _launch_latitude = lat_raw;
       _launch_longitude = lng_raw;
       _launch_altitude = alt_raw;
-      _peak_gps_altitude = alt_raw;
+      _peak_gps_altitude = alt_raw; // for apogee... it must be after launch to count
     }
-
-    // Being inflight is the bit between launching and landing
-    _in_flight = ! _landing_detected;
-
   } else {
     // GPS is not connected
     last_track = 0;
@@ -457,13 +462,6 @@ void TrLOG::processData() {
 void TrLOG::syncLog() {
 
   _last_sync = millis();
-  // Don't snyc if we are moving fast enough to be 'in-flight'
-  // Don't use _in_flight because that stops once the parachute is deployed
-  // HANDLED ELSEWHERE FOR NOW!!!!
-  //  if (speed > _emergency_launch_detect_speed) {
-  //    Serial.print("LOG::sync() - Skipping during flight");
-  //    return;
-  //  }
   if (!myLog.syncFile()) {
     Serial.print("LOG::sync() - Failed to sync file '");
     Serial.print(_log_fn);
@@ -677,7 +675,7 @@ String TrLOG::getTimestamp() {
 */
 void TrLOG::stopCapture() {
   _logging = false;
-  myLog.flush();
+//  myLog.flush();
   myLog.println("## END OF LOG");
   myLog.syncFile();
 

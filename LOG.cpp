@@ -32,8 +32,8 @@ static String gps_siv;
 static String gps_latitude;
 static String gps_longitude;
 static String gps_altitude;
-static String gps_distance;
-static String gps_speed;
+static String tvl_distance;
+static String tvl_speed;
 static String gps_bearing;
 static String gps_elevation;
 static bool _launch_detected;
@@ -103,10 +103,10 @@ void TrLOG::writeHeader() {
   line += comma + "gps_latitude";
   line += comma + "gps_longitude";
   line += comma + "gps_altitude";
-  line += comma + "gps_distance";
-  line += comma + "gps_speed";
   line += comma + "gps_bearing";
   line += comma + "gps_elevation";
+  line += comma + "tvl_speed";
+  line += comma + "tvl_distance";
 
   line += comma + "_launch_detected";
   line += comma + "_in_flight";
@@ -153,10 +153,10 @@ void TrLOG::writeData() {
   line += comma + gps_latitude;
   line += comma + gps_longitude;
   line += comma + gps_altitude;
-  line += comma + gps_distance;
-  line += comma + gps_speed;
   line += comma + gps_bearing;
   line += comma + gps_elevation;
+  line += comma + tvl_speed;
+  line += comma + tvl_distance;
 
   line += comma + (_launch_detected ? "Yes" : "No");
   line += comma + (_in_flight ? "Yes" : "No");
@@ -200,8 +200,8 @@ void TrLOG::resetData() {
   gps_latitude = "";
   gps_longitude = "";
   gps_altitude = "";
-  gps_distance = "";
-  gps_speed = "";
+  tvl_distance = "";
+  tvl_speed = "";
   gps_bearing = "";
   gps_elevation = "";
 
@@ -284,9 +284,9 @@ void TrLOG::getData() {
       lat_raw = GPS.getLatitude();
       lng_raw = GPS.getLongitude();
       alt_raw = GPS.getAltitude();
-      spd_raw = GPS.getTravelSpeed();
       brg_raw = GPS.getTravelBearing();
       ele_raw = GPS.getTravelElevation();
+      spd_raw = GPS.getTravelSpeed();
     }
   }
 }
@@ -311,10 +311,11 @@ void TrLOG::processData() {
   gps_latitude = "";
   gps_longitude = "";
   gps_altitude = "";
-  gps_speed = "";
+  tvl_speed = "";
   gps_bearing = "";
   gps_elevation = "";
-  gps_distance = "";
+  tvl_distance = "";
+  _in_flight = false;
 
   if (GPS.isEnabled() && GPS.isConnected()) {
 
@@ -343,7 +344,7 @@ void TrLOG::processData() {
       // We have moved since the last recorded value
       gps_elevation = ele_raw;
       gps_bearing = brg_raw;
-      gps_speed = spd_raw;
+      tvl_speed = spd_raw;
       _max_speed = max(spd_raw, _max_speed);
 
       // If we are ready and expecting a launch, and we have enough speped to be launching... start that process
@@ -395,7 +396,7 @@ void TrLOG::processData() {
 
       // Calulate the current distance from the launch position, and if we are still flying update the log strings
       double dst = gpsDistance(_launch_latitude, _launch_longitude, lat_raw, lng_raw);
-      gps_distance = dst;
+      tvl_distance = dst;
       if (!_landing_detected) {
         _flight_distance = max(dst, _flight_distance);
         _flight_time = track - _launch_millis;

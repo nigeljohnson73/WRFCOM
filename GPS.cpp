@@ -170,13 +170,15 @@ void TrGPS::begin() {
     Serial.print(" Hz");
     Serial.println();
 #endif
-#if _DEBUG_
   } else {
-    Serial.print("GPS: failed to set ");
-    Serial.print(_refresh_hz);
+#if _DEBUG_
+    Serial.print("GPS initialised: ");
+    Serial.print("failed to set ");
+    Serial.print(SENSOR_HZ);
     Serial.print(" Hz refresh");
     Serial.println();
 #endif
+    return;
   }
 
   myGNSS.setAutoPVTcallbackPtr(&callbackPVT); // Enable automatic NAV PVT messages with callback to callbackPVT
@@ -338,7 +340,7 @@ void TrGPS::loop() {
       }
       if (EMU.isEnabled()) {
         Serial.println("GPS::updateEmuAltitude()");
-      EMU.setAltitude(getAltitude());
+        EMU.setAltitude(getAltitude());
       }
     }
   } else {

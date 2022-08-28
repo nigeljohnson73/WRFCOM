@@ -682,7 +682,7 @@ void TrLOG::stopCapture() {
 
   long log_size = myLog.size(_log_fn);
 #if _DEBUG_
-  Serial.print(GPS.getTimestamp());
+  Serial.print(LOG.getTimestamp());
   Serial.print(": ");
   Serial.print("LOG::stopCapture() - file '");
   Serial.print((_log_dir.length()) ? "/" : "");

@@ -26,7 +26,7 @@ class TrEMU {
       return _has_temperature;
     };
 
-    double getSeaLevelPressure() {
+    double getLocalSeaLevelPressure() {
       return _sea_level_pressure;
     }; // in hPa
 

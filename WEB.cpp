@@ -7,8 +7,6 @@
 
        EMU.setLocalSeaLevelPressure(double hpa);
        EMU.setLocalTemperature(double c);
-
-
 */
 
 #include "WEB.h"
@@ -42,10 +40,11 @@ ESP8266WebServer WebServer(80);
 
 
 // Adding and manging local URLs for the about page mostly
-const unsigned int pmax = 20;
-unsigned int pcount = 0;
-String urls[pmax];
-String titles[pmax];
+static const unsigned int pmax = 20;
+static unsigned int pcount = 0;
+static String urls[pmax];
+static String titles[pmax];
+static bool _config_updated = false;
 
 AsyncWebServerRequest * __request;
 
@@ -256,13 +255,17 @@ String htmlHeader(String title) {
   ret += ".status-green {border-color: #0a0; background-color: #afa; color: #0a0;}";
   ret += ".status-disabled {border-color: #aaa; background-color: #ddd; color: #fff;}";
   ret += "footer .action {display:none;}";
-  ret += "#log-summary {margin-top:2px; padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
+  ret += "pre#log-summary {margin-top:2px; padding-top: 10px; padding-bottom: 10px; padding-left: 10px;padding-right: 10px; border:solid #666 1px; border-radius:5px; background-color:#e3e3e3; color:#666;}";
   ret += "a#logstat {margin-top:7px;}";
+  ret += ".label_wrapper {margin-bottom:10px;}";
+  ret += ".message {width: 99%; margin-bottom: 10px; padding-top: 10px; padding-bottom: 10px; border-radius: 5px; border: solid 1px #000; background-color: #ddd; color: #000;}";
+  ret += ".message-ok {border-color: #0a0; background-color: #afa; color: #0a0;}";
 
   ret += " </style> ";
 
   ret += "<script>";
-  ret += "function hideActions() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('actions').style.display = 'none'; document.getElementById('log-summary').style.display = 'none';}";
+  ret += "function hideActions() { document.getElementById('footer-buttons').style.display = 'none'; document.getElementById('footer-action').style.display = 'inline-block'; document.getElementById('actions').style.display = 'none'; document.getElementById('log-summary').style.display = 'none';};";
+  ret += "function submitConfig() {hideActions(); document.getElementById('config_details').submit();};";
   ret += "</script>";
 
   ret += " </head> ";
@@ -681,6 +684,7 @@ void showRoot() {
         content += "<button onclick='window.location.href=\"/api/srv/arm\"; hideActions();'>Arm</button>";
       }
     }
+    //    content += "<button onclick='window.location.href=\"/cfg\"; hideActions();'>Config</button>";
   }
 
   content += "</div>";
@@ -688,11 +692,13 @@ void showRoot() {
   //  content += "<img alt='logo' src='/favicon.png' />";
 
   String log_summary = LOG.getLogSummary();
+  content += "<div>";
   if (log_summary.length() > 0) {
     content += "<pre id='log-summary'>";
     content += log_summary;
     content += "</pre>";
   }
+  content += "</div>";
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): responding");
 #endif // _DEBUG_ && _XDEBUG_
@@ -701,6 +707,87 @@ void showRoot() {
 
 #if _DEBUG_ &&  _XDEBUG_
   Serial.println("WebServer::showRoot(): complete");
+#endif // _DEBUG_ && _XDEBUG_
+}
+
+/*******************************************************************************************************************************************
+
+*/
+
+#ifdef ESP32
+void showConfig(AsyncWebServerRequest* request) {
+  __request = request;
+#else // ESP32
+void showConfig() {
+#endif // ESP32
+
+#if _DEBUG_
+  Serial.println("WebServer::showConfig(): called");
+#endif // _DEBUG_
+  String content = "<h2>Config - ";
+  content += DEVICE_NAME;
+  content += "</h2>";
+
+  if (_config_updated) {
+    // Show a message
+    content += "<div class='message message-ok'>Configuration Updated</div>";
+  }
+  _config_updated = false;
+
+  content += "<form id='config_details' action='/api/cfg/update'>";
+
+  content += "<div class='label_wrapper'>";
+  content += "<label for='apogee_offset'>Deploy Apogee Offset (m):</label>";
+  content += "<input  type='number' id='apogee_offset' name='apogee_offset' value='";
+  content += LOG.getParachuteDeployApogeeOffset();
+  content += "'>";
+  content += "</div>";
+
+  content += "<div class='label_wrapper'>";
+  content += "<label for='distance_offset'>Deploy Distance Offset (m):</label>";
+  content += "<input  type='number' id='distance_offset' name='distance_offset' value='";
+  content += LOG.getParachuteDeployDistanceOffset();
+  content += "'>";
+  content += "</div>";
+
+  content += "<div class='label_wrapper'>";
+  content += "<label for='launch_detect_speed'>Launch Detect Speed (m/s):</label>";
+  content += "<input  type='number' id='launch_detect_speed' name='launch_detect_speed' value='";
+  content += LOG.getLaunchDetectSpeed();
+  content += "'>";
+  content += "</div>";
+
+#if EMU_TYPE != EMU_NONE
+  content += "<div class='label_wrapper'>";
+  content += "<label for='msl_hpa'>Sea Level Pressure (hPa):</label>";
+  content += "<input  type='number' id='msl_hpa' name='msl_hpa' value='";
+  content += EMU.getLocalSeaLevelPressure();
+  content += "'>";
+  content += "</div>";
+
+  content += "<div class='label_wrapper'>";
+  content += "<label for='local_temp'>Local Temperature(C):</label>";
+  content += "<input  type='number' id='local_temp' name='local_temp' value='";
+  content += EMU.getLocalTemperature();
+  content += "'>";
+  content += "</div>";
+#endif
+
+  content += "<div id='actions'>";
+  content += "<button onclick='submitConfig();'>Update</button>";
+  content += "</div>";
+
+  content += "</form>";
+  content += "<div id='log-summary'></div>";
+
+#if _DEBUG_ &&  _XDEBUG_
+  Serial.println("WebServer::showConfig(): responding");
+#endif // _DEBUG_ && _XDEBUG_
+
+  serverResponse(200, "text/html", htmlPage(String(DEVICE_NAME) + " - Config", content));
+
+#if _DEBUG_ &&  _XDEBUG_
+  Serial.println("WebServer::showConfig(): complete");
 #endif // _DEBUG_ && _XDEBUG_
 }
 
@@ -772,6 +859,103 @@ void handle_srvDisarm() {
   goToUrl("/");
 }
 
+/*******************************************************************************************************************************************
+*/
+#ifdef ESP32
+void handle_configUpdate(AsyncWebServerRequest * request) {
+  __request = request;
+#else // ESP32
+void handle_configUpdate() {
+#endif // ESP32
+
+#if _DEBUG_
+  Serial.println("WebServer::handle_configUpdate(): called");
+#endif // _DEBUG_
+
+  String value;
+
+  if (request->hasParam("apogee_offset")) {
+    value = request->getParam("apogee_offset")->value();
+    LOG.setParachuteDeployApogeeOffset(abs(value.toFloat()));
+#if _DEBUG_
+    Serial.print("apogee_offset: ");
+    Serial.print(abs(value.toFloat()));
+    Serial.println();
+  } else {
+    Serial.print("apogee_offset: N/A");
+    Serial.println();
+#endif
+  }
+
+  if (request->hasParam("distance_offset")) {
+    value = request->getParam("distance_offset")->value();
+    LOG.setParachuteDeployDistanceOffset(abs(value.toFloat()));
+#if _DEBUG_
+    Serial.print("distance_offset: ");
+    Serial.print(abs(value.toFloat()));
+    Serial.println();
+  } else {
+    Serial.print("distance_offset: N/A");
+    Serial.println();
+#endif
+  }
+
+  if (request->hasParam("launch_detect_speed")) {
+    value = request->getParam("launch_detect_speed")->value();
+    LOG.setLaunchDetectSpeed(abs(value.toFloat()));
+#if _DEBUG_
+    Serial.print("launch_detect_speed: ");
+    Serial.print(abs(value.toFloat()));
+    Serial.println();
+  } else {
+    Serial.print("launch_detect_speed: N/A");
+    Serial.println();
+#endif
+  }
+
+  if (request->hasParam("msl_hpa")) {
+    value = request->getParam("msl_hpa")->value();
+    EMU.setLocalSeaLevelPressure(abs(value.toFloat()));
+#if _DEBUG_
+    Serial.print("msl_hpa: ");
+    Serial.print(abs(value.toFloat()));
+    Serial.println();
+  } else {
+    Serial.print("msl_hpa: N/A");
+    Serial.println();
+#endif
+  }
+
+  if (request->hasParam("local_temp")) {
+    value = request->getParam("local_temp")->value();
+    EMU.setLocalTemperature(abs(value.toFloat()));
+#if _DEBUG_
+    Serial.print("local_temp: ");
+    Serial.print(abs(value.toFloat()));
+    Serial.println();
+  } else {
+    Serial.print("local_temp: N/A");
+    Serial.println();
+#endif
+  }
+
+  _config_updated = true;
+  goToUrl("/cfg");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*******************************************************************************************************************************************
+*/
 #ifdef ESP32
 void showFavIcon(AsyncWebServerRequest * request) {
   __request = request;
@@ -847,6 +1031,7 @@ void TrWEB::begin() {
   addPage("/", showRoot, "Home");
   addPage("/about", showAbout, "About");
   addPage("/stats", showStats, "Stats");
+  addPage("/cfg", showConfig, "Config");
 
   // these pages should not be publically listed, so no title means hidden
   addPage("/favicon.png", showFavIcon);
@@ -858,6 +1043,7 @@ void TrWEB::begin() {
   // Allow for dervo hndling if enabled
   addPage("/api/srv/arm", handle_srvArm);
   addPage("/api/srv/disarm", handle_srvDisarm);
+  addPage("/api/cfg/update", handle_configUpdate);
 #endif
 
   // Add a 404 handler

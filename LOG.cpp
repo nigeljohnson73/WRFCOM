@@ -249,7 +249,7 @@ void TrLOG::getData() {
     emu_local_temperature = EMU.getLocalTemperature();
     if (EMU.hasPressure()) {
       emu_pressure = EMU.getPressure();
-      emu_pressure_msl = EMU.getSeaLevelPressure();
+      emu_pressure_msl = EMU.getLocalSeaLevelPressure();
       emu_altitude = EMU.getAltitude();
     }
   }

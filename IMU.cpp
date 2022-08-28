@@ -1,8 +1,15 @@
 #include "IMU.h"
 TrIMU IMU;
 
-#if !_USE_IMU_
-
+/************************************************************************************************************************************************************
+  888888ba   .88888.  888888ba   88888888b
+  88    `8b d8'   `8b 88    `8b  88
+  88     88 88     88 88     88 a88aaaa
+  88     88 88     88 88     88  88
+  88     88 Y8.   .8P 88     88  88
+  dP     dP  `8888P'  dP     dP  88888888P
+*/
+#if IMU_TYPE == IMU_NONE
 TrIMU::TrIMU() {}
 
 void TrIMU::begin() {
@@ -43,9 +50,17 @@ double TrIMU::getMagY() {
 double TrIMU::getMagZ() {
   return 0.;
 }
+#endif // IMU_TYPE == IMU_NONE
 
-#else // _USE_IMU_
-
+/************************************************************************************************************************************************************
+  dP        .d88888b  8888ba.88ba  .d8888P 888888ba  .d88888b   .88888.  d8888b. d8888b.
+  88        88.    "' 88  `8b  `8b 88'     88    `8b 88.    "' d8'   `8b     `88     `88
+  88        `Y88888b. 88   88   88 88baaa. 88     88 `Y88888b. 88     88  aaad8' .aaadP'
+  88              `8b 88   88   88 88` `88 88     88       `8b 88     88     `88 88'
+  88        d8'   .8P 88   88   88 8b. .d8 88    .8P d8'   .8P Y8.   .8P     .88 88.
+  88888888P  Y88888P  dP   dP   dP `Y888P' 8888888P   Y88888P   `8888P'  d88888P Y88888P
+*/
+#if IMU_TYPE == IMU_LSM6DSO32
 #include <Adafruit_LSM6DSO32.h>
 
 Adafruit_LSM6DSO32 dso32;
@@ -79,7 +94,7 @@ void TrIMU::begin() {
   //Serial.println("LSM6DSO32 Found!");
   Serial.print("IMU initialised: LSM6DSO32, ");
 
-  dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_32_G);
+  dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_4_G);
   //Serial.print("Accelerometer: ");
   switch (dso32.getAccelRange()) {
     case LSM6DSO32_ACCEL_RANGE_4_G:
@@ -95,7 +110,7 @@ void TrIMU::begin() {
       Serial.print("+-32G");
       break;
   }
-  // dso32.setAccelDataRate(LSM6DS_RATE_12_5_HZ);
+  dso32.setAccelDataRate(LSM6DS_RATE_26_HZ);
   Serial.print(" @ ");
   switch (dso32.getAccelDataRate()) {
     case LSM6DS_RATE_SHUTDOWN:
@@ -133,11 +148,11 @@ void TrIMU::begin() {
       break;
   }
 
-  // dso32.setGyroRange(LSM6DS_GYRO_RANGE_250_DPS );
+  dso32.setGyroRange(LSM6DS_GYRO_RANGE_125_DPS );
   Serial.print(", ");
   switch (dso32.getGyroRange()) {
     case LSM6DS_GYRO_RANGE_125_DPS:
-      Serial.println("125 d/s");
+      Serial.print("125 d/s");
       break;
     case LSM6DS_GYRO_RANGE_250_DPS:
       Serial.print("250 d/s");
@@ -155,7 +170,7 @@ void TrIMU::begin() {
       break; // unsupported range for the DSO32
   }
 
-  // dso32.setGyroDataRate(LSM6DS_RATE_12_5_HZ);
+  dso32.setGyroDataRate(LSM6DS_RATE_26_HZ);
   Serial.print(" @ ");
   switch (dso32.getGyroDataRate()) {
     case LSM6DS_RATE_SHUTDOWN:
@@ -192,9 +207,9 @@ void TrIMU::begin() {
       Serial.print("6.66 KHz");
       break;
   }
-  Serial.print(", ");
-  Serial.print(getTemperature());
-  Serial.print(" C");
+  //  Serial.print(", ");
+  //  Serial.print(getTemperature());
+  //  Serial.print(" C");
 
   Serial.println();
 #endif
@@ -213,17 +228,17 @@ double TrIMU::getTemperature() {
 
 double TrIMU::getGyroX() {
   if (!isEnabled()) return 0.;
-  return 57.3 * gyro.gyro.x;
+  return (180 / PI) * gyro.gyro.x;
 }
 
 double TrIMU::getGyroY() {
   if (!isEnabled()) return 0.;
-  return 57.3 * gyro.gyro.y;
+  return (180 / PI) * gyro.gyro.y;
 }
 
 double TrIMU::getGyroZ() {
   if (!isEnabled()) return 0.;
-  return 57.3 * gyro.gyro.z;
+  return (180 / PI) * gyro.gyro.z;
 }
 
 double TrIMU::getAccX() {
@@ -255,5 +270,4 @@ double TrIMU::getMagZ() {
   if (!isEnabled()) return 0.;
   return 0;
 }
-
-#endif // _USE_IMU_
+#endif // IMU_TYPE == IMU_LSM6DSO32

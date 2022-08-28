@@ -390,7 +390,7 @@ void showStats() {
   }
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 
-#if _USE_IMU_
+#if IMU_TYPE != IMU_NONE
   title = "IMU Temperature";
   status = "green";
   text = String(IMU.getTemperature());
@@ -406,7 +406,7 @@ void showStats() {
   content += "<div class='status-wrapper'><div class='label'>" + title + "</div><div class='status value status-" + status + "'>" + text + "</div></div>";
 #endif
 
-#if _USE_EMU_
+#if EMU_TYPE != EMU_NONE
   title = "EMU Temperature";
   status = "green";
   text = String(EMU.getTemperature());

@@ -5,6 +5,14 @@
 #ifndef _APP_h
 #define _APP_h
 
+// Define the types of IMU that are available
+#define IMU_NONE 0xff
+#define IMU_LSM6DSO32 0x01 // 6DoF up to 32g no mags
+
+// Define the types of EMU that are available
+#define EMU_NONE 0xff
+#define EMU_BMP390 0x01
+
 #define VERSION "v0.3b"
 
 // Preload our config to override any of the following parameters
@@ -84,14 +92,22 @@
 #endif
 
 // Sholud we use Environment Measurement Unit
-#ifndef _USE_EMU_
-#define _USE_EMU_ true
+#ifndef EMU_TYPE
+#define EMU_TYPE BMP_390
 #endif
 
-// Sholud we use Inertial Measurement Unit
-#ifndef _USE_IMU_
-#define _USE_IMU_ true
+//#ifndef _USE_EMU_
+//#define _USE_EMU_ (EMU_TYPE != EMU_NONE)
+//#endif
+
+// Shoud we use Inertial Measurement Unit
+//#ifndef _USE_IMU_
+#ifndef IMU_TYPE
+#define IMU_TYPE IMU_LSM6DSO32
 #endif
+
+//#define _USE_IMU_ (IMU_TYPE != IMU_NONE)
+//#endif
 
 
 // Should we use Bluetooth LE

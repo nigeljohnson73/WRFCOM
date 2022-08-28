@@ -1,7 +1,15 @@
 #include "EMU.h"
 TrEMU EMU;
 
-#if !_USE_EMU_
+/************************************************************************************************************************************************************
+  888888ba   .88888.  888888ba   88888888b
+  88    `8b d8'   `8b 88    `8b  88
+  88     88 88     88 88     88 a88aaaa
+  88     88 88     88 88     88  88
+  88     88 Y8.   .8P 88     88  88
+  dP     dP  `8888P'  dP     dP  88888888P
+*/
+#if EMU_TYPE == EMU_NONE
 
 TrEMU::TrEMU() {}
 
@@ -12,19 +20,25 @@ void TrEMU::begin() {
 }
 
 void TrEMU::loop() {}
-void TrEMU::setAltitude(double m) {}
-double TrEMU::getPressure() {
-  return 0;
-}
 double TrEMU::getTemperature() {
   return 0;
 }
-double TrEMU::getAltitude() {
+double TrEMU::getPressure() {
   return 0;
 }
 
-#else // !_USE_EMU_
+#endif // EMU_TYPE == EMU_NONE
 
+/************************************************************************************************************************************************************
+   888888ba  8888ba.88ba   888888ba  d8888b. .d888b.  a8888a
+   88    `8b 88  `8b  `8b  88    `8b     `88 Y8' `88 d8' ..8b
+  a88aaaa8P' 88   88   88 a88aaaa8P'  aaad8' `8bad88 88 .P 88
+   88   `8b. 88   88   88  88            `88     `88 88 d' 88
+   88    .88 88   88   88  88            .88 d.  .88 Y8'' .8P
+   88888888P dP   dP   dP  dP        d88888P `8888P   Y8888P
+*/
+
+#if EMU_TYPE == BMP390
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 
@@ -44,10 +58,10 @@ void TrEMU::begin() {
   _has_temperature = true;
   _has_pressure = true;
   // Set up oversampling and filter initialization
-  bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_8X);
-  bmp390.setPressureOversampling(BMP3_OVERSAMPLING_4X);
-  bmp390.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_3);
-  bmp390.setOutputDataRate(BMP3_ODR_50_HZ);
+  bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_4X);
+  bmp390.setPressureOversampling(BMP3_OVERSAMPLING_16X);
+  bmp390.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_7);
+  bmp390.setOutputDataRate(BMP3_ODR_25_HZ);
 
   for (int x = 0; x < 5; x++) {
     bmp390.performReading();
@@ -61,9 +75,7 @@ void TrEMU::begin() {
 #if _DEBUG_
   Serial.print("EMU initialised: BMP390, ");
   Serial.print(getPressure());
-  Serial.print(" hPa, ");
-  Serial.print(getTemperature());
-  Serial.print(" C");
+  Serial.print(" hPa");
   Serial.println();
 #endif
 
@@ -74,11 +86,30 @@ void TrEMU::loop() {
   if (!isEnabled()) return;
 
   if (! bmp390.performReading()) {
-    //Serial.println("Failed to perform reading :(");
     return;
   }
 }
 
+double TrEMU::getPressure() {
+  if (!isEnabled()) return 0.;
+  return bmp390.pressure / 100.0;
+}
+
+double TrEMU::getTemperature() {
+  if (!isEnabled()) return 0.;
+  return bmp390.temperature;
+}
+
+#endif // EMU_TYPE == EMU_BMP390
+
+/************************************************************************************************************************************************************
+                      dP    .d888888  dP   dP   oo   dP                  dP
+                      88   d8'    88  88   88        88                  88
+  .d8888b. .d8888b. d8888P 88aaaaa88a 88 d8888P dP d8888P dP    dP .d888b88 .d8888b.
+  Y8ooooo. 88ooood8   88   88     88  88   88   88   88   88    88 88'  `88 88ooood8
+        88 88.  ...   88   88     88  88   88   88   88   88.  .88 88.  .88 88.  ...
+  `88888P' `88888P'   dP   88     88  dP   dP   dP   dP   `88888P' `88888P8 `88888P'
+*/
 void TrEMU::setAltitude(double h) {
   if (!isEnabled()) {
     return;
@@ -92,7 +123,7 @@ void TrEMU::setAltitude(double h) {
   _sea_level_pressure = p0;
 
 #if _DEBUG_
-  Serial.print("BMP390::setAltitude(");
+  Serial.print("EMU::setAltitude(");
   Serial.print(h);
   Serial.print(" m): Pressure at sea-level = " );
   Serial.print(p0);
@@ -101,19 +132,18 @@ void TrEMU::setAltitude(double h) {
 #endif
 }
 
-double TrEMU::getPressure() {
-  if (!isEnabled()) return 0.;
-  return bmp390.pressure / 100.0;
-}
-
-double TrEMU::getTemperature() {
-  if (!isEnabled()) return 0.;
-  return bmp390.temperature;
-}
-
+/************************************************************************************************************************************************************
+                      dP    .d888888  dP   dP   oo   dP                  dP
+                      88   d8'    88  88   88        88                  88
+  .d8888b. .d8888b. d8888P 88aaaaa88a 88 d8888P dP d8888P dP    dP .d888b88 .d8888b.
+  88'  `88 88ooood8   88   88     88  88   88   88   88   88    88 88'  `88 88ooood8
+  88.  .88 88.  ...   88   88     88  88   88   88   88   88.  .88 88.  .88 88.  ...
+  `8888P88 `88888P'   dP   88     88  dP   dP   dP   dP   `88888P' `88888P8 `88888P'
+       .88
+   d8888P
+*/
 double TrEMU::getAltitude() {
   if (!isEnabled()) return 0.;
-  //  return bmp390.readAltitude(sea_level_pressure);
 
   // hypsometric formula from here: https://keisan.casio.com/has10/SpecExec.cgi?id=system/2006/1224585971
   double p0 = _sea_level_pressure;
@@ -123,5 +153,3 @@ double TrEMU::getAltitude() {
 
   return h;
 }
-
-#endif // !_USE_EMU_

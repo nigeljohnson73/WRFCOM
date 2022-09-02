@@ -7,7 +7,8 @@
 
 // Define the types of IMU that are available
 #define IMU_NONE 0xff
-#define IMU_LSM6DSO32 0x01 // 6DoF up to 32g no mags
+#define IMU_LSM6DS 0x01 // 6DoF up to 32g no mags
+#define IMU_LSM6DS_LIS3MDL 0x02 // 9DoF up to 16g with mags to 16 gauss
 
 // Define the types of EMU that are available
 #define EMU_NONE 0xff
@@ -25,7 +26,6 @@
 
 // Should we enable accees points and WiFi (and possibly allow OTA, NTP and AP mode)
 #ifndef _USE_NOW_
-// Defautl to WIFI above!!
 #define _USE_NOW_ false
 #endif
 
@@ -103,12 +103,13 @@
 // Shoud we use Inertial Measurement Unit
 //#ifndef _USE_IMU_
 #ifndef IMU_TYPE
-#define IMU_TYPE IMU_LSM6DSO32
+#define IMU_TYPE IMU_LSM6DS
 #endif
 
-//#define _USE_IMU_ (IMU_TYPE != IMU_NONE)
-//#endif
-
+// Will the device be upside down in the payload base (GPS down)
+#ifndef _UPSIDE_DOWN_
+#define _UPSIDE_DOWN_ true
+#endif
 
 // Should we use Bluetooth LE
 #ifndef _USE_BLE_

@@ -59,7 +59,7 @@ void TrEMU::begin() {
   _has_pressure = true;
   // Set up oversampling and filter initialization
   bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_4X);
-  bmp390.setPressureOversampling(BMP3_OVERSAMPLING_16X);
+  bmp390.setPressureOversampling(BMP3_OVERSAMPLING_8X);
   bmp390.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_7);
   bmp390.setOutputDataRate(BMP3_ODR_25_HZ);
 

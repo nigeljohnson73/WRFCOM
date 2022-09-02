@@ -7,8 +7,8 @@
 
 // Define the types of IMU that are available
 #define IMU_NONE 0xff
-#define IMU_LSM6DS 0x01 // 6DoF up to 32g no mags
-#define IMU_LSM6DS_LIS3MDL 0x02 // 9DoF up to 16g with mags to 16 gauss
+#define IMU_LSM6DSO32 0x01 // 6DoF up to 32g no mags
+#define IMU_LSM6DSOX_LIS3MDL 0x02 // 9DoF up to 16g with mags to 16 gauss
 
 // Define the types of EMU that are available
 #define EMU_NONE 0xff
@@ -103,10 +103,10 @@
 // Shoud we use Inertial Measurement Unit
 //#ifndef _USE_IMU_
 #ifndef IMU_TYPE
-#define IMU_TYPE IMU_LSM6DS_LIS3MDL
+#define IMU_TYPE IMU_LSM6DSOX_LIS3MDL
 #endif
 
-// Will the device be upside down in the payload base (GPS down)
+// Will the device be upside down in the payload bay (i.e. GPS down)
 #ifndef _UPSIDE_DOWN_
 #define _UPSIDE_DOWN_ true
 #endif

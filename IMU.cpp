@@ -60,13 +60,22 @@ double TrIMU::getMagZ() {
   88        d8'   .8P 88   88   88 8b. .d8 88    .8P d8'   .8P Y8.   .8P     .88 88.
   88888888P  Y88888P  dP   dP   dP `Y888P' 8888888P   Y88888P   `8888P'  d88888P Y88888P
 */
-#if IMU_TYPE == IMU_LSM6DS || IMU_TYPE == IMU_LSM6DS_LIS3MDL
-#include <Adafruit_LSM6DSO32.h>
-Adafruit_LSM6DSO32 dso32;
+#if IMU_TYPE == IMU_LSM6DSO32 || IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
 
-#if IMU_TYPE == IMU_LSM6DS_LIS3MDL
+#if IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
 #include <Adafruit_LIS3MDL.h>
+#include <Adafruit_LSM6DSOX.h>
 Adafruit_LIS3MDL lis3mdl;
+Adafruit_LSM6DSOX lsm6dso;
+#else
+#include <Adafruit_LSM6DSO32.h>
+Adafruit_LSM6DSO32 lsm6dso;
+
+// Redefine these in code to be the ones needed by the library
+#define LSM6DS_ACCEL_RANGE_4_G LSM6DSO32_ACCEL_RANGE_4_G
+#define LSM6DS_ACCEL_RANGE_8_G LSM6DSO32_ACCEL_RANGE_8_G
+#define LSM6DS_ACCEL_RANGE_16_G LSM6DSO32_ACCEL_RANGE_16_G
+
 #endif
 
 sensors_event_t accel;
@@ -77,7 +86,7 @@ sensors_event_t mag;
 TrIMU::TrIMU() {};
 
 void TrIMU::begin() {
-  if (!dso32.begin_I2C()) {
+  if (!lsm6dso.begin_I2C()) {
 #if _DEBUG_
     Serial.println("IMU init: LSM6DS: disconnected");
 #endif
@@ -89,14 +98,14 @@ void TrIMU::begin() {
     _has_acc = true;
 
     for (int x = 0; x < 5; x++) {
-      dso32.getEvent(&accel, &gyro, &temp);
+      lsm6dso.getEvent(&accel, &gyro, &temp);
       delay(50);
     }
 
-    dso32.setAccelRange(LSM6DSO32_ACCEL_RANGE_4_G);
-    dso32.setAccelDataRate(LSM6DS_RATE_26_HZ);
-    dso32.setGyroRange(LSM6DS_GYRO_RANGE_125_DPS );
-    dso32.setGyroDataRate(LSM6DS_RATE_26_HZ);
+    lsm6dso.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
+    lsm6dso.setAccelDataRate(LSM6DS_RATE_26_HZ);
+    lsm6dso.setGyroRange(LSM6DS_GYRO_RANGE_125_DPS );
+    lsm6dso.setGyroDataRate(LSM6DS_RATE_26_HZ);
 
 #if _DEBUG_
     //Serial.println("LSM6DSO32 Found!");
@@ -107,17 +116,19 @@ void TrIMU::begin() {
 
     Serial.print("+-");
     //Serial.print("Accelerometer: ");
-    switch (dso32.getAccelRange()) {
-      case LSM6DSO32_ACCEL_RANGE_4_G: Serial.print("4"); break;
-      case LSM6DSO32_ACCEL_RANGE_8_G: Serial.print("8"); break;
-      case LSM6DSO32_ACCEL_RANGE_16_G: Serial.print("16"); break;
+    switch (lsm6dso.getAccelRange()) {
+      case LSM6DS_ACCEL_RANGE_4_G: Serial.print("4"); break;
+      case LSM6DS_ACCEL_RANGE_8_G: Serial.print("8"); break;
+      case LSM6DS_ACCEL_RANGE_16_G: Serial.print("16"); break;
+#if IMU_TYPE == IMU_LSM6DS
       case LSM6DSO32_ACCEL_RANGE_32_G: Serial.print("32"); break;
+#endif
       default: Serial.print("--"); break;
     }
     Serial.print("G");
 
     Serial.print(" @ ");
-    switch (dso32.getAccelDataRate()) {
+    switch (lsm6dso.getAccelDataRate()) {
       case LSM6DS_RATE_SHUTDOWN: Serial.print("0"); break;
       case LSM6DS_RATE_12_5_HZ: Serial.print("12.5"); break;
       case LSM6DS_RATE_26_HZ: Serial.print("26"); break;
@@ -134,7 +145,7 @@ void TrIMU::begin() {
     Serial.print("Hz");
 
     Serial.print(", ");
-    switch (dso32.getGyroRange()) {
+    switch (lsm6dso.getGyroRange()) {
       case LSM6DS_GYRO_RANGE_125_DPS: Serial.print("125"); break;
       case LSM6DS_GYRO_RANGE_250_DPS: Serial.print("250"); break;
       case LSM6DS_GYRO_RANGE_500_DPS: Serial.print("500"); break;
@@ -146,7 +157,7 @@ void TrIMU::begin() {
     Serial.print("d/s");
 
     Serial.print(" @ ");
-    switch (dso32.getGyroDataRate()) {
+    switch (lsm6dso.getGyroDataRate()) {
       case LSM6DS_RATE_SHUTDOWN: Serial.print("0"); break;
       case LSM6DS_RATE_12_5_HZ: Serial.print("12.5"); break;
       case LSM6DS_RATE_26_HZ: Serial.print("26"); break;
@@ -165,7 +176,7 @@ void TrIMU::begin() {
 #endif // DEBUG
   }
 
-#if IMU_TYPE == IMU_LSM6DS_LIS3MDL
+#if IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
 
   if (! lis3mdl.begin_I2C()) {
     Serial.println("IMU init: LIS3MDL: disconnected");
@@ -194,7 +205,7 @@ void TrIMU::begin() {
     Serial.print("USD, ");
 #endif
 
-//    Serial.print("Op: ");
+    //    Serial.print("Op: ");
     // Single shot mode will complete conversion and go into power down
     switch (lis3mdl.getOperationMode()) {
       case LIS3MDL_CONTINUOUSMODE: Serial.println("Continuous"); break;
@@ -252,9 +263,9 @@ void TrIMU::begin() {
 
 void TrIMU::loop() {
   if (!isEnabled()) return;
-  dso32.getEvent(&accel, &gyro, &temp);
+  lsm6dso.getEvent(&accel, &gyro, &temp);
 
-#if IMU_TYPE == IMU_LSM6DS_LIS3MDL
+#if IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
   lis3mdl.getEvent(&mag);
 #endif
 }
@@ -314,4 +325,4 @@ double TrIMU::getMagZ() {
   double dir = (_UPSIDE_DOWN_) ? -1 : 1;
   return dir * mag.magnetic.z;
 }
-#endif // IMU_TYPE == (IMU_LSM6DS || IMU_LSM6DS_LIS3MDL)
+#endif // IMU_TYPE == (IMU_LSM6DSO32 || IMU_LSM6DSOX_LIS3MDL)

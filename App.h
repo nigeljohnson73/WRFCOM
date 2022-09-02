@@ -103,7 +103,7 @@
 // Shoud we use Inertial Measurement Unit
 //#ifndef _USE_IMU_
 #ifndef IMU_TYPE
-#define IMU_TYPE IMU_LSM6DS
+#define IMU_TYPE IMU_LSM6DS_LIS3MDL
 #endif
 
 // Will the device be upside down in the payload base (GPS down)

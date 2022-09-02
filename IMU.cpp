@@ -101,6 +101,9 @@ void TrIMU::begin() {
 #if _DEBUG_
     //Serial.println("LSM6DSO32 Found!");
     Serial.print("IMU init: LSM6DS, ");
+#if _UPSIDE_DOWN_
+    Serial.print("USD, ");
+#endif
 
     Serial.print("+-");
     //Serial.print("Accelerometer: ");
@@ -187,8 +190,11 @@ void TrIMU::begin() {
 
 #if _DEBUG_
     Serial.print("IMU init: LIS3MDL, ");
+#if _UPSIDE_DOWN_
+    Serial.print("USD, ");
+#endif
 
-    Serial.print("Op: ");
+//    Serial.print("Op: ");
     // Single shot mode will complete conversion and go into power down
     switch (lis3mdl.getOperationMode()) {
       case LIS3MDL_CONTINUOUSMODE: Serial.println("Continuous"); break;
@@ -260,7 +266,8 @@ double TrIMU::getTemperature() {
 
 double TrIMU::getGyroX() {
   if (!isEnabled()) return 0.;
-  return (180 / PI) * gyro.gyro.x;
+  double dir = (_UPSIDE_DOWN_) ? -1 : 1;
+  return dir * (180 / PI) * gyro.gyro.x;
 }
 
 double TrIMU::getGyroY() {
@@ -270,7 +277,8 @@ double TrIMU::getGyroY() {
 
 double TrIMU::getGyroZ() {
   if (!isEnabled()) return 0.;
-  return (180 / PI) * gyro.gyro.z;
+  double dir = (_UPSIDE_DOWN_) ? -1 : 1;
+  return dir * (180 / PI) * gyro.gyro.z;
 }
 
 double TrIMU::getAccX() {

@@ -17,9 +17,9 @@ class TrIMU {
     double getAccX(); // in metres per second per second
     double getAccY(); // in metres per second per second
     double getAccZ(); // in metres per second per second
-    double getMagX(); // in ... something
-    double getMagY(); // in ... something
-    double getMagZ(); // in ... something
+    double getMagX(); // in uTesla
+    double getMagY(); // in uTesla
+    double getMagZ(); // in uTesla
 
     bool isEnabled() {
       return _enabled;

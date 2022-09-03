@@ -53,21 +53,24 @@ double TrIMU::getMagZ() {
 #endif // IMU_TYPE == IMU_NONE
 
 /************************************************************************************************************************************************************
-  dP        .d88888b  8888ba.88ba  .d8888P 888888ba  .d88888b   .88888.  d8888b. d8888b.
-  88        88.    "' 88  `8b  `8b 88'     88    `8b 88.    "' d8'   `8b     `88     `88
-  88        `Y88888b. 88   88   88 88baaa. 88     88 `Y88888b. 88     88  aaad8' .aaadP'
-  88              `8b 88   88   88 88` `88 88     88       `8b 88     88     `88 88'
-  88        d8'   .8P 88   88   88 8b. .d8 88    .8P d8'   .8P Y8.   .8P     .88 88.
-  88888888P  Y88888P  dP   dP   dP `Y888P' 8888888P   Y88888P   `8888P'  d88888P Y88888P
+  dP        .d88888b  8888ba.88ba  .d8888P 888888ba  .d88888b   .88888. 
+  88        88.    "' 88  `8b  `8b 88'     88    `8b 88.    "' d8'   `8b
+  88        `Y88888b. 88   88   88 88baaa. 88     88 `Y88888b. 88     88
+  88              `8b 88   88   88 88` `88 88     88       `8b 88     88
+  88        d8'   .8P 88   88   88 8b. .d8 88    .8P d8'   .8P Y8.   .8P
+  88888888P  Y88888P  dP   dP   dP `Y888P' 8888888P   Y88888P   `8888P' 
 */
 #if IMU_TYPE == IMU_LSM6DSO32 || IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
 
 #if IMU_TYPE == IMU_LSM6DSOX_LIS3MDL
+// https://github.com/adafruit/Adafruit_LSM6DS/blob/master/examples/adafruit_lsm6dsox_test/adafruit_lsm6dsox_test.ino
+// https://github.com/adafruit/Adafruit_LIS3MDL/blob/master/examples/lis3mdl_demo/lis3mdl_demo.ino
 #include <Adafruit_LIS3MDL.h>
 #include <Adafruit_LSM6DSOX.h>
 Adafruit_LIS3MDL lis3mdl;
 Adafruit_LSM6DSOX lsm6dso;
 #else
+// https://github.com/adafruit/Adafruit_LSM6DS/blob/master/examples/adafruit_lsm6dso32_test/adafruit_lsm6dso32_test.ino
 #include <Adafruit_LSM6DSO32.h>
 Adafruit_LSM6DSO32 lsm6dso;
 
@@ -102,7 +105,7 @@ void TrIMU::begin() {
       delay(50);
     }
 
-    lsm6dso.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
+    lsm6dso.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
     lsm6dso.setAccelDataRate(LSM6DS_RATE_26_HZ);
     lsm6dso.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS );
     lsm6dso.setGyroDataRate(LSM6DS_RATE_26_HZ);

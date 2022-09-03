@@ -39,6 +39,7 @@ double TrEMU::getPressure() {
 */
 
 #if EMU_TYPE == EMU_BMP390
+// https://github.com/adafruit/Adafruit_BMP3XX/blob/master/examples/bmp3xx_simpletest/bmp3xx_simpletest.ino
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 

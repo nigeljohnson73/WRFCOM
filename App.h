@@ -13,8 +13,11 @@
 // Define the types of EMU that are available
 #define EMU_NONE 0xff
 #define EMU_BMP390 0x01
+#define EMU_DSP310 0x02
 
-#define VERSION "v0.3b"
+// Version 4 contains mag setup in the IMU
+// Version 3 is the first flight config that worked
+#define VERSION "v0.4a"
 
 // Preload our config to override any of the following parameters
 #include "myConfig.h"
@@ -93,7 +96,7 @@
 
 // Sholud we use Environment Measurement Unit
 #ifndef EMU_TYPE
-#define EMU_TYPE BMP_390
+#define EMU_TYPE EMU_BMP390
 #endif
 
 //#ifndef _USE_EMU_

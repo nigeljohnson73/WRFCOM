@@ -38,7 +38,7 @@ double TrEMU::getPressure() {
    88888888P dP   dP   dP  dP        d88888P `8888P   Y8888P
 */
 
-#if EMU_TYPE == BMP390
+#if EMU_TYPE == EMU_BMP390
 #include <Adafruit_Sensor.h>
 #include "Adafruit_BMP3XX.h"
 
@@ -49,14 +49,11 @@ TrEMU::TrEMU() {};
 void TrEMU::begin() {
   if (!bmp390.begin_I2C()) {   // hardware I2C mode, can pass in address & alt Wire
 #if _DEBUG_
-    Serial.println("EMU init: disconnected");
+    Serial.println("EMU init: BMP390: disconnected");
 #endif
     return;
   }
 
-  _enabled = true;
-  _has_temperature = true;
-  _has_pressure = true;
   // Set up oversampling and filter initialization
   bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_4X);
   bmp390.setPressureOversampling(BMP3_OVERSAMPLING_8X);
@@ -69,17 +66,24 @@ void TrEMU::begin() {
   }
   if (! bmp390.performReading()) {
     //Serial.println("BMP390: Failed to perform reading :(");
+#if _DEBUG_
+    Serial.println("EMU init: BMP390: failed");
+#endif
     return;
   }
 
+  _enabled = true;
+  _has_temperature = true;
+  _has_pressure = true;
+
 #if _DEBUG_
   Serial.print("EMU init: BMP390, ");
-  Serial.print(getPressure());
-  Serial.print(" hPa");
+  Serial.print("Tx4, Px8, IIR7, 25Hz");
+  //  Serial.print(", ");
+  //  Serial.print(getPressure());
+  //  Serial.print(" hPa");
   Serial.println();
 #endif
-
-  //  setAltitude(22);
 }
 
 void TrEMU::loop() {
@@ -98,6 +102,90 @@ double TrEMU::getPressure() {
 double TrEMU::getTemperature() {
   if (!isEnabled()) return 0.;
   return bmp390.temperature;
+}
+
+#endif // EMU_TYPE == EMU_BMP390
+
+/************************************************************************************************************************************************************
+  888888ba   888888ba  .d88888b  d8888b. d88   a8888a
+  88    `8b  88    `8b 88.    "'     `88  88  d8' ..8b
+  88     88 a88aaaa8P' `Y88888b.  aaad8'  88  88 .P 88
+  88     88  88              `8b     `88  88  88 d' 88
+  88    .8P  88        d8'   .8P     .88  88  Y8'' .8P
+  8888888P   dP         Y88888P  d88888P d88P  Y8888P
+*/
+#if EMU_TYPE == EMU_DSP310
+// https://github.com/adafruit/Adafruit_DPS310/blob/master/examples/dps310_sensortest/dps310_sensortest.ino
+#include <Adafruit_DPS310.h>
+
+Adafruit_DPS310 dps;
+Adafruit_Sensor *dps_temp = dps.getTemperatureSensor();
+Adafruit_Sensor *dps_pressure = dps.getPressureSensor();
+sensors_event_t temp_event, pressure_event;
+
+TrEMU::TrEMU() {};
+
+void TrEMU::begin() {
+  if (! dps.begin_I2C()) {
+#if _DEBUG_
+    Serial.println("EMU init: DPS310: disconnected");
+#endif
+    return;
+  }
+
+  dps.setMode(DPS310_CONT_PRESTEMP);
+  dps.configurePressure(DPS310_32HZ, DPS310_32SAMPLES);
+  dps.configureTemperature(DPS310_32HZ, DPS310_32SAMPLES);
+
+  //  for (int x = 0; x < 5; x++) {
+  //    bmp390.performReading();
+  //    delay(50);
+  //  }
+  //  if (! bmp390.performReading()) {
+  //    //Serial.println("BMP390: Failed to perform reading :(");
+  //#if _DEBUG_
+  //    Serial.println("EMU init: DPS310: failed");
+  //#endif
+  //    return;
+  //  }
+
+  _enabled = true;
+  _has_temperature = true;
+  _has_pressure = true;
+
+#if _DEBUG_
+  Serial.print("EMU init: DPS310, Continuous, ");
+  Serial.print("Tx32 @ 32Hz, Px32 @32Hz");
+  //  Serial.print(", ");
+  //  Serial.print(getPressure());
+  //  Serial.print(" hPa");
+  Serial.println();
+#endif
+}
+
+
+void TrEMU::loop() {
+  if (!isEnabled()) return;
+
+  if (dps.temperatureAvailable()) {
+    dps_temp->getEvent(&temp_event);
+  }
+
+  // Reading pressure also reads temp so don't check pressure
+  // before temp!
+  if (dps.pressureAvailable()) {
+    dps_pressure->getEvent(&pressure_event);
+  }
+}
+
+double TrEMU::getPressure() {
+  if (!isEnabled()) return 0.;
+  return pressure_event.pressure;
+}
+
+double TrEMU::getTemperature() {
+  if (!isEnabled()) return 0.;
+  return temp_event.temperature;
 }
 
 #endif // EMU_TYPE == EMU_BMP390

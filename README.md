@@ -113,11 +113,13 @@ Libraries required
 ------------------
 * NTPClient (for getting the network time)
 * Adafruit BMP3XX Library (for the BMP390 Barometric Pressure Sensor)
+* Adafruit DPS310 Library (for the DSP310 Barometric Pressure Sensor)
 * Adafruit LSM6DS (for the LSM6DSO32 and LSMM6DOX IMU)
 * Adafruit LIS3MDL (for the LIS3MDL magnetometer)
-* Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32/oX IMU and DPS310 Barometric Pressure Sensor)
+* Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32/OX IMU and DPS310 Barometric Pressure Sensor)
 * Adafruit LC709203F (for the onboard LiPO monitor)
 * RTCLib (for the PCF8523 RTC module)
+* ESP32Servo (for the parachute trigger)  -note, could also use "Servo" and "PWMServo" - Dell laptop not playing nice so can't tell
 * SparkFun Qwiic OpenLog (for the OpenLog module)
 * SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS module)
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)

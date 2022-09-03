@@ -29,7 +29,7 @@ String espChipId() {
 
 void setup() {
   Wire.begin(); // Initialise the IIC bus
-//  Wire.setClock(400000); //Go super fast
+  //  Wire.setClock(400000); //Go super fast
   Wire.setClock(100000); //Go less fast for GPS stability
 
   Serial.begin(115200);
@@ -68,7 +68,7 @@ void setup() {
 #endif
 }
 
-long last_sweep = 0;
+static unsigned long last_sweep = 0;
 void loop() {
   unsigned long now = millis();
 

@@ -88,7 +88,7 @@ TrIMU::TrIMU() {};
 void TrIMU::begin() {
   if (!lsm6dso.begin_I2C()) {
 #if _DEBUG_
-    Serial.println("IMU init: LSM6DS: disconnected");
+    Serial.println("IMU init: LSM6DSO: disconnected");
 #endif
   } else {
 
@@ -104,12 +104,12 @@ void TrIMU::begin() {
 
     lsm6dso.setAccelRange(LSM6DS_ACCEL_RANGE_4_G);
     lsm6dso.setAccelDataRate(LSM6DS_RATE_26_HZ);
-    lsm6dso.setGyroRange(LSM6DS_GYRO_RANGE_125_DPS );
+    lsm6dso.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS );
     lsm6dso.setGyroDataRate(LSM6DS_RATE_26_HZ);
 
 #if _DEBUG_
     //Serial.println("LSM6DSO32 Found!");
-    Serial.print("IMU init: LSM6DS, ");
+    Serial.print("IMU init: LSM6DSO, ");
 #if _UPSIDE_DOWN_
     Serial.print("USD, ");
 #endif
@@ -208,47 +208,47 @@ void TrIMU::begin() {
     //    Serial.print("Op: ");
     // Single shot mode will complete conversion and go into power down
     switch (lis3mdl.getOperationMode()) {
-      case LIS3MDL_CONTINUOUSMODE: Serial.println("Continuous"); break;
-      case LIS3MDL_SINGLEMODE: Serial.println("Single mode"); break;
-      case LIS3MDL_POWERDOWNMODE: Serial.println("Power-down"); break;
+      case LIS3MDL_CONTINUOUSMODE: Serial.print("Continuous"); break;
+      case LIS3MDL_SINGLEMODE: Serial.print("Single mode"); break;
+      case LIS3MDL_POWERDOWNMODE: Serial.print("Power-down"); break;
       default: Serial.print("--"); break;
     }
     Serial.print(" ");
 
     switch (lis3mdl.getPerformanceMode()) {
-      case LIS3MDL_LOWPOWERMODE: Serial.println("Low"); break;
-      case LIS3MDL_MEDIUMMODE: Serial.println("Medium"); break;
-      case LIS3MDL_HIGHMODE: Serial.println("High"); break;
-      case LIS3MDL_ULTRAHIGHMODE: Serial.println("Ultra-High"); break;
+      case LIS3MDL_LOWPOWERMODE: Serial.print("Low"); break;
+      case LIS3MDL_MEDIUMMODE: Serial.print("Medium"); break;
+      case LIS3MDL_HIGHMODE: Serial.print("High"); break;
+      case LIS3MDL_ULTRAHIGHMODE: Serial.print("Ultra-High"); break;
       default: Serial.print("--"); break;
     }
-    Serial.print("Perf");
+    Serial.print(" Performance");
 
     // You can check the datarate by looking at the frequency of the DRDY pin
     Serial.print(" @ ");
     switch (lis3mdl.getDataRate()) {
-      case LIS3MDL_DATARATE_0_625_HZ: Serial.println("0.625"); break;
-      case LIS3MDL_DATARATE_1_25_HZ: Serial.println("1.25"); break;
-      case LIS3MDL_DATARATE_2_5_HZ: Serial.println("2.5"); break;
-      case LIS3MDL_DATARATE_5_HZ: Serial.println("5"); break;
-      case LIS3MDL_DATARATE_10_HZ: Serial.println("10"); break;
-      case LIS3MDL_DATARATE_20_HZ: Serial.println("20"); break;
-      case LIS3MDL_DATARATE_40_HZ: Serial.println("40"); break;
-      case LIS3MDL_DATARATE_80_HZ: Serial.println("80"); break;
-      case LIS3MDL_DATARATE_155_HZ: Serial.println("155"); break;
-      case LIS3MDL_DATARATE_300_HZ: Serial.println("300"); break;
-      case LIS3MDL_DATARATE_560_HZ: Serial.println("560"); break;
-      case LIS3MDL_DATARATE_1000_HZ: Serial.println("1000"); break;
+      case LIS3MDL_DATARATE_0_625_HZ: Serial.print("0.625"); break;
+      case LIS3MDL_DATARATE_1_25_HZ: Serial.print("1.25"); break;
+      case LIS3MDL_DATARATE_2_5_HZ: Serial.print("2.5"); break;
+      case LIS3MDL_DATARATE_5_HZ: Serial.print("5"); break;
+      case LIS3MDL_DATARATE_10_HZ: Serial.print("10"); break;
+      case LIS3MDL_DATARATE_20_HZ: Serial.print("20"); break;
+      case LIS3MDL_DATARATE_40_HZ: Serial.print("40"); break;
+      case LIS3MDL_DATARATE_80_HZ: Serial.print("80"); break;
+      case LIS3MDL_DATARATE_155_HZ: Serial.print("155"); break;
+      case LIS3MDL_DATARATE_300_HZ: Serial.print("300"); break;
+      case LIS3MDL_DATARATE_560_HZ: Serial.print("560"); break;
+      case LIS3MDL_DATARATE_1000_HZ: Serial.print("1000"); break;
       default: Serial.print("--"); break;
     }
     Serial.print("Hz, ");
 
     Serial.print("+-");
     switch (lis3mdl.getRange()) {
-      case LIS3MDL_RANGE_4_GAUSS: Serial.println("4"); break;
-      case LIS3MDL_RANGE_8_GAUSS: Serial.println("8"); break;
-      case LIS3MDL_RANGE_12_GAUSS: Serial.println("12"); break;
-      case LIS3MDL_RANGE_16_GAUSS: Serial.println("16"); break;
+      case LIS3MDL_RANGE_4_GAUSS: Serial.print("4"); break;
+      case LIS3MDL_RANGE_8_GAUSS: Serial.print("8"); break;
+      case LIS3MDL_RANGE_12_GAUSS: Serial.print("12"); break;
+      case LIS3MDL_RANGE_16_GAUSS: Serial.print("16"); break;
       default: Serial.print("--");
     }
     Serial.print(" gauss");

@@ -75,14 +75,10 @@ The following microcontrollers have been tested and in my preferred order:
 
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
-<<<<<<< HEAD
 * [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
-* A smaller GPS option that also works on teh chinese GPS network is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [u.Fl antenna][UFL-ANTENNA-LARGE]
+* A smaller GPS option that also works on the chinese GPS network is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [u.Fl antenna][UFL-ANTENNA-LARGE]
 * * There is a [small u.Fl antenna][UFL-ANTENNA-SMALL] if you are after a tiny weight save, but it can't pick up as many satelites
-=======
-* A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA-SMALL], or better yet, the [Large u-FL antenna][UFL-ANTENNA-LARGE]
 * [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
->>>>>>> cb6843f276d2c13d859152e07106bdc55bf77973
 
 [SWITCH-EXTENSION]: https://thepihut.com/products/jst-ph-2-pin-cable-female-connector-150mm
 [POWER-SWITCH]: https://thepihut.com/products/adafruit-switched-jst-ph-2-pin-smt-right-angle-breakout-board
@@ -98,11 +94,7 @@ The following microcontrollers have been tested and in my preferred order:
 [LSM6DSOX]: https://thepihut.com/products/adafruit-lsm6dsox-lis3mdl-precision-9-dof-imu?variant=31618642182206
 [ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
 [UFL-ANTENNA-SMALL]: https://thepihut.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain
-<<<<<<< HEAD
 [UFL-ANTENNA-LARGE]: https://thepihut.com/products/passive-gps-antenna-ufl-15mm-x-15mm-1-dbi-gain
-=======
-[UFL-ANTENNA-LARGE]: https://thepihut.com/products/passive-gps-antenna-ufl-15mm-x-15mm-1-dbi-gain?variant=27739956369
->>>>>>> cb6843f276d2c13d859152e07106bdc55bf77973
 [SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
 [OPENLOG]: https://thepihut.com/products/sparkfun-openlog
 [QWIIC-CONNECTOR-100]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable-100mm-long

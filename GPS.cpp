@@ -22,6 +22,13 @@ void callbackPVT(UBX_NAV_PVT_data_t *ubxDataStruct) {
   //  Serial.println(F("Hey! The NAV PVT callback has been called!"));
 }
 
+// Useful things to look at:
+// uint8_t getFixType(uint16_t maxWait = defaultMaxWait); // Returns the type of fix: 0=no, 3=3D, 4=GNSS+Deadreckoning
+// bool getGnssFixOk(uint16_t maxWait = defaultMaxWait); // Get whether we have a valid fix (i.e within DOP & accuracy masks)
+// bool getDiffSoln(uint16_t maxWait = defaultMaxWait);  // Get whether differential corrections were applied
+// // Enable/Disable NMEA High Precision Mode - include extra decimal places in the Lat and Lon
+// bool setHighPrecisionMode(bool enable = true, uint16_t maxWait = defaultMaxWait);
+
 // This might be better just to query the module directly
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example3_GetPosition/Example3_GetPosition.ino
 // https://github.com/sparkfun/SparkFun_u-blox_GNSS_Arduino_Library/blob/main/examples/Example13_PVT/Example1_AutoPVT/Example1_AutoPVT.ino
@@ -187,8 +194,21 @@ void TrGPS::begin() {
   Serial.print("GPS init: ");
   Serial.print(_refresh_hz);
   Serial.print(" Hz");
+#endif
+
+  if (myGNSS.setHighPrecisionMode()) {
+#if _DEBUG_
+    Serial.print(", High Precision mode");
+  } else {
+    Serial.print(", Regular Precision mode");
+#endif
+  }
+
+#if _DEBUG_
   Serial.println();
 #endif
+
+
   _enabled = true;
 }
 

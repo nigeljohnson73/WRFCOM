@@ -44,34 +44,48 @@ you should create a file called `myConfig.h` and in it define any of the overrid
 #define WIFI_PASS "YOUR-WIFI-PASS"
 ```
 
+This will be discussed more in the Wiki.
+
 Hardware required
 -----------------
-Apart from the controller you will also need sensors and battery bits. For the sake of sanity I used off the shelf QWIIC
-connecting sensor breakout boards. If you're good with soldering, you can certainly make things a lot smaller (and 
-probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be well within my capability.
+For the sake of sanity I used off the shelf QWIIC connecting sensor breakout boards. If you're good with soldering, you can certainly make things a lot smaller 
+(and probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be well within my capability. A review of the sensors 
+and their options will happen over in the Wiki.
 
 The following microcontrollers have been tested and in my preferred order:
 
-* [ESP32-S3 Feather][ESP32-S3] Dual core, BLE, WiFi 4MB flash, 2MB PSRAM
-* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BLE, WiFi 8MB flash, No PSRAM
-* [ESP32-S2 Feather][ESP32-S2] Single core, No BLE, WiFi
+* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BLE, WiFi 8MB flash, No PSRAM. The option I've been using for the most part.
+* [ESP32-S3 Feather][ESP32-S3] Dual core, BLE, WiFi 4MB flash, 2MB PSRAM. A good board, the PSRAM may come in handy later.
+* [ESP32-S2 Feather][ESP32-S2] Single core, No BLE, WiFi. A good board that works for all the core stuff.
 
 ### Sensors and things
 * [LIPO battery pack][LIPO-1200MAH]
-* [PCF8523 Real Time Clock Breakout Board][PCF8523] (really optional)
-* [DPS310 Barometric Pressure Sensor][DPS310] (really optional)
-* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32] (kind of optional)
 * [SparkFun OpenLog][OPENLOG]
 * [Simple class 10 MicroSD card][SDCARD]
 * [SAM-M8Q GPS Breakout][SAM-M8Q]
-* 5-7 [50mm QWIIC connector cables][QWIIC-CONNECTOR-50]
-* A lot of M2.3x5, 2 M2.3x10, 2M2x5 and 4 M2.6x5 self tapping screws
+* Enough [50mm QWIIC connector cables][QWIIC-CONNECTOR-50] for your sensors
+* A lot of M2.3x5, 2 M2.3x10, 2 M2x5 and 4 M2.6x5 self tapping screws
+* You might need some command strips to cut up and attach cables
+
+### Optional components
+* [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
+* [DPS310 Barometric Pressure Sensor][DPS310]
+* [PCF8523 Real Time Clock Breakout Board][PCF8523]
+* [Power switch][POWER-SWITCH] and [extension cable][SWITCH-EXTENSION]
 
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
+<<<<<<< HEAD
+* [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
+* A smaller GPS option that also works on teh chinese GPS network is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [u.Fl antenna][UFL-ANTENNA-LARGE]
+* * There is a [small u.Fl antenna][UFL-ANTENNA-SMALL] if you are after a tiny weight save, but it can't pick up as many satelites
+=======
 * A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA-SMALL], or better yet, the [Large u-FL antenna][UFL-ANTENNA-LARGE]
 * [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
+>>>>>>> cb6843f276d2c13d859152e07106bdc55bf77973
 
+[SWITCH-EXTENSION]: https://thepihut.com/products/jst-ph-2-pin-cable-female-connector-150mm
+[POWER-SWITCH]: https://thepihut.com/products/adafruit-switched-jst-ph-2-pin-smt-right-angle-breakout-board
 [ESP32-S3]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic
 [ESP32-S3-NOPSRAM]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram
 [ESP32-S2]: https://thepihut.com/products/adafruit-esp32-s2-feather-2-mb-psram-and-stemma-qt-qwiic
@@ -84,63 +98,65 @@ The following microcontrollers have been tested and in my preferred order:
 [LSM6DSOX]: https://thepihut.com/products/adafruit-lsm6dsox-lis3mdl-precision-9-dof-imu?variant=31618642182206
 [ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
 [UFL-ANTENNA-SMALL]: https://thepihut.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain
+<<<<<<< HEAD
+[UFL-ANTENNA-LARGE]: https://thepihut.com/products/passive-gps-antenna-ufl-15mm-x-15mm-1-dbi-gain
+=======
 [UFL-ANTENNA-LARGE]: https://thepihut.com/products/passive-gps-antenna-ufl-15mm-x-15mm-1-dbi-gain?variant=27739956369
+>>>>>>> cb6843f276d2c13d859152e07106bdc55bf77973
 [SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
 [OPENLOG]: https://thepihut.com/products/sparkfun-openlog
 [QWIIC-CONNECTOR-100]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable-100mm-long
 [QWIIC-CONNECTOR-50]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable
 [SDCARD]: https://smile.amazon.co.uk/dp/B07R59FHVG
 
-If you want to control a parachute as well, then you will need a servo, and if you want touch control, a button is useful for 
-testing but highly impractical for real use:
+### Paracute option
+If you want to control a parachute as well, then you will need a couple more bits:
 
-<!-- * [8-Channel PWM or Servo FeatherWing][SERVO-FEATHER] -->
-* [Micro servo][TOWER-PRO]
+* [9g servo][TOWER-PRO]. There is also a [micro servo][MICRO-SERVO] option, but, while faster, it has a lot less power - which has not bee na problem yet.
 * [Buck converter][BUCKY-5V]
 * [Servo extension cable][SERVO-EXTENSION]
-* SparkFun Qwiic Button [Green][BUTTON-GREEN] or [Red][BUTTON-RED] (probably don't get this, but fun to play with)
-
-[TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
-[BUCKY-5V]: https://thepihut.com/products/dc-dc-automatic-step-up-down-power-module-3-15v-to-5v-600ma?variant=39824836886723
-[SERVO-EXTENSION]: https://thepihut.com/products/servo-motor-sg92r-micro
-[BUTTON-GREEN]: https://thepihut.com/products/sparkfun-qwiic-button-green-led
-[BUTTON-RED]: https://thepihut.com/products/sparkfun-qwiic-button-red-led
 
 You will need to cut the extension cable and solder the female side to your microcontroller. GND, BATT for power and GPIO12 for signal. 
 You will also need to splice in the buck converter into the power line (not the signal). Preferably on the controller end so you can 
 use any servo.
 
+[MICRO-SERVO]: https://www.amazon.co.uk/dp/B09NY5C4N8
+[TOWER-PRO]: https://thepihut.com/products/servo-motor-sg92r-micro
+[BUCKY-5V]: https://thepihut.com/products/dc-dc-automatic-step-up-down-power-module-3-15v-to-5v-600ma?variant=39824836886723
+[SERVO-EXTENSION]: https://thepihut.com/products/servo-motor-sg92r-micro
+
+### Gotta have a button?
+
+If you want touch control for arming and starting the logging, a button is useful for testing but highly impractical for real use:
+
+* SparkFun Qwiic Button [Green][BUTTON-GREEN] or [Red][BUTTON-RED]
+
+[BUTTON-GREEN]: https://thepihut.com/products/sparkfun-qwiic-button-green-led
+[BUTTON-RED]: https://thepihut.com/products/sparkfun-qwiic-button-red-led
+
 Libraries required
 ------------------
-* NTPClient (for getting the network time)
+All of these are available in the Library Manager in the Arduino IDE.
+
+* Adafruit LC709203F (for the Feather S2/3's onboard LiPO monitor)
+* SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS modules)
+* SparkFun Qwiic OpenLog (for the OpenLog module)
+* RTCLib (for the PCF8523 RTC module)
 * Adafruit BMP3XX Library (for the BMP390 Barometric Pressure Sensor)
 * Adafruit DPS310 Library (for the DSP310 Barometric Pressure Sensor)
 * Adafruit LSM6DS (for the LSM6DSO32 and LSMM6DOX IMU)
 * Adafruit LIS3MDL (for the LIS3MDL magnetometer)
 * Adafruit Unified Sensor and Adafruit BusIO (for the LSM6DSO32/OX IMU and DPS310 Barometric Pressure Sensor)
-* Adafruit LC709203F (for the onboard LiPO monitor)
-* RTCLib (for the PCF8523 RTC module)
-* ESP32Servo (for the parachute trigger)  -note, could also use "Servo" and "PWMServo" - Dell laptop not playing nice so can't tell
-* SparkFun Qwiic OpenLog (for the OpenLog module)
-* SparkFun u-blox GNSS Arduino Library (for the ZOE-M8Q and SAM-M8Q GPS module)
+* ESP32Servo (for the parachute trigger)
+* NTPClient (for getting the network time, if enabled)
 * SparkFun Qwiic Button and Qwiic Switch Library (for the Qwiic buttons)
-* [ESPAsyncWebServer][ESPAsyncWebServer] and [AsyncTCP][AsyncTCP] (unzip into your library folder and remove the `-master` in the folder name)
+
+ __NOTE:__ The ESP32Servo servo control compiles in and works on my Mac, but not on my Dell. On my Dell everything compiles and uploads fine, but the servo just does not respond. Could also be useing "PWMServo" but still unsure on Windows.
+
+You will also need the follwing directly from GitHUB. Download them from there, unzip into your arduino library folder and remove the `-master` in the folder name.
+
+* [ESPAsyncWebServer][ESPAsyncWebServer]
+* [AsyncTCP][AsyncTCP] 
 
 [ESPAsyncWebServer]: https://github.com/me-no-dev/ESPAsyncWebServer
 [AsyncTCP]: https://github.com/me-no-dev/AsyncTCP
-
-<!--
-### Access points
-At this point, the code is designed to create an access point if it cannot connect to a wireless network. However, this
-appears to be really slow and flakey for some reason. For use out in the field, I'd recommend setting up a hotspot on 
-your phone for it to connect to. Finding the IP address to connect to though can be tricky. On my Pixel device I cannot
-see a list of connected devices (thanks google for the proivacy concern). If you use a terminal emulator though, you can
-type the following in and it will list the IP addresses of any attached device (which should be the only one)
-
-```
-ip neigh
-```
-
-Future plans for the ESP32 build will possibly include a BTLE broadcast of it's IP address... or possibly using the bluetooth
-connection in an app (for android only) or, better yet, working out why this is so flakey.
--->

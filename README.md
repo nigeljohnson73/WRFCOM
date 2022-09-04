@@ -69,8 +69,8 @@ The following microcontrollers have been tested and in my preferred order:
 
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
-* A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA]
-* * [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
+* A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [Small u-FL antenna][UFL-ANTENNA-SMALL], or better yet, the [Large u-FL antenna][UFL-ANTENNA-LARGE]
+* [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
 
 [ESP32-S3]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-4mb-flash-2mb-psram-stemma-qt-qwiic
 [ESP32-S3-NOPSRAM]: https://thepihut.com/products/adafruit-esp32-s3-feather-with-stemma-qt-qwiic-8mb-flash-no-psram
@@ -83,7 +83,8 @@ The following microcontrollers have been tested and in my preferred order:
 [LSM6DSO32]: https://thepihut.com/products/adafruit-lsm6dso32-6-dof-accelerometer-and-gyroscope
 [LSM6DSOX]: https://thepihut.com/products/adafruit-lsm6dsox-lis3mdl-precision-9-dof-imu?variant=31618642182206
 [ZOE-M8Q]: https://shop.pimoroni.com/products/sparkfun-gps-breakout-zoe-m8q-qwiic?variant=31615967789139
-[UFL-ANTENNA]: https://shop.pimoroni.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain?variant=4487793281
+[UFL-ANTENNA-SMALL]: https://thepihut.com/products/passive-gps-antenna-ufl-9mm-x-9mm-2dbi-gain
+[UFL-ANTENNA-LARGE]: https://thepihut.com/products/passive-gps-antenna-ufl-15mm-x-15mm-1-dbi-gain?variant=27739956369
 [SAM-M8Q]: https://thepihut.com/products/sparkfun-gps-breakout-chip-antenna-sam-m8q-qwiic
 [OPENLOG]: https://thepihut.com/products/sparkfun-openlog
 [QWIIC-CONNECTOR-100]: https://thepihut.com/products/stemma-qt-qwiic-jst-sh-4-pin-cable-100mm-long

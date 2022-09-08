@@ -103,7 +103,7 @@ The following microcontrollers have been tested and in my preferred order:
 ### Paracute option
 If you want to control a parachute as well, then you will need a couple more bits:
 
-* [9g servo][TOWER-PRO] or a [micro servo][MICRO-SERVO].
+* [9g small servo][TOWER-PRO] or a [2g micro servo][MICRO-SERVO].
 * [Buck converter][BUCKY-5V]
 * [Servo extension cable][SERVO-EXTENSION]
 

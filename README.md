@@ -1,29 +1,29 @@
 # Water Rocket Flight Computer
 
+For more background and discussion, check out [the wiki](https://github.com/nigeljohnson73/WRFCOM/wiki).
+
 This is a small project that uses off the shelf modules as much as possible to build a data logger for attaching to a 
-water bottle rocket... or any kind of vehicle. The idea is that is used GPS and barimetric pressure to define your 
-location with some additional parameters from Gyros and Accelerometers (maybe magnetometers). All of this data being 
+water bottle rocket... or any kind of vehicle. The idea is that is uses various sensors to define your position in 
+3 dimensions with some additional parameters from Gyros, Accelerometers and magnetometers. All of this data being 
 logged to an SD card as fast as possible and running from a small battery. The interface should be a web page from the 
-on-board WiFi Access Point, as well as a load of Bluetooth LE (BLE) data and control.
+on-board WiFi Access Point.
 
-See the '[BLE Remote Controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' for more on that.
-
-It would be nice if I could build an app that would suck off the data and display it without having to pull the SD
-card, but that is a stretch goal.
+See the '[BLE Remote Controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' for more on a BLE interface.
 
 Things to install
 -----------------
 I will assume you are comfortable with the Arduino IDE.
 
-You should install the latest ESP32 boards into your board manager if you haven't already (depending on which you 
-want to use). Add these to your "Additional Boards Manager URLs" section in preferences.
+You should install the latest ESP boards into your board manager if you haven't already (depending on which you 
+want to use). You can only install the ESP32 bitis if you are using the out-of-the-box stuff in this project.
+Add these to your "Additional Boards Manager URLs" section in preferences.
 
 ```
 https://arduino.esp8266.com/stable/package_esp8266com_index.json
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
 ```
 
-With that installed the board you want is the `Adafruit Feather ESP32-S3 No PSRAM`.
+With that installed the board you want is the `Adafruit Feather ESP32-S3 No PSRAM` for the out-of-the-box project.
 
 <!--
 You will need to install the file system plugins for 
@@ -36,8 +36,8 @@ I have also found the [ESP Exception Decoder](https://github.com/me-no-dev/EspEx
 
 Code to update
 --------------
-To maintain the ability for you to modify the settings without causing a code thing if you're working on the code, 
-you should create a file called `myConfig.h` and in it define any of the overridable settings in `App.h` for example:
+To maintain the ability for you to modify settings without causing a code thing if you're working on the code, 
+you should create a file called `myConfig.h` and define any of the overridable settings in `App.h` for example:
 
 ```
 #define WIFI_SSID "YOUR-WIFI-SSID"
@@ -48,17 +48,17 @@ This will be discussed more in the Wiki.
 
 Hardware required
 -----------------
-For the sake of sanity I used off the shelf QWIIC connecting sensor breakout boards. If you're good with soldering, you can certainly make things a lot smaller 
-(and probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be well within my capability. A review of the sensors 
-and their options will happen over in the Wiki.
+For the sake of sanity I used off the shelf QWIIC connecting sensor breakout boards. If you're good with soldering, you can certainly 
+make things a lot smaller (and probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be 
+well within my capability. A review of the sensors and their options will happen over in the Wiki.
 
 The following microcontrollers have been tested and in my preferred order:
 
-* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BLE, WiFi 8MB flash, No PSRAM. The option I've been using for the most part.
-* [ESP32-S3 Feather][ESP32-S3] Dual core, BLE, WiFi 4MB flash, 2MB PSRAM. A good board, the PSRAM may come in handy later.
+* [ESP32-S3 Feather][ESP32-S3-NOPSRAM] Dual core, BLE, WiFi 8MB flash, No PSRAM. My primary option.
+* [ESP32-S3 Feather][ESP32-S3] Dual core, BLE, WiFi 4MB flash, 2MB PSRAM. The PSRAM may come in handy later.
 * [ESP32-S2 Feather][ESP32-S2] Single core, No BLE, WiFi. A good board that works for all the core stuff.
 
-### Sensors and things
+### Important components
 * [LIPO battery pack][LIPO-1200MAH]
 * [SparkFun OpenLog][OPENLOG]
 * [Simple class 10 MicroSD card][SDCARD]
@@ -76,9 +76,8 @@ The following microcontrollers have been tested and in my preferred order:
 ### Alternate components
 * [BMP390 Barometric Pressure Sensor][BMP390]
 * [LSM6DSO32 32g 6DOF Inertial Measurement Unit][LSM6DSO32]
-* A smaller GPS option that also works on the chinese GPS network is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [u.Fl antenna][UFL-ANTENNA-LARGE]
-* * There is a [small u.Fl antenna][UFL-ANTENNA-SMALL] if you are after a tiny weight save, but it can't pick up as many satelites
-* [LSM6DSOX/LIS3MDL Combo][LSM6DSOX] 9DOF IMU
+* A smaller GPS option is the [ZOE-M8Q GPS Breakout][ZOE-M8Q] with a [u.Fl antenna][UFL-ANTENNA-LARGE]
+* * There is a [small u.Fl antenna][UFL-ANTENNA-SMALL], but it can't pick up as many satelites
 
 [SWITCH-EXTENSION]: https://thepihut.com/products/jst-ph-2-pin-cable-female-connector-150mm
 [POWER-SWITCH]: https://thepihut.com/products/adafruit-switched-jst-ph-2-pin-smt-right-angle-breakout-board
@@ -104,7 +103,7 @@ The following microcontrollers have been tested and in my preferred order:
 ### Paracute option
 If you want to control a parachute as well, then you will need a couple more bits:
 
-* [9g servo][TOWER-PRO]. There is also a [micro servo][MICRO-SERVO] option, but, while faster, it has a lot less power - which has not bee na problem yet.
+* [9g servo][TOWER-PRO] or a [micro servo][MICRO-SERVO].
 * [Buck converter][BUCKY-5V]
 * [Servo extension cable][SERVO-EXTENSION]
 

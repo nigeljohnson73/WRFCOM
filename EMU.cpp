@@ -59,7 +59,7 @@ void TrEMU::begin() {
   bmp390.setTemperatureOversampling(BMP3_OVERSAMPLING_4X);
   bmp390.setPressureOversampling(BMP3_OVERSAMPLING_8X);
   bmp390.setIIRFilterCoeff(BMP3_IIR_FILTER_COEFF_7);
-  bmp390.setOutputDataRate(BMP3_ODR_25_HZ);
+  bmp390.setOutputDataRate(BMP3_ODR_50_HZ);
 
   for (int x = 0; x < 5; x++) {
     bmp390.performReading();
@@ -79,7 +79,7 @@ void TrEMU::begin() {
 
 #if _DEBUG_
   Serial.print("EMU init: BMP390, ");
-  Serial.print("Tx4, Px8, IIR7, 25Hz");
+  Serial.print("Tx4, Px8, IIR7, 50Hz");
   //  Serial.print(", ");
   //  Serial.print(getPressure());
   //  Serial.print(" hPa");
@@ -135,8 +135,8 @@ void TrEMU::begin() {
   }
 
   dps.setMode(DPS310_CONT_PRESTEMP);
-  dps.configurePressure(DPS310_32HZ, DPS310_32SAMPLES);
-  dps.configureTemperature(DPS310_32HZ, DPS310_32SAMPLES);
+  dps.configurePressure(DPS310_64HZ, DPS310_32SAMPLES);
+  dps.configureTemperature(DPS310_64HZ, DPS310_32SAMPLES);
 
   //  for (int x = 0; x < 5; x++) {
   //    bmp390.performReading();
@@ -156,7 +156,7 @@ void TrEMU::begin() {
 
 #if _DEBUG_
   Serial.print("EMU init: DPS310, Continuous, ");
-  Serial.print("Tx32 @ 32Hz, Px32 @32Hz");
+  Serial.print("Tx32 @ 64Hz, Px32 @64Hz");
   //  Serial.print(", ");
   //  Serial.print(getPressure());
   //  Serial.print(" hPa");

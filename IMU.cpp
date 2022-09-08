@@ -106,9 +106,9 @@ void TrIMU::begin() {
     }
 
     lsm6dso.setAccelRange(LSM6DS_ACCEL_RANGE_8_G);
-    lsm6dso.setAccelDataRate(LSM6DS_RATE_26_HZ);
+    lsm6dso.setAccelDataRate(LSM6DS_RATE_52_HZ);
     lsm6dso.setGyroRange(LSM6DS_GYRO_RANGE_500_DPS );
-    lsm6dso.setGyroDataRate(LSM6DS_RATE_26_HZ);
+    lsm6dso.setGyroDataRate(LSM6DS_RATE_52_HZ);
 
 #if _DEBUG_
     //Serial.println("LSM6DSO32 Found!");
@@ -194,7 +194,7 @@ void TrIMU::begin() {
 
     lis3mdl.setOperationMode(LIS3MDL_CONTINUOUSMODE);
     lis3mdl.setPerformanceMode(LIS3MDL_MEDIUMMODE);
-    lis3mdl.setDataRate(LIS3MDL_DATARATE_20_HZ);
+    lis3mdl.setDataRate(LIS3MDL_DATARATE_40_HZ);
     lis3mdl.setRange(LIS3MDL_RANGE_4_GAUSS);
     lis3mdl.setIntThreshold(500);
     lis3mdl.configInterrupt(false, false, true, // enable z axis

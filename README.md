@@ -10,6 +10,9 @@ on-board WiFi Access Point.
 
 See the '[BLE Remote Controller](https://github.com/nigeljohnson73/WRFCOM-Remote)' for more on a BLE interface.
 
+I make no apologies for the really bad coding here, and there are much better ways to do a lot of this. If you can 
+help, please let me know.
+
 Things to install
 -----------------
 I will assume you are comfortable with the Arduino IDE.

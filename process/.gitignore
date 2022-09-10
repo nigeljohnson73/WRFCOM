@@ -2,3 +2,6 @@ myConfig.py
 *.csv
 *.png
 *.zip
+*.track.html
+__pycache__/
+

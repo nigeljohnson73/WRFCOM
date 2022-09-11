@@ -51,9 +51,9 @@ This will be discussed more in the Wiki.
 
 Hardware required
 -----------------
-For the sake of sanity I used off the shelf QWIIC connecting sensor breakout boards. If you're good with soldering, you can certainly 
-make things a lot smaller (and probably cheaper). The servo bits did need a little cutting and soldering, but this appeared to be 
-well within my capability. A review of the sensors and their options will happen over in the Wiki.
+For the sake of sanity I used off the shelf QWIIC connecting trinket shaped sensor breakout boards. If you're good with soldering, 
+you can certainly make things a lot smaller (and probably cheaper). The servo bits did need a little cutting and soldering, but 
+this appeared to be well within my capability. A review of the sensors and their options will happen over in the Wiki.
 
 The following microcontrollers have been tested and in my preferred order:
 
